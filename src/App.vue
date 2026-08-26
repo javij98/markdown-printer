@@ -122,17 +122,35 @@ import { useScrollSync } from './composables/useScrollSync'
 import { usePDF } from './composables/usePDF'
 import { useImages } from './composables/useImages'
 import { loadSettings, saveSettings, loadLlmConfig, isLlmEnabled } from './utils/storage'
-import { PAGE_SIZES, getScaleRange, getContentScaleFactor } from './utils/constants'
+import { PAGE_SIZES, STORAGE_KEYS, getScaleRange, getContentScaleFactor } from './utils/constants'
 import type { EditorSettings, Tab } from './utils/types'
 
 const footerRef = ref<InstanceType<typeof FooterBar>>()
+
+// Outline integration mode
+const outlineDocumentMatch = window.location.pathname.match(
+  /^\/print\/document\/([^/]+)\/?$/
+)
+
+const outlineDocumentId = outlineDocumentMatch
+  ? decodeURIComponent(outlineDocumentMatch[1])
+  : null
+
+const isOutlineDocumentMode = !!outlineDocumentId
+
+// Never restore document content from a previous browser session when
+// opening a document from Outline.
+if (isOutlineDocumentMode) {
+  sessionStorage.removeItem(STORAGE_KEYS.TABS)
+  sessionStorage.removeItem(STORAGE_KEYS.ACTIVE_TAB)
+}
 
 // Tab management
 const {
   tabs, activeTabId, createTab, closeTab, renameTab,
   updateTabContent, getActiveTab,
   replaceTabWithHistory,
-} = useTabs()
+} = useTabs({ persistHistory: !isOutlineDocumentMode })
 const { loadImages } = useImages()
 
 // Active tab content
@@ -194,7 +212,71 @@ onMounted(async () => {
   }
 
   await refreshLlmState()
+  await loadOutlineDocument()
 })
+
+
+async function loadOutlineDocument() {
+  if (!outlineDocumentId) {
+    return
+  }
+
+  try {
+    const response = await fetch(
+      `/print/api/documents/${encodeURIComponent(outlineDocumentId)}`,
+      {
+        credentials: 'same-origin',
+        headers: {
+          Accept: 'application/json',
+        },
+      },
+    )
+
+    if (!response.ok) {
+      let message = `Error ${response.status}`
+
+      try {
+        const payload = await response.json()
+        message = payload?.error || message
+      } catch {
+        // Ignore invalid error body.
+      }
+
+      throw new Error(message)
+    }
+
+    const payload = await response.json()
+    const document = payload.document
+
+    const title = String(document?.title || 'Untitled')
+      .replace(/\s+/g, ' ')
+      .trim()
+
+    const body = String(document?.text || '')
+
+    // Outline stores the title separately from the Markdown body.
+    // Add it as H1 so that it is also part of the printed document.
+    const markdown = title
+      ? `# ${title}\n\n${body}`
+      : body
+
+    activateTabWithContent(
+      markdown,
+      title || 'Outline document',
+    )
+  } catch (error) {
+    console.error('Failed to load Outline document:', error)
+
+    const message =
+      error instanceof Error
+        ? error.message
+        : 'Unknown error'
+
+    window.alert(
+      `No se ha podido cargar el documento de Outline.\n\n${message}`
+    )
+  }
+}
 
 // Save settings on change
 watch(settings, (newSettings) => {

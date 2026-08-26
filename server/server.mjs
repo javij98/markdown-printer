@@ -460,6 +460,71 @@ app.post("/print/auth/logout", requireSession, async (req, res) => {
   res.status(204).end();
 });
 
+
+app.get("/print/api/documents/:id", requireSession, async (req, res) => {
+  try {
+    const response = await fetch(
+      `${OUTLINE_INTERNAL_URL}/api/documents.info`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${req.printSession.accessToken}`,
+          "Content-Type": "application/json",
+          "X-API-Version": "1",
+        },
+        body: JSON.stringify({
+          id: req.params.id,
+        }),
+      }
+    );
+
+    const payload = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      console.error(
+        "documents.info failed:",
+        response.status,
+        payload
+      );
+
+      return res.status(response.status).json({
+        error:
+          payload?.message ||
+          payload?.error ||
+          "Unable to load Outline document",
+      });
+    }
+
+    const document = payload?.data;
+
+    if (!document?.id) {
+      console.error("Invalid documents.info response:", payload);
+
+      return res.status(502).json({
+        error: "Invalid response from Outline",
+      });
+    }
+
+    return res.json({
+      document: {
+        id: document.id,
+        title: document.title,
+        text: document.text ?? "",
+        url: document.url,
+        collectionId: document.collectionId,
+        parentDocumentId: document.parentDocumentId,
+        updatedAt: document.updatedAt,
+      },
+    });
+  } catch (error) {
+    console.error("Unable to load Outline document:", error);
+
+    return res.status(502).json({
+      error: "Unable to communicate with Outline",
+    });
+  }
+});
+
 app.use(
   "/print",
   requireSession,
