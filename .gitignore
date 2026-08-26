@@ -3,3 +3,5 @@ dist
 .DS_Store
 *.local
 .vite
+outline-print-studio-*.tar.gz
+outline-print-studio-*.tar.gz.sha256
