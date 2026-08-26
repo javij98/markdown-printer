@@ -1,4 +1,4 @@
-FROM node:22-alpine AS builder
+FROM node:22-alpine AS frontend-builder
 
 WORKDIR /app
 
@@ -14,14 +14,20 @@ COPY . .
 RUN pnpm build
 
 
-FROM nginx:alpine
+FROM node:22-alpine AS runtime
 
-RUN rm -f /etc/nginx/conf.d/default.conf
+WORKDIR /app
 
-COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+ENV NODE_ENV=production
 
-COPY --from=builder /app/dist/ /usr/share/nginx/html/print/
+COPY server/package.json ./server/package.json
 
-EXPOSE 80
+RUN cd server && npm install --omit=dev
 
-CMD ["nginx", "-g", "daemon off;"]
+COPY server/server.mjs ./server/server.mjs
+
+COPY --from=frontend-builder /app/dist ./public
+
+EXPOSE 3000
+
+CMD ["node", "server/server.mjs"]

@@ -6,3 +6,7 @@ dist
 *.log
 *.tar.gz
 *.sha256
+
+# Print Studio secrets
+.env.print
+print-studio.env
