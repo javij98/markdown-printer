@@ -23,6 +23,10 @@ import { Crepe } from '@milkdown/crepe'
 import { editorViewCtx } from '@milkdown/kit/core'
 import { redoCommand, undoCommand } from '@milkdown/kit/plugin/history'
 import { callCommand, insert, replaceAll } from '@milkdown/kit/utils'
+import { Compartment } from '@codemirror/state'
+import { EditorView } from '@codemirror/view'
+import { vsCodeDark } from '@fsegurai/codemirror-theme-vscode-dark'
+import { vsCodeLight } from '@fsegurai/codemirror-theme-vscode-light'
 import { ShieldCheck } from '@lucide/vue'
 import { useImages } from '../composables/useImages'
 import { fontFamilyCSS } from '../utils/css'
@@ -49,6 +53,9 @@ const { images, uploadImage, getImageUrl } = useImages()
 let crepe: Crepe | null = null
 let lastEmittedMarkdown = props.modelValue
 let protectedBlocks = new Map<string, string>()
+let themeObserver: MutationObserver | null = null
+const codeTheme = new Compartment()
+const themedCodeViews = new WeakMap<EditorView, boolean>()
 
 function protectedCard(id: string, label: string): string {
   return `[▣ ${label}](https://outline.local/preserved/${id})`
@@ -153,6 +160,40 @@ function resolveImageUrl(url: string): string {
   return image ? getImageUrl(image.id) || url : url
 }
 
+function isDarkTheme(): boolean {
+  return document.documentElement.classList.contains('dark')
+}
+
+function currentCodeTheme() {
+  return isDarkTheme() ? vsCodeDark : vsCodeLight
+}
+
+function syncCodeBlockThemes() {
+  if (!editorRoot.value) return
+  const dark = isDarkTheme()
+
+  editorRoot.value.querySelectorAll<HTMLElement>('.cm-editor').forEach(element => {
+    try {
+      const view = EditorView.findFromDOM(element)
+      if (!view) return
+      if (themedCodeViews.get(view) === dark) return
+      view.dispatch({ effects: codeTheme.reconfigure(currentCodeTheme()) })
+      themedCodeViews.set(view, dark)
+    } catch {
+      // A CodeMirror node can disappear while Milkdown replaces a code block.
+    }
+  })
+}
+
+function startThemeObserver() {
+  themeObserver?.disconnect()
+  themeObserver = new MutationObserver(() => queueMicrotask(syncCodeBlockThemes))
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+  if (editorRoot.value) {
+    themeObserver.observe(editorRoot.value, { childList: true, subtree: true })
+  }
+}
+
 function createEditor() {
   if (!editorRoot.value) return
 
@@ -163,6 +204,7 @@ function createEditor() {
     features: {
       [Crepe.Feature.AI]: false,
       [Crepe.Feature.TopBar]: false,
+      [Crepe.Feature.CodeMirror]: true,
       [Crepe.Feature.BlockEdit]: true,
       [Crepe.Feature.Toolbar]: true,
       [Crepe.Feature.Table]: true,
@@ -170,6 +212,13 @@ function createEditor() {
       [Crepe.Feature.ImageBlock]: true,
     },
     featureConfigs: {
+      [Crepe.Feature.CodeMirror]: {
+        theme: [],
+        extensions: [codeTheme.of(currentCodeTheme())],
+        searchPlaceholder: 'Buscar lenguaje',
+        noResultText: 'Sin resultados',
+        copyText: 'Copiar',
+      },
       [Crepe.Feature.Placeholder]: {
         text: 'Escribe aquí o pulsa / para insertar un bloque…',
         mode: 'block',
@@ -246,7 +295,11 @@ function createEditor() {
     })
   })
 
-  crepe.create().then(() => emit('editor-ready'))
+  startThemeObserver()
+  crepe.create().then(() => {
+    syncCodeBlockThemes()
+    emit('editor-ready')
+  })
 }
 
 watch(
@@ -280,6 +333,8 @@ const content = computed(() => lastEmittedMarkdown)
 
 onMounted(createEditor)
 onUnmounted(() => {
+  themeObserver?.disconnect()
+  themeObserver = null
   void crepe?.destroy()
   crepe = null
 })
@@ -324,6 +379,52 @@ defineExpose({
 .visual-editor-root :deep(.milkdown) {
   min-height: 100%;
   background: transparent;
+  transition: color .18s ease, background-color .18s ease;
+}
+
+:global(html.dark .visual-editor-root .milkdown) {
+  --crepe-color-background: #17191d;
+  --crepe-color-on-background: #e6edf3;
+  --crepe-color-surface: #1e1e1e;
+  --crepe-color-surface-low: #25282d;
+  --crepe-color-on-surface: #e6edf3;
+  --crepe-color-on-surface-variant: #aeb7c2;
+  --crepe-color-outline: #4a525d;
+  --crepe-color-primary: #7dd3fc;
+  --crepe-color-secondary: #31363d;
+  --crepe-color-on-secondary: #e6edf3;
+  --crepe-color-inverse: #f0f6fc;
+  --crepe-color-on-inverse: #1f2328;
+  --crepe-color-inline-code: #ff7b72;
+  --crepe-color-error: #ff7b72;
+  --crepe-color-hover: #292e35;
+  --crepe-color-selected: #343b44;
+  --crepe-color-inline-area: #2b3138;
+}
+
+.visual-editor-root :deep(.crepe-placeholder::before) {
+  z-index: 1;
+  color: color-mix(in srgb, var(--crepe-color-on-background), transparent 38%);
+  opacity: 1;
+}
+
+.visual-editor-root :deep(.milkdown-code-block) {
+  margin-block: 1em 1.2em;
+  border: 1px solid color-mix(in srgb, var(--crepe-color-outline) 55%, transparent);
+  border-radius: 10px;
+  background: var(--crepe-color-surface);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
+  transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease;
+}
+
+:global(html.dark .visual-editor-root .milkdown-code-block) {
+  border-color: #353b44;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 16%);
+}
+
+.visual-editor-root :deep(.milkdown-code-block .cm-editor),
+.visual-editor-root :deep(.milkdown-code-block .cm-gutters) {
+  background-color: var(--crepe-color-surface);
 }
 
 .visual-editor-root :deep(.milkdown .ProseMirror) {

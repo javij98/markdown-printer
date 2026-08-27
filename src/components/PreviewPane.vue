@@ -13,7 +13,8 @@
       >
         <div class="preview-page" :style="pageStyle">
           <div
-            :class="['preview-content', 'markdown-body', `print-preset-${printPreset}`]"
+            :class="['preview-content', 'markdown-body', `print-preset-${printPreset}`, ...advancedClasses]"
+            :style="advancedVariables"
             :dir="rtl ? 'rtl' : 'ltr'"
             v-html="page.elements.join('')"
           ></div>
@@ -27,7 +28,8 @@
 import { computed, ref, toRef, onMounted, onUnmounted, watch } from 'vue'
 import { fontFamilyCSS } from '../utils/css'
 import { PAGE_SIZES, getScaleRange } from '../utils/constants'
-import type { MarginConfig, PrintPreset } from '../utils/types'
+import type { AdvancedPrintStyle, MarginConfig, PrintPreset } from '../utils/types'
+import { advancedPrintClasses, advancedPrintVariables } from '../utils/printStyle'
 import { usePagination } from '../composables/usePagination'
 import { useImages } from '../composables/useImages'
 
@@ -43,6 +45,7 @@ const props = defineProps<{
   contentScale: number
   containerWidth: number
   printPreset: PrintPreset
+  advancedStyle: AdvancedPrintStyle
 }>()
 
 const emit = defineEmits<{
@@ -210,8 +213,11 @@ const marginRef = toRef(props, 'margin')
 const fontRef = toRef(props, 'font')
 const effectiveFontSize = computed(() => props.fontSize * props.contentScale)
 const presetRef = toRef(props, 'printPreset')
+const advancedStyleRef = toRef(props, 'advancedStyle')
+const advancedClasses = computed(() => advancedPrintClasses(props.advancedStyle))
+const advancedVariables = computed(() => advancedPrintVariables(props.advancedStyle))
 
-const { pages } = usePagination(htmlRef, pageHeightRef, scaleRef, pageSizeRef, marginRef, fontRef, effectiveFontSize, presetRef)
+const { pages } = usePagination(htmlRef, pageHeightRef, scaleRef, pageSizeRef, marginRef, fontRef, effectiveFontSize, presetRef, advancedStyleRef)
 
 const scaledWidth = computed(() => {
   const size = currentPageSize.value

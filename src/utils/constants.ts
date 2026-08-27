@@ -1,4 +1,4 @@
-import type { PageSize, FontOption, MarginConfig, PrintPreset } from './types'
+import type { AdvancedPrintStyle, PageSize, FontOption, MarginConfig, PrintPreset } from './types'
 
 export interface PrintPresetOption {
   id: PrintPreset
@@ -28,6 +28,25 @@ export const PRINT_PRESETS: PrintPresetOption[] = [
     description: 'Máximo aire y pocos adornos para ensayos y propuestas.',
   },
 ]
+
+export const DEFAULT_ADVANCED_PRINT_STYLE: AdvancedPrintStyle = {
+  enabled: false,
+  accentColor: '#3633ff',
+  textColor: '#202124',
+  headingColor: '#202124',
+  mutedColor: '#5f6368',
+  borderColor: '#dfe3e8',
+  codeBackground: '#f6f8fa',
+  lineHeight: 1.62,
+  paragraphSpacing: 0.92,
+  blockSpacing: 1.3,
+  codeRadius: 7,
+  codeAccent: false,
+  codeBorder: true,
+  headingDividers: false,
+  justifyText: false,
+  hyphenate: false,
+}
 
 export const PAGE_CATEGORIES = {
   iso: 'ISO A-Series',

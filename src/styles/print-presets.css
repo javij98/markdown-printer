@@ -11,7 +11,7 @@
   color: var(--print-text);
   font-kerning: normal;
   font-variant-ligatures: common-ligatures;
-  line-height: 1.62;
+  line-height: var(--print-line-height, 1.62);
   text-rendering: optimizeLegibility;
 }
 
@@ -24,7 +24,7 @@
 }
 
 .markdown-body[class*='print-preset-'] p {
-  margin-block: 0 0.92em;
+  margin-block: 0 var(--print-paragraph-spacing, 0.92em);
   orphans: 3;
   widows: 3;
 }
@@ -38,7 +38,7 @@
 .markdown-body[class*='print-preset-'] p + blockquote,
 .markdown-body[class*='print-preset-'] p + ul,
 .markdown-body[class*='print-preset-'] p + ol {
-  margin-top: 1.3em;
+  margin-top: var(--print-block-spacing, 1.3em);
 }
 
 .markdown-body[class*='print-preset-'] pre + p,
@@ -56,7 +56,7 @@
 .markdown-body[class*='print-preset-'] h5,
 .markdown-body[class*='print-preset-'] h6 {
   break-after: avoid-page;
-  color: var(--print-text);
+  color: var(--print-heading-color, var(--print-text));
   font-weight: 650;
   line-height: 1.22;
   text-wrap: balance;
@@ -94,9 +94,8 @@
   margin-block: 1.05em 1.2em;
   padding: 0.9em 1em;
   border: 1px solid var(--print-border);
-  border-radius: 7px;
+  border-radius: var(--print-code-radius, 7px);
   background: var(--print-code-bg);
-  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--print-accent) 65%, transparent);
   line-height: 1.5;
 }
 
@@ -169,13 +168,13 @@
 
 .markdown-body.print-preset-outline {
   --print-accent: #3633ff;
-  line-height: 1.58;
+  --print-line-height: 1.58;
 }
 
 .markdown-body.print-preset-academic {
   --print-accent: #374151;
   --print-text: #111827;
-  line-height: 1.72;
+  --print-line-height: 1.72;
   hyphens: auto;
 }
 
@@ -207,7 +206,7 @@
 .markdown-body.print-preset-minimal {
   --print-accent: #6b7280;
   --print-text: #252525;
-  line-height: 1.68;
+  --print-line-height: 1.68;
 }
 
 .markdown-body.print-preset-minimal h1,
@@ -221,6 +220,55 @@
 .markdown-body.print-preset-minimal blockquote {
   border-radius: 0;
   box-shadow: none;
+}
+
+.markdown-body.print-advanced h1,
+.markdown-body.print-advanced h2,
+.markdown-body.print-advanced h3,
+.markdown-body.print-advanced h4,
+.markdown-body.print-advanced h5,
+.markdown-body.print-advanced h6 {
+  color: var(--print-heading-color, var(--print-text));
+}
+
+.markdown-body.print-advanced pre {
+  border-radius: var(--print-code-radius, 7px);
+}
+
+.markdown-body.print-advanced:not(.print-justify) p {
+  text-align: start;
+}
+
+.markdown-body.print-code-accent pre {
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--print-accent) 65%, transparent);
+}
+
+.markdown-body.print-code-borderless pre {
+  border-color: transparent;
+}
+
+.markdown-body.print-heading-dividers h1,
+.markdown-body.print-heading-dividers h2 {
+  padding-bottom: 0.24em;
+  border-bottom: 1px solid var(--print-border);
+}
+
+.markdown-body.print-advanced:not(.print-heading-dividers) h1,
+.markdown-body.print-advanced:not(.print-heading-dividers) h2 {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.markdown-body.print-justify p {
+  text-align: justify;
+}
+
+.markdown-body.print-advanced:not(.print-hyphenate) {
+  hyphens: manual;
+}
+
+.markdown-body.print-hyphenate {
+  hyphens: auto;
 }
 
 @media print {

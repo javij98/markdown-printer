@@ -1,8 +1,9 @@
 import { ref } from 'vue'
-import type { MarginConfig, PrintPreset } from '../utils/types'
-import { PAGE_SIZES } from '../utils/constants'
+import type { AdvancedPrintStyle, MarginConfig, PrintPreset } from '../utils/types'
+import { DEFAULT_ADVANCED_PRINT_STYLE, PAGE_SIZES } from '../utils/constants'
 import { getAllStoredFonts } from '../utils/storage'
 import { fontFamilyCSS } from '../utils/css'
+import { advancedPrintClasses, advancedPrintStyleAttribute } from '../utils/printStyle'
 
 // CSS as raw strings — inlined into the print iframe instead of <link> tags
 import katexCSS from 'katex/dist/katex.min.css?raw'
@@ -140,6 +141,7 @@ export function usePDF() {
     contentScale: number = 1.0,
     rtl: boolean = false,
     printPreset: PrintPreset = 'outline',
+    advancedStyle: AdvancedPrintStyle = DEFAULT_ADVANCED_PRINT_STYLE,
   ) {
     isGenerating.value = true
     error.value = null
@@ -163,6 +165,9 @@ export function usePDF() {
       const dirAttr = rtl ? ' dir="rtl"' : ''
       const bodyDirCSS = rtl ? 'direction: rtl;' : ''
       const effectiveFontSize = Math.round(fontSize * contentScale * 100) / 100
+      const printClasses = ['markdown-body', `print-preset-${printPreset}`, ...advancedPrintClasses(advancedStyle)].join(' ')
+      const advancedStyleValue = advancedPrintStyleAttribute(advancedStyle)
+      const advancedStyleAttr = advancedStyleValue ? ` style="${advancedStyleValue}"` : ''
 
       const css = `
         ${processedKaTeXCSS}
@@ -252,7 +257,7 @@ export function usePDF() {
   <script src="${import.meta.env.BASE_URL}vendor/paged.polyfill.js"></script>
 </head>
 <body${dirAttr}>
-  <div class="markdown-body print-preset-${printPreset}">${renderedHtml}</div>
+  <div class="${printClasses}"${advancedStyleAttr}>${renderedHtml}</div>
 </body>
 </html>`
 

@@ -62,6 +62,19 @@
       <div class="toolbar-center">
         <PrintPresetPicker :model-value="printPreset" @update:model-value="$emit('update:printPreset', $event)" />
 
+        <Button
+          :severity="advancedStyle.enabled ? 'info' : 'secondary'"
+          text
+          size="small"
+          class="advanced-style-button"
+          title="Abrir los ajustes avanzados de impresión"
+          @click="showAdvancedStyle = true"
+        >
+          <SlidersHorizontal :size="16" />
+          <span>Avanzado</span>
+          <span v-if="advancedStyle.enabled" class="advanced-active-dot" aria-label="Personalización activa"></span>
+        </Button>
+
         <MarginPicker
           :model-value="margin"
           :page-size="pageSize"
@@ -142,20 +155,28 @@
       class="toolbar-print"
     />
   </div>
+
+  <AdvancedStylePanel
+    v-model:visible="showAdvancedStyle"
+    :model-value="advancedStyle"
+    @update:model-value="$emit('update:advancedStyle', $event)"
+    @reset="$emit('reset:advancedStyle')"
+  />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import Button from 'primevue/button'
 import Slider from 'primevue/slider'
-import type { EditorMode, MarginConfig, PrintPreset, ViewMode } from '../utils/types'
+import type { AdvancedPrintStyle, EditorMode, MarginConfig, PrintPreset, ViewMode } from '../utils/types'
 import { PAGE_SIZES, getContentScaleRange } from '../utils/constants'
-import { Undo2, Redo2, TextAlignStart, TextAlignEnd, RectangleVertical, RectangleHorizontal, StickyNotePlus, WrapText, Plus, Minus, RotateCcw, LayoutTemplate, FileCode2 } from '@lucide/vue'
+import { Undo2, Redo2, TextAlignStart, TextAlignEnd, RectangleVertical, RectangleHorizontal, StickyNotePlus, WrapText, Plus, Minus, RotateCcw, LayoutTemplate, FileCode2, SlidersHorizontal } from '@lucide/vue'
 import MarginPicker from './MarginPicker.vue'
 import PageSizeSelector from './PageSizeSelector.vue'
 import FontPicker from './FontPicker.vue'
 import FontSizePicker from './FontSizePicker.vue'
 import PrintPresetPicker from './PrintPresetPicker.vue'
+import AdvancedStylePanel from './AdvancedStylePanel.vue'
 import DownloadMenu from './DownloadMenu.vue'
 
 const props = defineProps<{
@@ -173,6 +194,7 @@ const props = defineProps<{
   viewMode: ViewMode
   editorMode: EditorMode
   printPreset: PrintPreset
+  advancedStyle: AdvancedPrintStyle
 }>()
 
 const emit = defineEmits<{
@@ -186,12 +208,15 @@ const emit = defineEmits<{
   'update:contentScale': [value: number]
   'update:editorMode': [value: EditorMode]
   'update:printPreset': [value: PrintPreset]
+  'update:advancedStyle': [value: AdvancedPrintStyle]
+  'reset:advancedStyle': []
   'undo': []
   'redo': []
   'insert-page-break': []
   'download-pdf': []
 }>()
 
+const showAdvancedStyle = ref(false)
 const scaleRange = computed(() => {
   const page = PAGE_SIZES.find(p => p.name === props.pageSize)
   return page ? getContentScaleRange(page) : { min: 0.01, max: 2.0, default: 1.0 }
@@ -208,11 +233,14 @@ function resetContentScale() {
 .toolbar {
   display: flex;
   align-items: center;
-  padding: 8px 12px;
-  background: var(--bg-info);
+  min-height: 52px;
+  padding: 7px 10px;
+  background: color-mix(in srgb, var(--bg-info) 91%, transparent);
   border-bottom: 1px solid var(--border-color);
   gap: 8px;
   overflow: hidden;
+  box-shadow: 0 4px 18px rgb(15 23 42 / 5%);
+  backdrop-filter: blur(12px);
 }
 
 .toolbar-scroll {
@@ -247,11 +275,19 @@ function resetContentScale() {
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 2px;
+  padding: 3px;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--bg-primary);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 4%);
 }
+
+.toolbar :deep(.p-button) { border-radius: 9px; transition: background-color .16s ease, color .16s ease, transform .16s ease; }
+.toolbar :deep(.p-button:active) { transform: scale(.97); }
+.toolbar :deep(.p-select) { border-radius: 9px; background: color-mix(in srgb, var(--bg-primary) 90%, transparent); }
+.advanced-style-button { gap: 5px; white-space: nowrap; }
+.advanced-style-button span { font-size: 12px; }
+.advanced-active-dot { width: 6px; height: 6px; border-radius: 999px; background: currentColor; box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 14%, transparent); }
 
 .separator {
   width: 1px;

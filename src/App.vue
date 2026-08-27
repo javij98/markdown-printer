@@ -20,6 +20,7 @@
         :font-size="settings.fontSize"
         :editor-mode="settings.editorMode"
         :print-preset="settings.printPreset"
+        :advanced-style="settings.advancedPrintStyle"
         :rtl="settings.rtl"
         :soft-wrap="settings.softWrap"
         :margin="settings.margin"
@@ -39,10 +40,12 @@
         @update:fontSize="settings.fontSize = $event"
         @update:editorMode="settings.editorMode = $event"
         @update:printPreset="settings.printPreset = $event"
+        @update:advancedStyle="settings.advancedPrintStyle = $event"
+        @reset:advancedStyle="resetAdvancedStyle"
         @undo="undoActiveEditor"
         @redo="redoActiveEditor"
         @insert-page-break="insertPageBreak"
-        @download-pdf="() => downloadPDF(previewRef?.assembledHtml || renderedHtml, settings.pageSize, settings.margin, settings.orientation, settings.font, settings.fontSize, settings.contentScale, settings.rtl, settings.printPreset)"
+        @download-pdf="() => downloadPDF(previewRef?.assembledHtml || renderedHtml, settings.pageSize, settings.margin, settings.orientation, settings.font, settings.fontSize, settings.contentScale, settings.rtl, settings.printPreset, settings.advancedPrintStyle)"
       />
 
       <NewPage
@@ -96,6 +99,7 @@
             :margin="settings.margin"
             :orientation="settings.orientation"
             :print-preset="settings.printPreset"
+            :advanced-style="settings.advancedPrintStyle"
             :container-width="previewContainerWidth"
             class="preview-section"
             :class="{ 'full-width': settings.viewMode !== 'split' }"
@@ -145,7 +149,7 @@ import { useScrollSync } from './composables/useScrollSync'
 import { usePDF } from './composables/usePDF'
 import { useImages } from './composables/useImages'
 import { loadSettings, saveSettings, loadLlmConfig, isLlmEnabled } from './utils/storage'
-import { PAGE_SIZES, getScaleRange, getContentScaleFactor } from './utils/constants'
+import { DEFAULT_ADVANCED_PRINT_STYLE, PAGE_SIZES, getScaleRange, getContentScaleFactor } from './utils/constants'
 import type { EditorSettings, Tab } from './utils/types'
 
 const footerRef = ref<InstanceType<typeof FooterBar>>()
@@ -195,6 +199,7 @@ const settings = ref<EditorSettings>({
   viewMode: window.innerWidth < 768 ? 'editor' : 'split',
   editorMode: 'visual',
   printPreset: 'outline',
+  advancedPrintStyle: { ...DEFAULT_ADVANCED_PRINT_STYLE },
 })
 
 // Load saved settings
@@ -206,7 +211,11 @@ onMounted(async () => {
   }
 
   const saved = loadSettings()
-  settings.value = { ...settings.value, ...saved }
+  settings.value = {
+    ...settings.value,
+    ...saved,
+    advancedPrintStyle: { ...DEFAULT_ADVANCED_PRINT_STYLE, ...saved.advancedPrintStyle },
+  }
   if (!settings.value.contentScaleMap) {
     settings.value.contentScaleMap = {}
   }
@@ -305,6 +314,10 @@ function insertPageBreak() {
   } else {
     editorRef.value?.insertText(pageBreak)
   }
+}
+
+function resetAdvancedStyle() {
+  settings.value.advancedPrintStyle = { ...DEFAULT_ADVANCED_PRINT_STYLE }
 }
 
 function undoActiveEditor() {

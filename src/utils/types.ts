@@ -36,6 +36,25 @@ export type EditorMode = 'visual' | 'markdown'
 
 export type PrintPreset = 'outline' | 'academic' | 'professional' | 'minimal'
 
+export interface AdvancedPrintStyle {
+  enabled: boolean
+  accentColor: string
+  textColor: string
+  headingColor: string
+  mutedColor: string
+  borderColor: string
+  codeBackground: string
+  lineHeight: number
+  paragraphSpacing: number
+  blockSpacing: number
+  codeRadius: number
+  codeAccent: boolean
+  codeBorder: boolean
+  headingDividers: boolean
+  justifyText: boolean
+  hyphenate: boolean
+}
+
 export interface LlmConfig {
   endpoint: string
   apiKey: string
@@ -57,6 +76,7 @@ export interface EditorSettings {
   viewMode: ViewMode
   editorMode: EditorMode
   printPreset: PrintPreset
+  advancedPrintStyle: AdvancedPrintStyle
 }
 
 export interface StoredImage {
