@@ -1,0 +1,240 @@
+/*
+ * One vertical-rhythm system shared by preview and PDF.
+ * Presets only change presentation; Markdown remains the source of truth.
+ */
+.markdown-body[class*='print-preset-'] {
+  --print-accent: #3633ff;
+  --print-text: #202124;
+  --print-muted: #5f6368;
+  --print-border: #dfe3e8;
+  --print-code-bg: #f6f8fa;
+  color: var(--print-text);
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+  line-height: 1.62;
+  text-rendering: optimizeLegibility;
+}
+
+.markdown-body[class*='print-preset-'] > :first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body[class*='print-preset-'] > :last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-body[class*='print-preset-'] p {
+  margin-block: 0 0.92em;
+  orphans: 3;
+  widows: 3;
+}
+
+.markdown-body[class*='print-preset-'] p + p {
+  margin-top: 0.12em;
+}
+
+.markdown-body[class*='print-preset-'] p + pre,
+.markdown-body[class*='print-preset-'] p + table,
+.markdown-body[class*='print-preset-'] p + blockquote,
+.markdown-body[class*='print-preset-'] p + ul,
+.markdown-body[class*='print-preset-'] p + ol {
+  margin-top: 1.3em;
+}
+
+.markdown-body[class*='print-preset-'] pre + p,
+.markdown-body[class*='print-preset-'] table + p,
+.markdown-body[class*='print-preset-'] blockquote + p,
+.markdown-body[class*='print-preset-'] ul + p,
+.markdown-body[class*='print-preset-'] ol + p {
+  margin-top: 1.2em;
+}
+
+.markdown-body[class*='print-preset-'] h1,
+.markdown-body[class*='print-preset-'] h2,
+.markdown-body[class*='print-preset-'] h3,
+.markdown-body[class*='print-preset-'] h4,
+.markdown-body[class*='print-preset-'] h5,
+.markdown-body[class*='print-preset-'] h6 {
+  break-after: avoid-page;
+  color: var(--print-text);
+  font-weight: 650;
+  line-height: 1.22;
+  text-wrap: balance;
+}
+
+.markdown-body[class*='print-preset-'] h1 {
+  margin: 0 0 0.7em;
+  font-size: 2em;
+}
+
+.markdown-body[class*='print-preset-'] h2 {
+  margin: 1.55em 0 0.55em;
+  font-size: 1.55em;
+}
+
+.markdown-body[class*='print-preset-'] h3 {
+  margin: 1.35em 0 0.48em;
+  font-size: 1.28em;
+}
+
+.markdown-body[class*='print-preset-'] h4,
+.markdown-body[class*='print-preset-'] h5,
+.markdown-body[class*='print-preset-'] h6 {
+  margin: 1.15em 0 0.4em;
+}
+
+.markdown-body[class*='print-preset-'] h1 + p,
+.markdown-body[class*='print-preset-'] h2 + p,
+.markdown-body[class*='print-preset-'] h3 + p,
+.markdown-body[class*='print-preset-'] h4 + p {
+  margin-top: 0;
+}
+
+.markdown-body[class*='print-preset-'] pre {
+  margin-block: 1.05em 1.2em;
+  padding: 0.9em 1em;
+  border: 1px solid var(--print-border);
+  border-radius: 7px;
+  background: var(--print-code-bg);
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--print-accent) 65%, transparent);
+  line-height: 1.5;
+}
+
+.markdown-body[class*='print-preset-'] pre code.hljs {
+  padding: 0;
+  background: transparent;
+  color: #24292f;
+}
+
+/* GitHub Light palette, made explicit so github-markdown-css cannot flatten it. */
+.markdown-body[class*='print-preset-'] .hljs-keyword,
+.markdown-body[class*='print-preset-'] .hljs-selector-tag,
+.markdown-body[class*='print-preset-'] .hljs-literal,
+.markdown-body[class*='print-preset-'] .hljs-section,
+.markdown-body[class*='print-preset-'] .hljs-link {
+  color: #cf222e !important;
+}
+
+.markdown-body[class*='print-preset-'] .hljs-string,
+.markdown-body[class*='print-preset-'] .hljs-attr,
+.markdown-body[class*='print-preset-'] .hljs-template-tag,
+.markdown-body[class*='print-preset-'] .hljs-template-variable {
+  color: #0a3069 !important;
+}
+
+.markdown-body[class*='print-preset-'] .hljs-title,
+.markdown-body[class*='print-preset-'] .hljs-title.function_,
+.markdown-body[class*='print-preset-'] .hljs-built_in,
+.markdown-body[class*='print-preset-'] .hljs-type {
+  color: #8250df !important;
+}
+
+.markdown-body[class*='print-preset-'] .hljs-variable,
+.markdown-body[class*='print-preset-'] .hljs-number,
+.markdown-body[class*='print-preset-'] .hljs-symbol,
+.markdown-body[class*='print-preset-'] .hljs-bullet {
+  color: #0550ae !important;
+}
+
+.markdown-body[class*='print-preset-'] .hljs-comment,
+.markdown-body[class*='print-preset-'] .hljs-quote {
+  color: #6e7781 !important;
+  font-style: italic;
+}
+
+.markdown-body[class*='print-preset-'] ul,
+.markdown-body[class*='print-preset-'] ol {
+  margin-block: 0.7em 1em;
+}
+
+.markdown-body[class*='print-preset-'] li + li {
+  margin-top: 0.3em;
+}
+
+.markdown-body[class*='print-preset-'] blockquote {
+  margin-block: 1em 1.1em;
+  padding: 0.15em 1em;
+  border-left: 3px solid var(--print-accent);
+  color: var(--print-muted);
+}
+
+.markdown-body[class*='print-preset-'] table {
+  margin-block: 1.05em 1.2em;
+  border-color: var(--print-border);
+}
+
+.markdown-body[class*='print-preset-'] img {
+  break-inside: avoid;
+}
+
+.markdown-body.print-preset-outline {
+  --print-accent: #3633ff;
+  line-height: 1.58;
+}
+
+.markdown-body.print-preset-academic {
+  --print-accent: #374151;
+  --print-text: #111827;
+  line-height: 1.72;
+  hyphens: auto;
+}
+
+.markdown-body.print-preset-academic p {
+  text-align: justify;
+}
+
+.markdown-body.print-preset-academic h1,
+.markdown-body.print-preset-academic h2 {
+  border-bottom: 1px solid var(--print-border);
+  padding-bottom: 0.24em;
+}
+
+.markdown-body.print-preset-professional {
+  --print-accent: #0369a1;
+  --print-text: #172033;
+  --print-code-bg: #f4f8fb;
+}
+
+.markdown-body.print-preset-professional h1 {
+  padding-bottom: 0.34em;
+  border-bottom: 3px solid var(--print-accent);
+}
+
+.markdown-body.print-preset-professional h2 {
+  color: #075985;
+}
+
+.markdown-body.print-preset-minimal {
+  --print-accent: #6b7280;
+  --print-text: #252525;
+  line-height: 1.68;
+}
+
+.markdown-body.print-preset-minimal h1,
+.markdown-body.print-preset-minimal h2,
+.markdown-body.print-preset-minimal h3 {
+  font-weight: 560;
+  letter-spacing: -0.015em;
+}
+
+.markdown-body.print-preset-minimal pre,
+.markdown-body.print-preset-minimal blockquote {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@media print {
+  .markdown-body[class*='print-preset-'] {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .markdown-body[class*='print-preset-'] h1,
+  .markdown-body[class*='print-preset-'] h2,
+  .markdown-body[class*='print-preset-'] h3,
+  .markdown-body[class*='print-preset-'] h4,
+  .markdown-body[class*='print-preset-'] pre,
+  .markdown-body[class*='print-preset-'] blockquote {
+    break-inside: avoid-page;
+  }
+}

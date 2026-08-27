@@ -6,7 +6,7 @@
       @click="downloadPDF"
       :model="menuItems"
       :disabled="isGenerating"
-      :buttonProps="{ title: isGenerating ? 'Preparing print...' : 'Print' }"
+      :buttonProps="{ title: isGenerating ? 'Preparando impresión...' : 'Imprimir' }"
     >
       <LoaderCircle v-if="isGenerating" :size="16" class="spin" />
       <Printer v-else :size="16" />

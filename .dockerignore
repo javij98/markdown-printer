@@ -1,0 +1,13 @@
+.git
+node_modules
+package-lock.json
+dist
+.vscode
+.idea
+*.log
+*.tar.gz
+*.sha256
+
+# Print Studio secrets
+.env.print
+print-studio.env

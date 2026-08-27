@@ -1,6 +1,7 @@
 import { ref, watch, nextTick, type Ref } from 'vue'
 import { PAGE_SIZES } from '../utils/constants'
 import { fontFamilyCSS } from '../utils/css'
+import type { PrintPreset } from '../utils/types'
 
 export interface Page {
   index: number
@@ -17,6 +18,7 @@ export function usePagination(
   margin: Ref<{ top: string; right: string; bottom: string; left: string }>,
   font: Ref<string>,
   fontSize: Ref<number>,
+  preset: Ref<PrintPreset>,
 ) {
   const pages = ref<Page[]>([{ index: 0, elements: [] }])
   const totalPages = ref(1)
@@ -81,7 +83,7 @@ export function usePagination(
     document.body.appendChild(measureDiv)
 
     const wrapper = document.createElement('div')
-    wrapper.className = 'markdown-body'
+    wrapper.className = `markdown-body print-preset-${preset.value}`
     wrapper.style.width = `${contentWidth}px`
     wrapper.style.fontFamily = fontCSS
     wrapper.style.fontSize = `${fontSizePx}px`
@@ -148,7 +150,7 @@ export function usePagination(
     document.body.appendChild(measureDiv)
 
     const wrapper = document.createElement('div')
-    wrapper.className = 'markdown-body'
+    wrapper.className = `markdown-body print-preset-${preset.value}`
     wrapper.style.width = `${contentWidth}px`
     wrapper.style.fontFamily = fontCSS
     wrapper.style.fontSize = `${fontSizePx}px`
@@ -221,7 +223,7 @@ export function usePagination(
     document.body.appendChild(measureDiv)
 
     const wrapper = document.createElement('div')
-    wrapper.className = 'markdown-body'
+    wrapper.className = `markdown-body print-preset-${preset.value}`
     wrapper.style.width = `${contentWidth}px`
     wrapper.style.fontFamily = fontCSS
     wrapper.style.fontSize = `${fontSizePx}px`
@@ -275,7 +277,7 @@ export function usePagination(
     const padLeft = parseMarginValue(margin.value.left)
     const contentWidth = pageWidthPx - padLeft - padRight
 
-    container.className = 'markdown-body'
+    container.className = `markdown-body print-preset-${preset.value}`
     container.style.width = `${contentWidth}px`
     container.style.fontFamily = `${fontFamilyCSS(font.value)}, sans-serif`
     container.style.fontSize = `${fontSize.value}px`
@@ -317,7 +319,7 @@ export function usePagination(
 
     function measureChunkHtml(htmlStr: string): { height: number; marginBottom: number } {
       const div = document.createElement('div')
-      div.className = 'markdown-body'
+      div.className = `markdown-body print-preset-${preset.value}`
       div.style.cssText =
         'position:absolute;left:-9999px;top:0;visibility:hidden;pointer-events:none;'
       div.style.width = `${contentWidth}px`
@@ -572,7 +574,7 @@ export function usePagination(
 
   let recalcTimeout: ReturnType<typeof setTimeout>
   watch(
-    [html, pageHeight, scale, pageSize, margin, font, fontSize],
+    [html, pageHeight, scale, pageSize, margin, font, fontSize, preset],
     () => {
       clearTimeout(recalcTimeout)
       recalcTimeout = setTimeout(() => {

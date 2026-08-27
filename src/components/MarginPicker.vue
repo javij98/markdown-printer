@@ -1,6 +1,6 @@
 <template>
   <div class="margin-picker">
-    <span class="margin-picker-label">Margin:</span>
+    <span class="margin-picker-label">Márgenes:</span>
     <div class="margin-selector">
       <Select
         :modelValue="selectedPresetValue"
@@ -15,7 +15,7 @@
     <!-- Custom margin dialog -->
     <Dialog
       v-model:visible="showDialog"
-      header="Custom Margins"
+      header="Márgenes personalizados"
       modal
       :closable="true"
       :style="{ minWidth: '340px', maxWidth: '95vw' }"
@@ -93,7 +93,7 @@
                 <template #icon><Plus :size="14" /></template>
               </Button>
             </div>
-            <button class="margin-lock-btn" :class="{ active: lockHorizontal }" @click="toggleLock('horizontal')" title="Lock horizontal margins">
+            <button class="margin-lock-btn" :class="{ active: lockHorizontal }" @click="toggleLock('horizontal')" title="Bloquear márgenes horizontales">
               <LockOpen v-if="!lockHorizontal" :size="12" />
               <Lock v-else :size="12" />
             </button>
@@ -121,7 +121,7 @@
               <template #icon><Plus :size="14" /></template>
             </Button>
           </div>
-          <button class="margin-lock-btn" :class="{ active: lockVertical }" @click="toggleLock('vertical')" title="Lock vertical margins">
+          <button class="margin-lock-btn" :class="{ active: lockVertical }" @click="toggleLock('vertical')" title="Bloquear márgenes verticales">
             <LockOpen v-if="!lockVertical" :size="12" />
             <Lock v-else :size="12" />
           </button>
@@ -129,8 +129,8 @@
       </div>
 
       <template #footer>
-        <Button label="Cancel" severity="secondary" text size="small" @click="closeDialog" />
-        <Button label="Apply" size="small" @click="applyCustom" />
+        <Button label="Cancelar" severity="secondary" text size="small" @click="closeDialog" />
+        <Button label="Aplicar" size="small" @click="applyCustom" />
       </template>
     </Dialog>
   </div>
@@ -180,7 +180,12 @@ function toggleLock(axis: 'horizontal' | 'vertical') {
   }
 }
 
-const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+const marginPresetLabels: Record<string, string> = {
+  moderate: 'Moderados',
+  standard: 'Estándar',
+  narrow: 'Estrechos',
+  wide: 'Amplios',
+}
 
 const findPresetKey = (m: MarginConfig): string | null => {
   for (const [key, preset] of Object.entries(MARGIN_PRESETS)) {
@@ -194,10 +199,10 @@ const findPresetKey = (m: MarginConfig): string | null => {
 // Build Select options from MARGIN_PRESETS + Custom
 const presetOptions = computed(() => {
   const options = Object.keys(MARGIN_PRESETS).map(key => ({
-    label: capitalize(key),
+    label: marginPresetLabels[key] ?? key,
     value: key,
   }))
-  options.push({ label: 'Custom', value: 'custom' })
+  options.push({ label: 'Personalizados', value: 'custom' })
   return options
 })
 

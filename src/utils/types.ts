@@ -32,6 +32,10 @@ export type Orientation = 'portrait' | 'landscape'
 
 export type ViewMode = 'editor' | 'preview' | 'split'
 
+export type EditorMode = 'visual' | 'markdown'
+
+export type PrintPreset = 'outline' | 'academic' | 'professional' | 'minimal'
+
 export interface LlmConfig {
   endpoint: string
   apiKey: string
@@ -51,6 +55,8 @@ export interface EditorSettings {
   contentScaleMap: Record<string, number> | null
   softWrap: boolean
   viewMode: ViewMode
+  editorMode: EditorMode
+  printPreset: PrintPreset
 }
 
 export interface StoredImage {

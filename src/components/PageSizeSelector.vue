@@ -1,6 +1,6 @@
 <template>
   <div class="page-size-selector">
-    <label>Page:</label>
+    <label>Página:</label>
     <Select
       :modelValue="modelValue"
       @update:modelValue="selectSize"
@@ -14,7 +14,7 @@
     >
       <template #value="{ value }">
         <span v-if="value">{{ value }}</span>
-        <span v-else>Select page size</span>
+        <span v-else>Selecciona un tamaño</span>
       </template>
       <template #option="{ option, selected }">
         <div class="size-option">

@@ -7,6 +7,20 @@ import markedBidi from 'marked-bidi'
 import markedAlert from 'marked-alert'
 import markedExtendedTables from 'marked-extended-tables'
 import hljs from 'highlight.js'
+import { normalizeOutlineEscapedNewlines } from '../markdown/outlineText'
+import { outlineImagePlugin } from '../markdown/outlineImages'
+import { outlineNoticePlugin } from '../markdown/outlineNotices'
+import { outlineTogglePlugin } from '../markdown/outlineToggles'
+
+function outlineCheckbox(checked: boolean): string {
+  return `
+    <span class="outline-checkbox" aria-hidden="true">
+      <svg viewBox="0 0 14 14">
+        <rect class="outline-checkbox-box" x="1" y="1" width="12" height="12" rx="2" />
+        ${checked ? '<path class="outline-checkbox-tick" d="m3.5 7.1 2.1 2.2 4.9-5" />' : ''}
+      </svg>
+    </span>`
+}
 
 export function useMarkdown(content: Ref<string>) {
   const renderedHtml = ref('')
@@ -95,6 +109,9 @@ export function useMarkdown(content: Ref<string>) {
     }),
     markedSmartypants(),
     markedBidi(),
+    outlineNoticePlugin,
+    outlineTogglePlugin,
+    outlineImagePlugin,
     markedAlert(),
     extendedTablesPlugin,
   )
@@ -128,14 +145,14 @@ export function useMarkdown(content: Ref<string>) {
         return `<h${depth}>${text}</h${depth}>`
       },
       code({ text, lang, sourceLine }: any) {
-        const langClass = lang ? ` class="language-${lang}"` : ''
+        const langClass = lang ? ` class="hljs language-${lang}"` : ' class="hljs"'
         const attr = sourceLine !== undefined ? ` data-source-line="${sourceLine}"` : ''
         return `<pre${attr}><code${langClass}>${text}</code></pre>`
       },
       listitem({ tokens, checked, sourceLine }: any) {
         const attr = sourceLine !== undefined ? ` data-source-line="${sourceLine}"` : ''
         if (checked !== null && checked !== undefined) {
-          return `<li data-checked="${checked}"${attr}>${this.parser.parse(tokens)}</li>`
+          return `<li class="outline-task-item" data-checked="${checked}"${attr}>${outlineCheckbox(Boolean(checked))}${this.parser.parse(tokens)}</li>`
         }
         return `<li${attr}>${this.parser.parse(tokens)}</li>`
       },
@@ -166,7 +183,7 @@ export function useMarkdown(content: Ref<string>) {
   })
 
   function preprocessMarkdown(src: string): string {
-    let result = src.replace(/^(\${1,2})([^\n$]+)\1$/gm, (_match: string, delim: string, expr: string) => {
+    let result = normalizeOutlineEscapedNewlines(src).replace(/^(\${1,2})([^\n$]+)\1$/gm, (_match: string, delim: string, expr: string) => {
       return `${delim}\n${expr}\n${delim}`
     })
 

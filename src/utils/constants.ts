@@ -1,4 +1,33 @@
-import type { PageSize, FontOption, MarginConfig } from './types'
+import type { PageSize, FontOption, MarginConfig, PrintPreset } from './types'
+
+export interface PrintPresetOption {
+  id: PrintPreset
+  name: string
+  description: string
+}
+
+export const PRINT_PRESETS: PrintPresetOption[] = [
+  {
+    id: 'outline',
+    name: 'Outline',
+    description: 'Mantiene la jerarquía y el aspecto limpio de Outline.',
+  },
+  {
+    id: 'academic',
+    name: 'Académico',
+    description: 'Ritmo amplio, texto justificado y tablas sobrias para trabajos.',
+  },
+  {
+    id: 'professional',
+    name: 'Informe',
+    description: 'Jerarquía marcada y acabado corporativo para informes técnicos.',
+  },
+  {
+    id: 'minimal',
+    name: 'Minimalista',
+    description: 'Máximo aire y pocos adornos para ensayos y propuestas.',
+  },
+]
 
 export const PAGE_CATEGORIES = {
   iso: 'ISO A-Series',

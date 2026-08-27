@@ -2,23 +2,46 @@
   <div class="toolbar">
     <div class="toolbar-scroll">
       <div class="toolbar-left" v-show="viewMode !== 'preview'">
-        <Button severity="info" text size="small" @click="$emit('undo')" title="Undo (Ctrl+Z)">
+        <Button severity="info" text size="small" @click="$emit('undo')" title="Deshacer (Ctrl+Z)">
           <Undo2 :size="16" />
         </Button>
-        <Button severity="info" text size="small" @click="$emit('redo')" title="Redo (Ctrl+Shift+Z)">
+        <Button severity="info" text size="small" @click="$emit('redo')" title="Rehacer (Ctrl+Shift+Z)">
           <Redo2 :size="16" />
         </Button>
         <span class="separator"></span>
-        <Button severity="info" text size="small" @click="$emit('insert-page-break')" title="Insert page break">
+        <Button severity="info" text size="small" @click="$emit('insert-page-break')" title="Insertar salto de página">
           <StickyNotePlus :size="16" />
         </Button>
+        <span class="separator"></span>
+        <div class="editor-mode-control" aria-label="Modo de edición">
+          <Button
+            :severity="editorMode === 'visual' ? 'info' : 'secondary'"
+            text
+            size="small"
+            :label="'Visual'"
+            title="Editar visualmente"
+            @click="$emit('update:editorMode', 'visual')"
+          >
+            <LayoutTemplate :size="15" />
+          </Button>
+          <Button
+            :severity="editorMode === 'markdown' ? 'info' : 'secondary'"
+            text
+            size="small"
+            :label="'Markdown'"
+            title="Editar el Markdown original"
+            @click="$emit('update:editorMode', 'markdown')"
+          >
+            <FileCode2 :size="15" />
+          </Button>
+        </div>
         <span class="separator"></span>
         <Button
           severity="info"
           text
           size="small"
           @click="$emit('update:rtl', !rtl)"
-          :title="rtl ? 'Switch to LTR' : 'Switch to RTL'"
+          :title="rtl ? 'Cambiar a izquierda-derecha' : 'Cambiar a derecha-izquierda'"
         >
           <TextAlignEnd v-if="rtl" :size="16" />
           <TextAlignStart v-else :size="16" />
@@ -28,7 +51,7 @@
           text
           size="small"
           @click="$emit('update:softWrap', !softWrap)"
-          title="Toggle soft wrap"
+          title="Activar o desactivar ajuste de línea"
         >
           <WrapText :size="16" />
         </Button>
@@ -36,7 +59,9 @@
 
       <span class="separator" v-if="viewMode === 'split'"></span>
 
-      <div class="toolbar-center" v-show="viewMode !== 'editor'">
+      <div class="toolbar-center">
+        <PrintPresetPicker :model-value="printPreset" @update:model-value="$emit('update:printPreset', $event)" />
+
         <MarginPicker
           :model-value="margin"
           :page-size="pageSize"
@@ -52,7 +77,7 @@
           text
           size="small"
           @click="$emit('update:orientation', orientation === 'portrait' ? 'landscape' : 'portrait')"
-          :title="orientation === 'portrait' ? 'Switch to Landscape' : 'Switch to Portrait'"
+          :title="orientation === 'portrait' ? 'Cambiar a horizontal' : 'Cambiar a vertical'"
         >
           <RectangleVertical v-if="orientation === 'portrait'" :size="16" />
           <RectangleHorizontal v-else :size="16" />
@@ -61,6 +86,7 @@
         <span class="separator"></span>
 
         <FontPicker :model-value="font" @update:model-value="$emit('update:font', $event)" />
+        <FontSizePicker :model-value="fontSize" @update:model-value="$emit('update:fontSize', $event)" />
 
         <!-- Content scale slider (A4-relative: 100% = A4 base) -->
         <div class="content-scale-control">
@@ -71,7 +97,7 @@
             size="small"
             class="content-scale-btn"
             @click="$emit('update:contentScale', Math.max(scaleRange.min, contentScale - 0.01))"
-            title="Decrease scale"
+            title="Reducir escala"
           >
             <Minus :size="16" />
           </Button>
@@ -89,7 +115,7 @@
             size="small"
             class="content-scale-btn"
             @click="$emit('update:contentScale', Math.min(scaleRange.max, contentScale + 0.01))"
-            title="Increase scale"
+            title="Aumentar escala"
           >
             <Plus :size="16" />
           </Button>
@@ -100,7 +126,7 @@
             size="small"
             class="content-scale-reset"
             @click="resetContentScale"
-            title="Reset to default"
+            title="Restablecer escala"
           >
             <RotateCcw :size="16" />
           </Button>
@@ -122,12 +148,14 @@
 import { computed } from 'vue'
 import Button from 'primevue/button'
 import Slider from 'primevue/slider'
-import type { MarginConfig, ViewMode } from '../utils/types'
+import type { EditorMode, MarginConfig, PrintPreset, ViewMode } from '../utils/types'
 import { PAGE_SIZES, getContentScaleRange } from '../utils/constants'
-import { Undo2, Redo2, TextAlignStart, TextAlignEnd, RectangleVertical, RectangleHorizontal, StickyNotePlus, WrapText, Plus, Minus, RotateCcw } from '@lucide/vue'
+import { Undo2, Redo2, TextAlignStart, TextAlignEnd, RectangleVertical, RectangleHorizontal, StickyNotePlus, WrapText, Plus, Minus, RotateCcw, LayoutTemplate, FileCode2 } from '@lucide/vue'
 import MarginPicker from './MarginPicker.vue'
 import PageSizeSelector from './PageSizeSelector.vue'
 import FontPicker from './FontPicker.vue'
+import FontSizePicker from './FontSizePicker.vue'
+import PrintPresetPicker from './PrintPresetPicker.vue'
 import DownloadMenu from './DownloadMenu.vue'
 
 const props = defineProps<{
@@ -135,6 +163,7 @@ const props = defineProps<{
   font: string
   rtl: boolean
   softWrap: boolean
+  fontSize: number
   content: string
   renderedHtml: string
   isGenerating: boolean
@@ -142,6 +171,8 @@ const props = defineProps<{
   orientation: 'portrait' | 'landscape'
   contentScale: number
   viewMode: ViewMode
+  editorMode: EditorMode
+  printPreset: PrintPreset
 }>()
 
 const emit = defineEmits<{
@@ -149,9 +180,12 @@ const emit = defineEmits<{
   'update:font': [value: string]
   'update:rtl': [value: boolean]
   'update:softWrap': [value: boolean]
+  'update:fontSize': [value: number]
   'update:margin': [value: MarginConfig]
   'update:orientation': [value: 'portrait' | 'landscape']
   'update:contentScale': [value: number]
+  'update:editorMode': [value: EditorMode]
+  'update:printPreset': [value: PrintPreset]
   'undo': []
   'redo': []
   'insert-page-break': []
@@ -207,6 +241,16 @@ function resetContentScale() {
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+}
+
+.editor-mode-control {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-primary);
 }
 
 .separator {

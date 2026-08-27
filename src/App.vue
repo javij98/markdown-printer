@@ -17,6 +17,9 @@
         v-if="!isNewTab"
         :page-size="settings.pageSize"
         :font="settings.font"
+        :font-size="settings.fontSize"
+        :editor-mode="settings.editorMode"
+        :print-preset="settings.printPreset"
         :rtl="settings.rtl"
         :soft-wrap="settings.softWrap"
         :margin="settings.margin"
@@ -33,10 +36,13 @@
         @update:margin="settings.margin = $event"
         @update:orientation="settings.orientation = $event"
         @update:contentScale="settings.contentScale = $event"
-        @undo="editorRef?.undo()"
-        @redo="editorRef?.redo()"
+        @update:fontSize="settings.fontSize = $event"
+        @update:editorMode="settings.editorMode = $event"
+        @update:printPreset="settings.printPreset = $event"
+        @undo="undoActiveEditor"
+        @redo="redoActiveEditor"
         @insert-page-break="insertPageBreak"
-        @download-pdf="() => downloadPDF(previewRef?.assembledHtml || renderedHtml, settings.pageSize, settings.margin, settings.orientation, settings.font, settings.fontSize, settings.contentScale, settings.rtl)"
+        @download-pdf="() => downloadPDF(previewRef?.assembledHtml || renderedHtml, settings.pageSize, settings.margin, settings.orientation, settings.font, settings.fontSize, settings.contentScale, settings.rtl, settings.printPreset)"
       />
 
       <NewPage
@@ -49,6 +55,7 @@
       <template v-else>
         <div class="main-content">
           <EditorPane
+            v-if="settings.editorMode === 'markdown'"
             v-show="settings.viewMode !== 'preview'"
             ref="editorRef"
             v-model="editorContent"
@@ -57,6 +64,20 @@
             class="editor-section"
             :class="{ 'full-width': settings.viewMode !== 'split' }"
             @editor-ready="onEditorReady"
+            @update:selectedText="selectedText = $event"
+          />
+
+          <VisualEditorPane
+            v-else
+            v-show="settings.viewMode !== 'preview'"
+            :key="activeTabId || 'visual-editor'"
+            ref="visualEditorRef"
+            v-model="editorContent"
+            :tab-id="activeTabId"
+            :font="settings.font"
+            :font-size="settings.fontSize * settings.contentScale"
+            class="editor-section"
+            :class="{ 'full-width': settings.viewMode !== 'split' }"
             @update:selectedText="selectedText = $event"
           />
 
@@ -74,6 +95,7 @@
             :rtl="settings.rtl"
             :margin="settings.margin"
             :orientation="settings.orientation"
+            :print-preset="settings.printPreset"
             :container-width="previewContainerWidth"
             class="preview-section"
             :class="{ 'full-width': settings.viewMode !== 'split' }"
@@ -112,6 +134,7 @@ import TabBar from './components/TabBar.vue'
 import NewPage from './components/NewPage.vue'
 import Toolbar from './components/Toolbar.vue'
 import EditorPane from './components/EditorPane.vue'
+import VisualEditorPane from './components/VisualEditorPane.vue'
 import PreviewPane from './components/PreviewPane.vue'
 import FooterBar from './components/FooterBar.vue'
 import AiSettings from './components/AiSettings.vue'
@@ -170,6 +193,8 @@ const settings = ref<EditorSettings>({
   contentScaleMap: {} as Record<string, number>,
   softWrap: true,
   viewMode: window.innerWidth < 768 ? 'editor' : 'split',
+  editorMode: 'visual',
+  printPreset: 'outline',
 })
 
 // Load saved settings
@@ -244,6 +269,7 @@ const { renderedHtml } = useMarkdown(editorContent)
 
 // Editor and preview refs
 const editorRef = ref<InstanceType<typeof EditorPane> | null>(null)
+const visualEditorRef = ref<InstanceType<typeof VisualEditorPane> | null>(null)
 const previewRef = ref<InstanceType<typeof PreviewPane> | null>(null)
 const selectedText = ref('')
 
@@ -273,7 +299,20 @@ watch(activeTabId, () => {
 
 // Insert page break
 function insertPageBreak() {
-  editorRef.value?.insertText('\n<div style="page-break-after: always;"></div>\n')
+  const pageBreak = '\n<div style="page-break-after: always;"></div>\n'
+  if (settings.value.editorMode === 'visual') {
+    visualEditorRef.value?.insertText(pageBreak)
+  } else {
+    editorRef.value?.insertText(pageBreak)
+  }
+}
+
+function undoActiveEditor() {
+  settings.value.editorMode === 'visual' ? visualEditorRef.value?.undo() : editorRef.value?.undo()
+}
+
+function redoActiveEditor() {
+  settings.value.editorMode === 'visual' ? visualEditorRef.value?.redo() : editorRef.value?.redo()
 }
 
 function handleAddTab() {

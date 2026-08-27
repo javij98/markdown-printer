@@ -25,6 +25,9 @@ import PrimeVue from 'primevue/config'
 import Aura from '@primeuix/themes/aura'
 import App from './App.vue'
 import './styles/main.css'
+import './styles/outline-content.css'
+import './styles/outline-print.css'
+import './styles/print-presets.css'
 
 const skyTheme = definePreset(Aura, {
   semantic: {

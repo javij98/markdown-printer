@@ -12,7 +12,11 @@
         :style="pageWrapperStyle"
       >
         <div class="preview-page" :style="pageStyle">
-          <div class="preview-content markdown-body" :dir="rtl ? 'rtl' : 'ltr'" v-html="page.elements.join('')"></div>
+          <div
+            :class="['preview-content', 'markdown-body', `print-preset-${printPreset}`]"
+            :dir="rtl ? 'rtl' : 'ltr'"
+            v-html="page.elements.join('')"
+          ></div>
         </div>
       </div>
     </div>
@@ -23,7 +27,7 @@
 import { computed, ref, toRef, onMounted, onUnmounted, watch } from 'vue'
 import { fontFamilyCSS } from '../utils/css'
 import { PAGE_SIZES, getScaleRange } from '../utils/constants'
-import type { MarginConfig } from '../utils/types'
+import type { MarginConfig, PrintPreset } from '../utils/types'
 import { usePagination } from '../composables/usePagination'
 import { useImages } from '../composables/useImages'
 
@@ -38,6 +42,7 @@ const props = defineProps<{
   orientation: 'portrait' | 'landscape'
   contentScale: number
   containerWidth: number
+  printPreset: PrintPreset
 }>()
 
 const emit = defineEmits<{
@@ -204,8 +209,9 @@ const pageSizeRef = toRef(props, 'pageSize')
 const marginRef = toRef(props, 'margin')
 const fontRef = toRef(props, 'font')
 const effectiveFontSize = computed(() => props.fontSize * props.contentScale)
+const presetRef = toRef(props, 'printPreset')
 
-const { pages } = usePagination(htmlRef, pageHeightRef, scaleRef, pageSizeRef, marginRef, fontRef, effectiveFontSize)
+const { pages } = usePagination(htmlRef, pageHeightRef, scaleRef, pageSizeRef, marginRef, fontRef, effectiveFontSize, presetRef)
 
 const scaledWidth = computed(() => {
   const size = currentPageSize.value

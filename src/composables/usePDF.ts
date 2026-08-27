@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import type { MarginConfig } from '../utils/types'
+import type { MarginConfig, PrintPreset } from '../utils/types'
 import { PAGE_SIZES } from '../utils/constants'
 import { getAllStoredFonts } from '../utils/storage'
 import { fontFamilyCSS } from '../utils/css'
@@ -8,6 +8,9 @@ import { fontFamilyCSS } from '../utils/css'
 import katexCSS from 'katex/dist/katex.min.css?raw'
 import gmCSS from 'github-markdown-css/github-markdown-light.css?raw'
 import hlCSS from 'highlight.js/styles/github.min.css?raw'
+import outlineContentCSS from '../styles/outline-content.css?raw'
+import outlinePrintCSS from '../styles/outline-print.css?raw'
+import printPresetsCSS from '../styles/print-presets.css?raw'
 
 // paged.polyfill is copied to vendor/ via viteStaticCopy (not duplicated in assets)
 
@@ -136,6 +139,7 @@ export function usePDF() {
     fontSize: number = 14,
     contentScale: number = 1.0,
     rtl: boolean = false,
+    printPreset: PrintPreset = 'outline',
   ) {
     isGenerating.value = true
     error.value = null
@@ -165,6 +169,9 @@ export function usePDF() {
         ${gmCSS}
         ${hlCSS}
         ${fontCSS}
+        ${outlineContentCSS}
+        ${outlinePrintCSS}
+        ${printPresetsCSS}
 
         @page {
           size: ${explicitSize};
@@ -245,7 +252,7 @@ export function usePDF() {
   <script src="${import.meta.env.BASE_URL}vendor/paged.polyfill.js"></script>
 </head>
 <body${dirAttr}>
-  <div class="markdown-body">${renderedHtml}</div>
+  <div class="markdown-body print-preset-${printPreset}">${renderedHtml}</div>
 </body>
 </html>`
 

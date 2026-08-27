@@ -3,3 +3,10 @@ dist
 .DS_Store
 *.local
 .vite
+
+# Local builds and deployment credentials
+package-lock.json
+outline-print-studio-*.tar.gz
+outline-print-studio-*.tar.gz.sha256
+.env.print
+print-studio.env
