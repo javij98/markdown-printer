@@ -39,7 +39,7 @@
         @update:contentScale="settings.contentScale = $event"
         @update:fontSize="settings.fontSize = $event"
         @update:editorMode="settings.editorMode = $event"
-        @update:printPreset="settings.printPreset = $event"
+        @update:printPreset="selectPrintPreset"
         @update:advancedStyle="settings.advancedPrintStyle = $event"
         @reset:advancedStyle="resetAdvancedStyle"
         @undo="undoActiveEditor"
@@ -149,8 +149,8 @@ import { useScrollSync } from './composables/useScrollSync'
 import { usePDF } from './composables/usePDF'
 import { useImages } from './composables/useImages'
 import { loadSettings, saveSettings, loadLlmConfig, isLlmEnabled } from './utils/storage'
-import { DEFAULT_ADVANCED_PRINT_STYLE, PAGE_SIZES, getScaleRange, getContentScaleFactor } from './utils/constants'
-import type { EditorSettings, Tab } from './utils/types'
+import { DEFAULT_ADVANCED_PRINT_STYLE, PAGE_SIZES, getDefaultAdvancedPrintStyle, getScaleRange, getContentScaleFactor } from './utils/constants'
+import type { EditorSettings, PrintPreset, Tab } from './utils/types'
 
 const footerRef = ref<InstanceType<typeof FooterBar>>()
 
@@ -317,7 +317,14 @@ function insertPageBreak() {
 }
 
 function resetAdvancedStyle() {
-  settings.value.advancedPrintStyle = { ...DEFAULT_ADVANCED_PRINT_STYLE }
+  settings.value.advancedPrintStyle = getDefaultAdvancedPrintStyle(settings.value.printPreset)
+}
+
+function selectPrintPreset(preset: PrintPreset) {
+  settings.value.printPreset = preset
+  // A preset selection always shows the preset itself. Advanced values are
+  // re-seeded from it, so enabling customization starts from the same look.
+  settings.value.advancedPrintStyle = getDefaultAdvancedPrintStyle(preset)
 }
 
 function undoActiveEditor() {

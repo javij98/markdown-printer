@@ -19,7 +19,7 @@
       <label class="master-toggle">
         <span>
           <strong>Aplicar personalización</strong>
-          <small>Los cambios se reflejan al instante en la vista y el PDF.</small>
+          <small>Parte del estilo {{ presetName }} y sustituye solo los valores que edites.</small>
         </span>
         <ToggleSwitch
           :model-value="modelValue.enabled"
@@ -83,6 +83,24 @@
             :step="1"
             @update:model-value="update('codeRadius', $event)"
           />
+          <NumberSetting
+            label="Escala de los títulos"
+            suffix=" ×"
+            :model-value="modelValue.headingScale"
+            :min="0.75"
+            :max="1.4"
+            :step="0.05"
+            @update:model-value="update('headingScale', $event)"
+          />
+          <NumberSetting
+            label="Escala del código"
+            suffix=" ×"
+            :model-value="modelValue.codeFontScale"
+            :min="0.75"
+            :max="1.3"
+            :step="0.05"
+            @update:model-value="update('codeFontScale', $event)"
+          />
         </section>
 
         <section>
@@ -98,6 +116,12 @@
             description="Añade una línea con el color principal. Desactivado por defecto."
             :model-value="modelValue.codeAccent"
             @update:model-value="update('codeAccent', $event)"
+          />
+          <SwitchSetting
+            label="Fondo en cabeceras de tabla"
+            description="Diferencia la primera fila con el color propio de la plantilla."
+            :model-value="modelValue.tableHeaderShade"
+            @update:model-value="update('tableHeaderShade', $event)"
           />
           <SwitchSetting
             label="Divisores en los títulos"
@@ -123,7 +147,7 @@
 
     <template #footer>
       <div class="drawer-footer">
-        <Button label="Restablecer" severity="secondary" text @click="$emit('reset')">
+        <Button :label="`Valores de ${presetName}`" severity="secondary" text @click="$emit('reset')">
           <RotateCcw :size="15" />
         </Button>
         <Button label="Listo" @click="$emit('update:visible', false)" />
@@ -133,17 +157,20 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import Drawer from 'primevue/drawer'
 import Button from 'primevue/button'
 import ToggleSwitch from 'primevue/toggleswitch'
 import { RotateCcw, SlidersHorizontal } from '@lucide/vue'
-import type { AdvancedPrintStyle } from '../utils/types'
+import { PRINT_PRESETS } from '../utils/constants'
+import type { AdvancedPrintStyle, PrintPreset } from '../utils/types'
 import NumberSetting from './advanced/NumberSetting.vue'
 import SwitchSetting from './advanced/SwitchSetting.vue'
 
 const props = defineProps<{
   visible: boolean
   modelValue: AdvancedPrintStyle
+  printPreset: PrintPreset
 }>()
 
 const emit = defineEmits<{
@@ -163,6 +190,8 @@ const colorFields: Array<{
   { key: 'borderColor', label: 'Bordes' },
   { key: 'codeBackground', label: 'Fondo del código' },
 ]
+
+const presetName = computed(() => PRINT_PRESETS.find(preset => preset.id === props.printPreset)?.name ?? 'la plantilla')
 
 function update<K extends keyof AdvancedPrintStyle>(key: K, value: AdvancedPrintStyle[K]) {
   emit('update:modelValue', { ...props.modelValue, [key]: value })

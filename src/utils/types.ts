@@ -48,8 +48,11 @@ export interface AdvancedPrintStyle {
   paragraphSpacing: number
   blockSpacing: number
   codeRadius: number
+  headingScale: number
+  codeFontScale: number
   codeAccent: boolean
   codeBorder: boolean
+  tableHeaderShade: boolean
   headingDividers: boolean
   justifyText: boolean
   hyphenate: boolean

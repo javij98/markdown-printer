@@ -40,7 +40,7 @@ export function usePagination(
   function applyPrintStyle(element: HTMLElement) {
     element.className = ['markdown-body', `print-preset-${preset.value}`, ...advancedPrintClasses(advancedStyle.value)].join(' ')
     const variables = advancedPrintVariables(advancedStyle.value)
-    const propertyNames = ['--print-accent', '--print-text', '--print-heading-color', '--print-muted', '--print-border', '--print-code-bg', '--print-line-height', '--print-paragraph-spacing', '--print-block-spacing', '--print-code-radius']
+    const propertyNames = ['--print-accent', '--print-text', '--print-heading-color', '--print-muted', '--print-border', '--print-code-bg', '--print-line-height', '--print-paragraph-spacing', '--print-block-spacing', '--print-code-radius', '--print-heading-scale', '--print-code-font-scale']
     propertyNames.forEach(property => element.style.removeProperty(property))
     Object.entries(variables).forEach(([property, value]) => {
       element.style.setProperty(property, String(value))
@@ -99,7 +99,6 @@ export function usePagination(
     wrapper.style.width = `${contentWidth}px`
     wrapper.style.fontFamily = fontCSS
     wrapper.style.fontSize = `${fontSizePx}px`
-    wrapper.style.lineHeight = '1.5'
     measureDiv.appendChild(wrapper)
 
     const chunks: string[] = []
@@ -166,7 +165,6 @@ export function usePagination(
     wrapper.style.width = `${contentWidth}px`
     wrapper.style.fontFamily = fontCSS
     wrapper.style.fontSize = `${fontSizePx}px`
-    wrapper.style.lineHeight = '1.5'
     measureDiv.appendChild(wrapper)
 
     const chunks: string[] = []
@@ -239,7 +237,6 @@ export function usePagination(
     wrapper.style.width = `${contentWidth}px`
     wrapper.style.fontFamily = fontCSS
     wrapper.style.fontSize = `${fontSizePx}px`
-    wrapper.style.lineHeight = '1.5'
     measureDiv.appendChild(wrapper)
 
     const chunks: string[] = []
@@ -293,7 +290,6 @@ export function usePagination(
     container.style.width = `${contentWidth}px`
     container.style.fontFamily = `${fontFamilyCSS(font.value)}, sans-serif`
     container.style.fontSize = `${fontSize.value}px`
-    container.style.lineHeight = '1.5'
     container.style.padding = '0'
     container.style.margin = '0'
     container.innerHTML = html.value
@@ -337,7 +333,6 @@ export function usePagination(
       div.style.width = `${contentWidth}px`
       div.style.fontFamily = `${fontFamilyCSS(font.value)}, sans-serif`
       div.style.fontSize = `${fontSize.value}px`
-      div.style.lineHeight = '1.5'
       document.body.appendChild(div)
       div.innerHTML = htmlStr
       const h = getElementHeight(div)

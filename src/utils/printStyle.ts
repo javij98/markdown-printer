@@ -8,6 +8,7 @@ export function advancedPrintClasses(style: AdvancedPrintStyle): string[] {
     'print-advanced',
     style.codeAccent ? 'print-code-accent' : '',
     style.codeBorder ? 'print-code-border' : 'print-code-borderless',
+    style.tableHeaderShade ? 'print-table-shaded' : 'print-table-plain',
     style.headingDividers ? 'print-heading-dividers' : '',
     style.justifyText ? 'print-justify' : '',
     style.hyphenate ? 'print-hyphenate' : '',
@@ -28,6 +29,8 @@ export function advancedPrintVariables(style: AdvancedPrintStyle): CSSProperties
     '--print-paragraph-spacing': `${style.paragraphSpacing}em`,
     '--print-block-spacing': `${style.blockSpacing}em`,
     '--print-code-radius': `${style.codeRadius}px`,
+    '--print-heading-scale': String(style.headingScale),
+    '--print-code-font-scale': String(style.codeFontScale),
   } as CSSProperties
 }
 

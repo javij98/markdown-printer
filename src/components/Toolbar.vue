@@ -60,20 +60,12 @@
       <span class="separator" v-if="viewMode === 'split'"></span>
 
       <div class="toolbar-center">
-        <PrintPresetPicker :model-value="printPreset" @update:model-value="$emit('update:printPreset', $event)" />
-
-        <Button
-          :severity="advancedStyle.enabled ? 'info' : 'secondary'"
-          text
-          size="small"
-          class="advanced-style-button"
-          title="Abrir los ajustes avanzados de impresión"
-          @click="showAdvancedStyle = true"
-        >
-          <SlidersHorizontal :size="16" />
-          <span>Avanzado</span>
-          <span v-if="advancedStyle.enabled" class="advanced-active-dot" aria-label="Personalización activa"></span>
-        </Button>
+        <PrintPresetPicker
+          :model-value="printPreset"
+          :advanced-active="advancedStyle.enabled"
+          @update:model-value="$emit('update:printPreset', $event)"
+          @open-advanced="showAdvancedStyle = true"
+        />
 
         <MarginPicker
           :model-value="margin"
@@ -159,6 +151,7 @@
   <AdvancedStylePanel
     v-model:visible="showAdvancedStyle"
     :model-value="advancedStyle"
+    :print-preset="printPreset"
     @update:model-value="$emit('update:advancedStyle', $event)"
     @reset="$emit('reset:advancedStyle')"
   />
@@ -170,7 +163,7 @@ import Button from 'primevue/button'
 import Slider from 'primevue/slider'
 import type { AdvancedPrintStyle, EditorMode, MarginConfig, PrintPreset, ViewMode } from '../utils/types'
 import { PAGE_SIZES, getContentScaleRange } from '../utils/constants'
-import { Undo2, Redo2, TextAlignStart, TextAlignEnd, RectangleVertical, RectangleHorizontal, StickyNotePlus, WrapText, Plus, Minus, RotateCcw, LayoutTemplate, FileCode2, SlidersHorizontal } from '@lucide/vue'
+import { Undo2, Redo2, TextAlignStart, TextAlignEnd, RectangleVertical, RectangleHorizontal, StickyNotePlus, WrapText, Plus, Minus, RotateCcw, LayoutTemplate, FileCode2 } from '@lucide/vue'
 import MarginPicker from './MarginPicker.vue'
 import PageSizeSelector from './PageSizeSelector.vue'
 import FontPicker from './FontPicker.vue'
@@ -285,9 +278,6 @@ function resetContentScale() {
 .toolbar :deep(.p-button) { border-radius: 9px; transition: background-color .16s ease, color .16s ease, transform .16s ease; }
 .toolbar :deep(.p-button:active) { transform: scale(.97); }
 .toolbar :deep(.p-select) { border-radius: 9px; background: color-mix(in srgb, var(--bg-primary) 90%, transparent); }
-.advanced-style-button { gap: 5px; white-space: nowrap; }
-.advanced-style-button span { font-size: 12px; }
-.advanced-active-dot { width: 6px; height: 6px; border-radius: 999px; background: currentColor; box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 14%, transparent); }
 
 .separator {
   width: 1px;

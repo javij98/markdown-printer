@@ -377,6 +377,7 @@ defineExpose({
 }
 
 .visual-editor-root :deep(.milkdown) {
+  --crepe-color-inline-code: #5b21b6;
   min-height: 100%;
   background: transparent;
   transition: color .18s ease, background-color .18s ease;
@@ -395,8 +396,8 @@ defineExpose({
   --crepe-color-on-secondary: #e6edf3;
   --crepe-color-inverse: #f0f6fc;
   --crepe-color-on-inverse: #1f2328;
-  --crepe-color-inline-code: #ff7b72;
-  --crepe-color-error: #ff7b72;
+  --crepe-color-inline-code: #c4b5fd;
+  --crepe-color-error: #fbbf24;
   --crepe-color-hover: #292e35;
   --crepe-color-selected: #343b44;
   --crepe-color-inline-area: #2b3138;

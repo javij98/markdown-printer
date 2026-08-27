@@ -29,12 +29,14 @@ describe('advanced print styles', () => {
       paragraphSpacing: 1.1,
       blockSpacing: 1.45,
       codeRadius: 12,
+      tableHeaderShade: false,
     }
 
     expect(advancedPrintClasses(style)).toEqual([
       'print-advanced',
       'print-code-accent',
       'print-code-borderless',
+      'print-table-plain',
       'print-heading-dividers',
       'print-justify',
       'print-hyphenate',
@@ -46,6 +48,8 @@ describe('advanced print styles', () => {
       '--print-paragraph-spacing': '1.1em',
       '--print-block-spacing': '1.45em',
       '--print-code-radius': '12px',
+      '--print-heading-scale': '1',
+      '--print-code-font-scale': '1',
     })
     expect(advancedPrintStyleAttribute(style)).toContain('--print-accent:#123456')
   })
