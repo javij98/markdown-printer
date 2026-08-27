@@ -214,6 +214,56 @@ export function usePDF() {
           word-wrap: break-word;
         }
 
+        .markdown-body .markdown-alert {
+          margin: 1em 0;
+          padding: 0.85em 1em;
+          border-left: 4px solid #4f46e5;
+          border-radius: 4px;
+          background: #f5f5ff;
+          break-inside: avoid;
+        }
+
+        .markdown-body .markdown-alert-title {
+          display: flex;
+          align-items: center;
+          gap: 0.45em;
+          margin: 0 0 0.45em;
+          font-weight: 700;
+        }
+
+        .markdown-body .markdown-alert > :last-child {
+          margin-bottom: 0;
+        }
+
+        .markdown-body .markdown-alert-note {
+          border-left-color: #4f46e5;
+          background: #f5f5ff;
+        }
+
+        .markdown-body .markdown-alert-tip {
+          border-left-color: #1a7f37;
+          background: #f0fff4;
+        }
+
+        .markdown-body .markdown-alert-important {
+          border-left-color: #8250df;
+          background: #faf5ff;
+        }
+
+        .markdown-body .markdown-alert-warning {
+          border-left-color: #bf8700;
+          background: #fff8e1;
+        }
+
+        .markdown-body .markdown-alert-caution {
+          border-left-color: #d1242f;
+          background: #fff1f2;
+        }
+
+        .markdown-body .markdown-alert svg {
+          flex-shrink: 0;
+        }
+
         [dir="rtl"].markdown-body ul,
         [dir="rtl"].markdown-body ol {
           padding-left: unset;

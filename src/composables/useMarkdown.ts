@@ -165,8 +165,69 @@ export function useMarkdown(content: Ref<string>) {
     }
   })
 
+
+  /**
+   * Convert Outline fenced callouts:
+   *
+   * :::info
+   * Content
+   * :::
+   *
+   * into GitHub-style alerts understood by marked-alert:
+   *
+   * > [!NOTE]
+   * > Content
+   */
+  function preprocessOutlineCallouts(src: string): string {
+    const typeMap: Record<string, string> = {
+      info: 'NOTE',
+      note: 'NOTE',
+      tip: 'TIP',
+      success: 'TIP',
+      important: 'IMPORTANT',
+      warning: 'WARNING',
+      danger: 'CAUTION',
+      error: 'CAUTION',
+      caution: 'CAUTION',
+    }
+
+    const lines = src.split('\n')
+    const result: string[] = []
+
+    let activeType: string | null = null
+
+    for (const line of lines) {
+      if (!activeType) {
+        const match = line.match(
+          /^:::(info|note|tip|success|important|warning|danger|error|caution)\s*$/i
+        )
+
+        if (match) {
+          activeType = typeMap[match[1].toLowerCase()] || 'NOTE'
+          result.push(`> [!${activeType}]`)
+          continue
+        }
+
+        result.push(line)
+        continue
+      }
+
+      if (/^:::\s*$/.test(line)) {
+        activeType = null
+        result.push('')
+        continue
+      }
+
+      result.push(line.length ? `> ${line}` : '>')
+    }
+
+    return result.join('\n')
+  }
+
   function preprocessMarkdown(src: string): string {
-    let result = src.replace(/^(\${1,2})([^\n$]+)\1$/gm, (_match: string, delim: string, expr: string) => {
+    let result = preprocessOutlineCallouts(src)
+
+    result = result.replace(/^(\${1,2})([^\n$]+)\1$/gm, (_match: string, delim: string, expr: string) => {
       return `${delim}\n${expr}\n${delim}`
     })
 
