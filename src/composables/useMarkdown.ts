@@ -78,6 +78,136 @@ export function useMarkdown(content: Ref<string>) {
     }
   })()
 
+  function outlineNoticeIcon(type: string): string {
+    switch (type) {
+      case 'tip':
+        return `
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M12 3.2l2.7 5.48 6.05.88-4.38 4.27 1.04 6.03L12 17.02
+                 6.59 19.86l1.04-6.03-4.38-4.27 6.05-.88L12 3.2z"
+              fill="currentColor"
+            />
+          </svg>
+        `
+
+      case 'warning':
+        return `
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M12 3L22 20H2L12 3z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M12 9v5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+            <circle cx="12" cy="17" r="1" fill="currentColor" />
+          </svg>
+        `
+
+      case 'success':
+        return `
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle
+              cx="12"
+              cy="12"
+              r="9"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            />
+            <path
+              d="M8 12.5l2.5 2.5L16.5 9"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        `
+
+      default:
+        return `
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle
+              cx="12"
+              cy="12"
+              r="9"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            />
+            <path
+              d="M12 11v6"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+            <circle cx="12" cy="7.5" r="1.2" fill="currentColor" />
+          </svg>
+        `
+    }
+  }
+
+  const outlineNoticePlugin = {
+    extensions: [
+      {
+        name: 'outlineNotice',
+        level: 'block' as const,
+
+        start(src: string) {
+          const match = src.match(
+            /^:::(?:info|tip|warning|success)[^\S\r\n]*$/m
+          )
+
+          return match?.index
+        },
+
+        tokenizer(this: any, src: string) {
+          const match =
+            /^:::(info|tip|warning|success)[^\S\r\n]*\r?\n([\s\S]*?)\r?\n:::[^\S\r\n]*(?:\r?\n|$)/i.exec(src)
+
+          if (!match) {
+            return
+          }
+
+          const token: any = {
+            type: 'outlineNotice',
+            raw: match[0],
+            noticeType: match[1].toLowerCase(),
+            tokens: [],
+          }
+
+          this.lexer.blockTokens(match[2], token.tokens)
+
+          return token
+        },
+
+        renderer(this: any, token: any) {
+          const type = token.noticeType
+
+          return `
+            <div class="outline-notice outline-notice-${type}">
+              <div class="outline-notice-icon" aria-hidden="true">
+                ${outlineNoticeIcon(type)}
+              </div>
+              <div class="outline-notice-content">
+                ${this.parser.parse(token.tokens)}
+              </div>
+            </div>
+          `
+        },
+      },
+    ],
+  }
+
   const marked = new Marked(
     markedHighlight({
       langPrefix: 'hljs language-',
@@ -95,6 +225,7 @@ export function useMarkdown(content: Ref<string>) {
     }),
     markedSmartypants(),
     markedBidi(),
+    outlineNoticePlugin,
     markedAlert(),
     extendedTablesPlugin,
   )
@@ -165,69 +296,8 @@ export function useMarkdown(content: Ref<string>) {
     }
   })
 
-
-  /**
-   * Convert Outline fenced callouts:
-   *
-   * :::info
-   * Content
-   * :::
-   *
-   * into GitHub-style alerts understood by marked-alert:
-   *
-   * > [!NOTE]
-   * > Content
-   */
-  function preprocessOutlineCallouts(src: string): string {
-    const typeMap: Record<string, string> = {
-      info: 'NOTE',
-      note: 'NOTE',
-      tip: 'TIP',
-      success: 'TIP',
-      important: 'IMPORTANT',
-      warning: 'WARNING',
-      danger: 'CAUTION',
-      error: 'CAUTION',
-      caution: 'CAUTION',
-    }
-
-    const lines = src.split('\n')
-    const result: string[] = []
-
-    let activeType: string | null = null
-
-    for (const line of lines) {
-      if (!activeType) {
-        const match = line.match(
-          /^:::(info|note|tip|success|important|warning|danger|error|caution)\s*$/i
-        )
-
-        if (match) {
-          activeType = typeMap[match[1].toLowerCase()] || 'NOTE'
-          result.push(`> [!${activeType}]`)
-          continue
-        }
-
-        result.push(line)
-        continue
-      }
-
-      if (/^:::\s*$/.test(line)) {
-        activeType = null
-        result.push('')
-        continue
-      }
-
-      result.push(line.length ? `> ${line}` : '>')
-    }
-
-    return result.join('\n')
-  }
-
   function preprocessMarkdown(src: string): string {
-    let result = preprocessOutlineCallouts(src)
-
-    result = result.replace(/^(\${1,2})([^\n$]+)\1$/gm, (_match: string, delim: string, expr: string) => {
+    let result = src.replace(/^(\${1,2})([^\n$]+)\1$/gm, (_match: string, delim: string, expr: string) => {
       return `${delim}\n${expr}\n${delim}`
     })
 
