@@ -1,19 +1,32 @@
-import { ref, watch, type Ref } from 'vue'
-import { Marked } from 'marked'
-import { markedHighlight } from 'marked-highlight'
-import markedKatex from 'marked-katex-extension'
-import { markedSmartypants } from 'marked-smartypants'
-import markedBidi from 'marked-bidi'
-import markedAlert from 'marked-alert'
-import markedExtendedTables from 'marked-extended-tables'
-import hljs from 'highlight.js'
+import { ref, watch, type Ref } from "vue";
+import { Marked } from "marked";
+import { markedHighlight } from "marked-highlight";
+import markedKatex from "marked-katex-extension";
+import { markedSmartypants } from "marked-smartypants";
+import markedBidi from "marked-bidi";
+import markedAlert from "marked-alert";
+import markedExtendedTables from "marked-extended-tables";
+import hljs from "highlight.js";
+import { outlineImagePlugin } from "../markdown/outlineImages";
+import { outlineNoticePlugin } from "../markdown/outlineNotices";
+import { outlineTogglePlugin } from "../markdown/outlineToggles";
+
+function outlineCheckbox(checked: boolean): string {
+  return `
+    <span class="outline-checkbox" aria-hidden="true">
+      <svg viewBox="0 0 14 14">
+        <rect class="outline-checkbox-box" x="1" y="1" width="12" height="12" rx="2" />
+        ${checked ? '<path class="outline-checkbox-tick" d="m3.5 7.1 2.1 2.2 4.9-5" />' : ""}
+      </svg>
+    </span>`;
+}
 
 export function useMarkdown(content: Ref<string>) {
-  const renderedHtml = ref('')
-  const error = ref<string | null>(null)
+  const renderedHtml = ref("");
+  const error = ref<string | null>(null);
 
-  let originalSource = ''
-  let sourceSearchPos = 0
+  let originalSource = "";
+  let sourceSearchPos = 0;
 
   /**
    * Normalize whitespace for searching: collapse 2+ consecutive newlines to single,
@@ -21,204 +34,79 @@ export function useMarkdown(content: Ref<string>) {
    * (which adds blank lines around $$ blocks and expands inline $...$) and original source.
    */
   function normalizeForSearch(text: string): string {
-    return text.replace(/\n{2,}/g, '\n').trim()
+    return text.replace(/\n{2,}/g, "\n").trim();
   }
 
   function lineAtRaw(raw: string): number {
-    let idx = originalSource.indexOf(raw, sourceSearchPos)
-    let useIdx = idx >= 0 ? idx : originalSource.indexOf(raw)
+    let idx = originalSource.indexOf(raw, sourceSearchPos);
+    let useIdx = idx >= 0 ? idx : originalSource.indexOf(raw);
 
     if (useIdx >= 0) {
-      sourceSearchPos = useIdx + raw.length
-      return originalSource.slice(0, useIdx).split('\n').length
+      sourceSearchPos = useIdx + raw.length;
+      return originalSource.slice(0, useIdx).split("\n").length;
     }
 
-    const normalized = normalizeForSearch(raw)
+    const normalized = normalizeForSearch(raw);
     if (normalized !== raw) {
-      idx = originalSource.indexOf(normalized, sourceSearchPos)
-      useIdx = idx >= 0 ? idx : originalSource.indexOf(normalized)
+      idx = originalSource.indexOf(normalized, sourceSearchPos);
+      useIdx = idx >= 0 ? idx : originalSource.indexOf(normalized);
       if (useIdx >= 0) {
-        sourceSearchPos = useIdx + normalized.length
-        return originalSource.slice(0, useIdx).split('\n').length
+        sourceSearchPos = useIdx + normalized.length;
+        return originalSource.slice(0, useIdx).split("\n").length;
       }
     }
 
     // Fallback: try searching with blockquote prefixes (> ) for alert content
     // that has been transformed by markedAlert (raw text stripped of > prefix)
-    const lines = raw.split('\n')
+    const lines = raw.split("\n");
     for (let depth = 1; depth <= 4; depth++) {
-      const prefixed = lines.map(l => `${'> '.repeat(depth)}${l}`).join('\n')
-      const prefixIdx = originalSource.indexOf(prefixed)
+      const prefixed = lines.map((l) => `${"> ".repeat(depth)}${l}`).join("\n");
+      const prefixIdx = originalSource.indexOf(prefixed);
       if (prefixIdx >= 0) {
-        sourceSearchPos = prefixIdx + prefixed.length
-        return originalSource.slice(0, prefixIdx).split('\n').length
+        sourceSearchPos = prefixIdx + prefixed.length;
+        return originalSource.slice(0, prefixIdx).split("\n").length;
       }
     }
-    return 1
+    return 1;
   }
 
   // Wrap marked-extended-tables renderer to emit data-source-line
   const extendedTablesPlugin = (() => {
-    const plugin = markedExtendedTables()
+    const plugin = markedExtendedTables();
     return {
-      extensions: plugin.extensions.map((ext: { name: string; renderer: any }) => {
-        if (ext.name !== 'spanTable') return ext
-        const origRenderer = ext.renderer
-        return {
-          ...ext,
-          renderer(this: any, token: any) {
-            const output = origRenderer.call(this, token)
-            if (token.sourceLine !== undefined) {
-              return output.replace('<table', `<table data-source-line="${token.sourceLine}"`)
-            }
-            return output
-          },
-        }
-      }),
-    }
-  })()
-
-  function outlineNoticeIcon(type: string): string {
-    switch (type) {
-      case 'tip':
-        return `
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="M12 3.2l2.7 5.48 6.05.88-4.38 4.27 1.04 6.03L12 17.02
-                 6.59 19.86l1.04-6.03-4.38-4.27 6.05-.88L12 3.2z"
-              fill="currentColor"
-            />
-          </svg>
-        `
-
-      case 'warning':
-        return `
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="M12 3L22 20H2L12 3z"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M12 9v5"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-            <circle cx="12" cy="17" r="1" fill="currentColor" />
-          </svg>
-        `
-
-      case 'success':
-        return `
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle
-              cx="12"
-              cy="12"
-              r="9"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            />
-            <path
-              d="M8 12.5l2.5 2.5L16.5 9"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        `
-
-      default:
-        return `
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle
-              cx="12"
-              cy="12"
-              r="9"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            />
-            <path
-              d="M12 11v6"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-            <circle cx="12" cy="7.5" r="1.2" fill="currentColor" />
-          </svg>
-        `
-    }
-  }
-
-  const outlineNoticePlugin = {
-    extensions: [
-      {
-        name: 'outlineNotice',
-        level: 'block' as const,
-
-        start(src: string) {
-          const match = src.match(
-            /^:::(?:info|tip|warning|success)[^\S\r\n]*$/m
-          )
-
-          return match?.index
+      extensions: plugin.extensions.map(
+        (ext: { name: string; renderer: any }) => {
+          if (ext.name !== "spanTable") return ext;
+          const origRenderer = ext.renderer;
+          return {
+            ...ext,
+            renderer(this: any, token: any) {
+              const output = origRenderer.call(this, token);
+              if (token.sourceLine !== undefined) {
+                return output.replace(
+                  "<table",
+                  `<table data-source-line="${token.sourceLine}"`,
+                );
+              }
+              return output;
+            },
+          };
         },
-
-        tokenizer(this: any, src: string) {
-          const match =
-            /^:::(info|tip|warning|success)[^\S\r\n]*\r?\n([\s\S]*?)\r?\n:::[^\S\r\n]*(?:\r?\n|$)/i.exec(src)
-
-          if (!match) {
-            return
-          }
-
-          const token: any = {
-            type: 'outlineNotice',
-            raw: match[0],
-            noticeType: match[1].toLowerCase(),
-            tokens: [],
-          }
-
-          this.lexer.blockTokens(match[2], token.tokens)
-
-          return token
-        },
-
-        renderer(this: any, token: any) {
-          const type = token.noticeType
-
-          return `
-            <div class="outline-notice outline-notice-${type}">
-              <div class="outline-notice-icon" aria-hidden="true">
-                ${outlineNoticeIcon(type)}
-              </div>
-              <div class="outline-notice-content">
-                ${this.parser.parse(token.tokens)}
-              </div>
-            </div>
-          `
-        },
-      },
-    ],
-  }
+      ),
+    };
+  })();
 
   const marked = new Marked(
     markedHighlight({
-      langPrefix: 'hljs language-',
+      langPrefix: "hljs language-",
       highlight(code, lang) {
         if (lang && hljs.getLanguage(lang)) {
           try {
-            return hljs.highlight(code, { language: lang }).value
+            return hljs.highlight(code, { language: lang }).value;
           } catch {}
         }
-        return hljs.highlightAuto(code).value
-      }
+        return hljs.highlightAuto(code).value;
+      },
     }),
     markedKatex({
       throwOnError: false,
@@ -226,134 +114,158 @@ export function useMarkdown(content: Ref<string>) {
     markedSmartypants(),
     markedBidi(),
     outlineNoticePlugin,
+    outlineTogglePlugin,
+    outlineImagePlugin,
     markedAlert(),
     extendedTablesPlugin,
-  )
+  );
 
   marked.setOptions({
     gfm: true,
     breaks: true,
-  })
+  });
 
   marked.use({
     walkTokens(token) {
-      if (token.type === 'heading' || token.type === 'paragraph' || token.type === 'code'
-          || token.type === 'list_item' || token.type === 'table' || token.type === 'hr'
-          || token.type === 'spanTable') {
-        ;(token as { sourceLine?: number }).sourceLine = lineAtRaw(token.raw)
+      if (
+        token.type === "heading" ||
+        token.type === "paragraph" ||
+        token.type === "code" ||
+        token.type === "list_item" ||
+        token.type === "table" ||
+        token.type === "hr" ||
+        token.type === "spanTable"
+      ) {
+        (token as { sourceLine?: number }).sourceLine = lineAtRaw(token.raw);
       }
     },
     renderer: {
       paragraph({ tokens, sourceLine }: any) {
-        const text = this.parser.parseInline(tokens)
+        const text = this.parser.parseInline(tokens);
         if (sourceLine !== undefined) {
-          return `<p data-source-line="${sourceLine}">${text}</p>`
+          return `<p data-source-line="${sourceLine}">${text}</p>`;
         }
-        return `<p>${text}</p>`
+        return `<p>${text}</p>`;
       },
       heading({ tokens, depth, sourceLine }: any) {
-        const text = this.parser.parseInline(tokens)
+        const text = this.parser.parseInline(tokens);
         if (sourceLine !== undefined) {
-          return `<h${depth} data-source-line="${sourceLine}">${text}</h${depth}>`
+          return `<h${depth} data-source-line="${sourceLine}">${text}</h${depth}>`;
         }
-        return `<h${depth}>${text}</h${depth}>`
+        return `<h${depth}>${text}</h${depth}>`;
       },
       code({ text, lang, sourceLine }: any) {
-        const langClass = lang ? ` class="language-${lang}"` : ''
-        const attr = sourceLine !== undefined ? ` data-source-line="${sourceLine}"` : ''
-        return `<pre${attr}><code${langClass}>${text}</code></pre>`
+        const langClass = lang ? ` class="language-${lang}"` : "";
+        const attr =
+          sourceLine !== undefined ? ` data-source-line="${sourceLine}"` : "";
+        return `<pre${attr}><code${langClass}>${text}</code></pre>`;
       },
       listitem({ tokens, checked, sourceLine }: any) {
-        const attr = sourceLine !== undefined ? ` data-source-line="${sourceLine}"` : ''
+        const attr =
+          sourceLine !== undefined ? ` data-source-line="${sourceLine}"` : "";
         if (checked !== null && checked !== undefined) {
-          return `<li data-checked="${checked}"${attr}>${this.parser.parse(tokens)}</li>`
+          return `<li class="outline-task-item" data-checked="${checked}"${attr}>${outlineCheckbox(Boolean(checked))}${this.parser.parse(tokens)}</li>`;
         }
-        return `<li${attr}>${this.parser.parse(tokens)}</li>`
+        return `<li${attr}>${this.parser.parse(tokens)}</li>`;
       },
       table({ header, rows, sourceLine }: any) {
-        const attr = sourceLine !== undefined ? ` data-source-line="${sourceLine}"` : ''
+        const attr =
+          sourceLine !== undefined ? ` data-source-line="${sourceLine}"` : "";
         const renderCell = (cell: any, tag: string) => {
-          const alignAttr = cell.align ? ` align="${cell.align}"` : ''
-          return `<${tag}${alignAttr}>${this.parser.parseInline(cell.tokens)}</${tag}>`
-        }
-        const headerHtml = header.map((cell: any) => renderCell(cell, 'th')).join('')
-        const rowsHtml = rows.map((row: any) =>
-          `<tr>${row.map((cell: any) => renderCell(cell, 'td')).join('')}</tr>`
-        ).join('')
-        return `<table${attr}><thead><tr>${headerHtml}</tr></thead><tbody>${rowsHtml}</tbody></table>`
+          const alignAttr = cell.align ? ` align="${cell.align}"` : "";
+          return `<${tag}${alignAttr}>${this.parser.parseInline(cell.tokens)}</${tag}>`;
+        };
+        const headerHtml = header
+          .map((cell: any) => renderCell(cell, "th"))
+          .join("");
+        const rowsHtml = rows
+          .map(
+            (row: any) =>
+              `<tr>${row.map((cell: any) => renderCell(cell, "td")).join("")}</tr>`,
+          )
+          .join("");
+        return `<table${attr}><thead><tr>${headerHtml}</tr></thead><tbody>${rowsHtml}</tbody></table>`;
       },
       hr({ sourceLine }: any) {
-        const attr = sourceLine !== undefined ? ` data-source-line="${sourceLine}"` : ''
-        return `<hr${attr}>`
+        const attr =
+          sourceLine !== undefined ? ` data-source-line="${sourceLine}"` : "";
+        return `<hr${attr}>`;
       },
       html({ text }: { text: string }) {
-        const trimmed = text.trim()
+        const trimmed = text.trim();
         if (/page-break-after\s*:\s*always/i.test(trimmed)) {
-          return '<div data-page-break="true"></div>'
+          return '<div data-page-break="true"></div>';
         }
-        return text
+        return text;
       },
-    }
-  })
+    },
+  });
 
   function preprocessMarkdown(src: string): string {
-    let result = src.replace(/^(\${1,2})([^\n$]+)\1$/gm, (_match: string, delim: string, expr: string) => {
-      return `${delim}\n${expr}\n${delim}`
-    })
+    let result = src.replace(
+      /^(\${1,2})([^\n$]+)\1$/gm,
+      (_match: string, delim: string, expr: string) => {
+        return `${delim}\n${expr}\n${delim}`;
+      },
+    );
 
-    result = result.replace(/([^\n])\n(\$\$\n)/g, '$1\n\n$2')
-    result = result.replace(/(\n\$\$)\n([^\n])/g, '$1\n\n$2')
-    if (result.endsWith('$$') && !result.endsWith('$$\n')) {
-      result += '\n'
+    result = result.replace(/([^\n])\n(\$\$\n)/g, "$1\n\n$2");
+    result = result.replace(/(\n\$\$)\n([^\n])/g, "$1\n\n$2");
+    if (result.endsWith("$$") && !result.endsWith("$$\n")) {
+      result += "\n";
     }
 
-    return result
+    return result;
   }
 
   async function render() {
     try {
-      originalSource = content.value
-      const preprocessed = preprocessMarkdown(content.value)
-      sourceSearchPos = 0
-      let html = await marked.parse(preprocessed)
+      originalSource = content.value;
+      const preprocessed = preprocessMarkdown(content.value);
+      sourceSearchPos = 0;
+      let html = await marked.parse(preprocessed);
 
-      const sourceLines = originalSource.split('\n')
-      const katexStartLines: number[] = []
-      let inKatex = false
+      const sourceLines = originalSource.split("\n");
+      const katexStartLines: number[] = [];
+      let inKatex = false;
       for (let i = 0; i < sourceLines.length; i++) {
-        if (sourceLines[i].trim() === '$$') {
+        if (sourceLines[i].trim() === "$$") {
           if (!inKatex) {
-            katexStartLines.push(i + 1)
-            inKatex = true
+            katexStartLines.push(i + 1);
+            inKatex = true;
           } else {
-            inKatex = false
+            inKatex = false;
           }
         }
       }
 
-      let katexIdx = 0
+      let katexIdx = 0;
       html = html.replace(/<span class="katex-display">/g, () => {
         if (katexIdx < katexStartLines.length) {
-          return `<span class="katex-display" data-source-line="${katexStartLines[katexIdx++]}">`
+          return `<span class="katex-display" data-source-line="${katexStartLines[katexIdx++]}">`;
         }
-        return '<span class="katex-display">'
-      })
+        return '<span class="katex-display">';
+      });
 
-      renderedHtml.value = html
-      error.value = null
+      renderedHtml.value = html;
+      error.value = null;
     } catch (e) {
-      error.value = e instanceof Error ? e.message : 'Render error'
+      error.value = e instanceof Error ? e.message : "Render error";
     }
   }
 
-  let renderTimeout: ReturnType<typeof setTimeout>
-  watch(content, () => {
-    clearTimeout(renderTimeout)
-    renderTimeout = setTimeout(render, 150)
-  }, { immediate: true })
+  let renderTimeout: ReturnType<typeof setTimeout>;
+  watch(
+    content,
+    () => {
+      clearTimeout(renderTimeout);
+      renderTimeout = setTimeout(render, 150);
+    },
+    { immediate: true },
+  );
 
   return {
     renderedHtml,
     error,
-  }
+  };
 }

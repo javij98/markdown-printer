@@ -1,0 +1,69 @@
+/* Paper-only rules. Shared content styling lives in outline-content.css. */
+@media print {
+  html,
+  body,
+  .markdown-body {
+    color-scheme: light;
+    background: #fff;
+  }
+
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  break-after: avoid-page;
+  page-break-after: avoid;
+}
+
+.markdown-body h1 + *,
+.markdown-body h2 + *,
+.markdown-body h3 + *,
+.markdown-body h4 + *,
+.markdown-body h5 + *,
+.markdown-body h6 + * {
+  break-before: avoid-page;
+}
+
+.markdown-body p,
+.markdown-body li {
+  orphans: 3;
+  widows: 3;
+}
+
+.markdown-body .outline-notice,
+.markdown-body .outline-toggle-title,
+.markdown-body .outline-image,
+.markdown-body blockquote,
+.markdown-body .katex-display,
+.markdown-body tr {
+  break-inside: avoid-page;
+  page-break-inside: avoid;
+}
+
+.markdown-body thead {
+  display: table-header-group;
+}
+
+.markdown-body tfoot {
+  display: table-footer-group;
+}
+
+.markdown-body .outline-image-caption {
+  break-before: avoid-page;
+  page-break-before: avoid;
+}
+
+div[data-page-break="true"] {
+  break-before: page;
+  page-break-before: always;
+}

@@ -8,6 +8,8 @@ import { fontFamilyCSS } from "../utils/css";
 import katexCSS from "katex/dist/katex.min.css?raw";
 import gmCSS from "github-markdown-css/github-markdown-light.css?raw";
 import hlCSS from "highlight.js/styles/github.min.css?raw";
+import outlineContentCSS from "../styles/outline-content.css?raw";
+import outlinePrintCSS from "../styles/outline-print.css?raw";
 
 // paged.polyfill is copied to vendor/ via viteStaticCopy (not duplicated in assets)
 
@@ -208,127 +210,8 @@ export function usePDF() {
           padding: 0;
         }
 
-        .markdown-body table,
-        .markdown-body :has(> pre),
-        .markdown-body :has(> code),
-        .markdown-body :has(> blockquote) {
-          break-inside: avoid;
-        }
-
-        .markdown-body table {
-          display: table;
-          width: 100%;
-          table-layout: fixed;
-        }
-
-        .markdown-body table td,
-        .markdown-body table th {
-          overflow-wrap: break-word;
-          word-wrap: break-word;
-        }
-
-        .markdown-body pre,
-        .markdown-body pre code {
-          white-space: pre-wrap;
-          overflow-wrap: break-word;
-          word-wrap: break-word;
-        }
-
-        .markdown-body .outline-notice {
-          display: flex;
-          align-items: center;
-          position: relative;
-
-          background: rgba(54, 51, 255, 0.10);
-          border-left: 4px solid #3633ff;
-          color: #111319;
-
-          border-radius: 4px;
-          padding: 8px 10px 8px 8px;
-          margin: 8px 0;
-
-          break-inside: avoid;
-        }
-
-        .markdown-body .outline-notice-content {
-          flex-grow: 1;
-          min-width: 0;
-        }
-
-        .markdown-body .outline-notice-icon {
-          width: 24px;
-          height: 24px;
-          flex: 0 0 24px;
-          align-self: flex-start;
-          margin-right: 4px;
-
-          color: #3633ff;
-
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .markdown-body .outline-notice-icon svg {
-          width: 18px;
-          height: 18px;
-        }
-
-        .markdown-body .outline-notice-content > :first-child {
-          margin-top: 0;
-        }
-
-        .markdown-body .outline-notice-content > :last-child {
-          margin-bottom: 0;
-        }
-
-
-        /* TIP — amarillo Outline */
-        .markdown-body .outline-notice-tip {
-          background: rgba(245, 190, 49, 0.10);
-          border-left-color: #f5be31;
-        }
-
-        .markdown-body .outline-notice-tip .outline-notice-icon {
-          color: #f5be31;
-        }
-
-
-        /* WARNING — rojo Outline */
-        .markdown-body .outline-notice-warning {
-          background: rgba(215, 58, 73, 0.10);
-          border-left-color: #d73a49;
-        }
-
-        .markdown-body .outline-notice-warning .outline-notice-icon {
-          color: #d73a49;
-        }
-
-
-        /* SUCCESS — verde Outline */
-        .markdown-body .outline-notice-success {
-          background: rgba(58, 217, 132, 0.10);
-          border-left-color: #3ad984;
-        }
-
-        }
-
-        [dir="rtl"].markdown-body ul,
-        [dir="rtl"].markdown-body ol {
-          padding-left: unset;
-          padding-right: 2em;
-          direction: rtl;
-        }
-
-        div[data-page-break="true"] {
-          page-break-before: always;
-          break-before: page;
-        }
-
-        * {
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-        }
+        ${outlineContentCSS}
+        ${outlinePrintCSS}
       `;
 
       const htmlContent = `<!DOCTYPE html>

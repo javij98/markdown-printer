@@ -333,7 +333,8 @@ export function usePagination(
       return { height: h, marginBottom: mb }
     }
 
-    for (const child of children) {
+    for (let childIndex = 0; childIndex < children.length; childIndex++) {
+      const child = children[childIndex]
       const isPageBreak = child.dataset?.pageBreak === 'true'
 
       if (isPageBreak) {
@@ -363,6 +364,34 @@ export function usePagination(
       const effectivePageHeight = firstContentOnPage
         ? maxPageHeight
         : maxPageHeight + prevMarginBottom
+
+      // Match the print stylesheet's break-after rule: if a heading and the
+      // first block after it do not fit together, move both to the next page.
+      const isHeading = child.tagName.length === 2 && /^H[1-6]/.test(child.tagName)
+      const nextChild = children[childIndex + 1]
+      if (
+        isHeading &&
+        nextChild &&
+        nextChild.dataset?.pageBreak !== 'true' &&
+        currentPageElements.length > 0
+      ) {
+        const nextStyle = window.getComputedStyle(nextChild)
+        const nextMarginTop = parseFloat(nextStyle.marginTop) || 0
+        const headingWithNextHeight =
+          effectiveHeight +
+          getElementHeight(nextChild) -
+          Math.min(childMarginBottom, nextMarginTop)
+
+        if (currentHeight + headingWithNextHeight > effectivePageHeight) {
+          result.push({ index: result.length, elements: currentPageElements })
+          child.style.setProperty('margin-top', '0', 'important')
+          currentPageElements = [child.outerHTML]
+          currentHeight = childHeight - childMarginTop
+          prevMarginBottom = childMarginBottom
+          firstContentOnPage = false
+          continue
+        }
+      }
 
       if (child.tagName === 'UL' || child.tagName === 'OL') {
         const fitsOnPage = firstContentOnPage
