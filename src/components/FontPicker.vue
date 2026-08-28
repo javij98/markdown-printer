@@ -261,45 +261,50 @@ async function removeFont() {
 }
 
 label {
-  font-size: 12px;
-  color: var(--text-primary);
-  opacity: 0.8;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.font-select {
+  min-width: 128px;
 }
 
 .font-value-text {
-  max-width: 120px;
+  max-width: 112px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .font-option-item {
+  padding-block: 2px;
   white-space: nowrap;
 }
 
 .font-group-header {
-  font-size: 10px;
-  font-weight: 600;
+  padding: 5px 2px 3px;
+  color: var(--text-tertiary);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .08em;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-primary);
-  opacity: 0.5;
-  padding: 4px 0;
 }
 
 .font-upload-footer {
-  padding: 6px 8px;
-  color: var(--accent-color, #30b9f5);
-  font-weight: 500;
+  margin: 4px 6px 6px;
+  padding: 8px 10px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+  color: var(--accent-color);
   cursor: pointer;
-  border-top: 1px solid var(--text-primary);
-  border-top-color: color-mix(in srgb, var(--text-primary) 15%, transparent);
-  font-size: 13px;
+  font-size: 11px;
+  font-weight: 650;
 }
 
 .font-upload-footer:hover {
-  background: var(--text-primary);
-  background-color: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  border-color: var(--accent-color);
+  background: var(--accent-soft);
 }
 </style>
 

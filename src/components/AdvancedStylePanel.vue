@@ -249,25 +249,158 @@ function update<K extends keyof AdvancedPrintStyle>(key: K, value: AdvancedPrint
 .drawer-heading,
 .master-toggle,
 .color-control,
-.drawer-footer { display: flex; align-items: center; }
-.drawer-heading { gap: 10px; }
-.drawer-heading > div:last-child { display: grid; gap: 2px; }
+.drawer-footer {
+  display: flex;
+  align-items: center;
+}
+
+.drawer-heading {
+  gap: 11px;
+}
+
+.drawer-heading > div:last-child {
+  display: grid;
+  gap: 2px;
+}
+
+.drawer-heading strong {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: -.015em;
+}
+
 .drawer-heading small,
-.master-toggle small { color: var(--text-secondary); font-size: 11px; font-weight: 400; }
-.drawer-icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: color-mix(in srgb, var(--accent-color) 13%, transparent); color: var(--accent-color); }
-.advanced-content { display: grid; gap: 18px; }
-.master-toggle { justify-content: space-between; gap: 16px; padding: 14px; border: 1px solid var(--border-color); border-radius: 12px; background: color-mix(in srgb, var(--bg-secondary) 75%, transparent); }
-.master-toggle > span { display: grid; gap: 3px; }
-.settings-body { display: grid; gap: 22px; transition: opacity .18s ease; }
-.settings-body.disabled { opacity: .45; pointer-events: none; }
-section { display: grid; gap: 12px; }
-h3 { margin: 0; color: var(--text-secondary); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.color-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
-.color-field { display: grid; gap: 6px; padding: 10px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 12px; }
-.color-control { gap: 8px; }
-.color-control input { width: 28px; height: 28px; padding: 0; border: 0; border-radius: 7px; background: none; cursor: pointer; }
-.color-control code { color: var(--text-secondary); font-size: 10px; }
-.drawer-footer { justify-content: space-between; width: 100%; }
+.master-toggle small {
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.drawer-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--accent-color);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-color) 13%, transparent);
+}
+
+.advanced-content {
+  display: grid;
+  gap: 16px;
+}
+
+.master-toggle {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--accent-color) 20%, var(--border-color));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--accent-soft) 62%, var(--bg-primary));
+  box-shadow: var(--shadow-sm);
+}
+
+.master-toggle > span {
+  display: grid;
+  gap: 3px;
+}
+
+.master-toggle strong {
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 720;
+}
+
+.settings-body {
+  display: grid;
+  gap: 14px;
+  transition: opacity .18s ease, filter .18s ease;
+}
+
+.settings-body.disabled {
+  opacity: .42;
+  filter: grayscale(.2);
+  pointer-events: none;
+}
+
+section {
+  display: grid;
+  gap: 11px;
+  padding: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+  box-shadow: var(--shadow-xs);
+}
+
+h3 {
+  margin: 0 0 2px;
+  color: var(--text-secondary);
+  font-size: 9px;
+  font-weight: 780;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.color-field {
+  display: grid;
+  gap: 7px;
+  padding: 9px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  background: var(--bg-primary);
+  font-size: 10px;
+}
+
+.color-control {
+  gap: 8px;
+}
+
+.color-control input {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  background: none;
+  cursor: pointer;
+}
+
+.color-control code {
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-family: "Source Code Pro", monospace;
+  font-size: 9px;
+  text-overflow: ellipsis;
+}
+
+.drawer-footer {
+  width: 100%;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+@media (max-width: 420px) {
+  .color-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
 
 <style>

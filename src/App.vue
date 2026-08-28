@@ -64,56 +64,98 @@
       />
 
       <template v-else>
-        <div class="main-content">
-          <EditorPane
-            v-if="settings.editorMode === 'markdown'"
+        <div class="main-content" :class="`view-${settings.viewMode}`">
+          <section
             v-show="settings.viewMode !== 'preview'"
-            ref="editorRef"
-            v-model="editorContent"
-            :soft-wrap="settings.softWrap"
-            :tab-id="activeTabId"
-            class="editor-section"
+            class="workspace-panel editor-section"
             :class="{ 'full-width': settings.viewMode !== 'split' }"
-            @editor-ready="onEditorReady"
-            @update:selectedText="selectedText = $event"
-          />
+            aria-label="Área de edición"
+          >
+            <header class="workspace-panel-header">
+              <div class="panel-title">
+                <span class="panel-icon panel-icon-editor" aria-hidden="true">
+                  <PencilLine v-if="settings.editorMode === 'visual'" :size="15" />
+                  <FileCode2 v-else :size="15" />
+                </span>
+                <span>
+                  <strong>{{ settings.editorMode === 'visual' ? 'Editor visual' : 'Markdown' }}</strong>
+                  <small>{{ settings.editorMode === 'visual' ? 'Edición por bloques' : 'Fuente original' }}</small>
+                </span>
+              </div>
+              <span class="panel-status">
+                <span class="status-dot"></span>
+                Guardado local
+              </span>
+            </header>
 
-          <VisualEditorPane
-            v-else
-            v-show="settings.viewMode !== 'preview'"
-            :key="activeTabId || 'visual-editor'"
-            ref="visualEditorRef"
-            v-model="editorContent"
-            :tab-id="activeTabId"
-            :font="settings.font"
-            :font-size="settings.fontSize * settings.contentScale"
-            class="editor-section"
-            :class="{ 'full-width': settings.viewMode !== 'split' }"
-            @update:selectedText="selectedText = $event"
-          />
+            <EditorPane
+              v-if="settings.editorMode === 'markdown'"
+              ref="editorRef"
+              v-model="editorContent"
+              :soft-wrap="settings.softWrap"
+              :tab-id="activeTabId"
+              class="workspace-panel-body"
+              @editor-ready="onEditorReady"
+              @update:selectedText="selectedText = $event"
+            />
 
-          <div v-if="settings.viewMode === 'split'" class="divider"></div>
+            <VisualEditorPane
+              v-else
+              :key="activeTabId || 'visual-editor'"
+              ref="visualEditorRef"
+              v-model="editorContent"
+              :tab-id="activeTabId"
+              :font="settings.font"
+              :font-size="settings.fontSize * settings.contentScale"
+              class="workspace-panel-body"
+              @update:selectedText="selectedText = $event"
+            />
+          </section>
 
-          <PreviewPane
+          <div v-if="settings.viewMode === 'split'" class="divider" aria-hidden="true">
+            <span></span>
+          </div>
+
+          <section
             v-show="settings.viewMode !== 'editor'"
-            ref="previewRef"
-            :html="renderedHtml"
-            :page-size="settings.pageSize"
-            :scale="settings.scale"
-            :font="settings.font"
-            :font-size="settings.fontSize"
-            :content-scale="settings.contentScale"
-            :rtl="settings.rtl"
-            :margin="settings.margin"
-            :orientation="settings.orientation"
-            :print-preset="settings.printPreset"
-            :advanced-style="settings.advancedPrintStyle"
-            :container-width="previewContainerWidth"
-            class="preview-section"
+            class="workspace-panel preview-section"
             :class="{ 'full-width': settings.viewMode !== 'split' }"
-            @preview-click="onPreviewClick"
-            @update:scale="settings.scale = $event"
-          />
+            aria-label="Vista de impresión"
+          >
+            <header class="workspace-panel-header">
+              <div class="panel-title">
+                <span class="panel-icon panel-icon-preview" aria-hidden="true">
+                  <ScanText :size="15" />
+                </span>
+                <span>
+                  <strong>Vista de impresión</strong>
+                  <small>{{ settings.pageSize }} · {{ settings.orientation === 'portrait' ? 'Vertical' : 'Horizontal' }}</small>
+                </span>
+              </div>
+              <span class="panel-status preview-status">
+                {{ Math.round(settings.scale * 100) }}%
+              </span>
+            </header>
+
+            <PreviewPane
+              ref="previewRef"
+              :html="renderedHtml"
+              :page-size="settings.pageSize"
+              :scale="settings.scale"
+              :font="settings.font"
+              :font-size="settings.fontSize"
+              :content-scale="settings.contentScale"
+              :rtl="settings.rtl"
+              :margin="settings.margin"
+              :orientation="settings.orientation"
+              :print-preset="settings.printPreset"
+              :advanced-style="settings.advancedPrintStyle"
+              :container-width="previewContainerWidth"
+              class="workspace-panel-body"
+              @preview-click="onPreviewClick"
+              @update:scale="settings.scale = $event"
+            />
+          </section>
         </div>
 
         <FooterBar
@@ -142,6 +184,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
+import { FileCode2, PencilLine, ScanText } from '@lucide/vue'
 import TabBar from './components/TabBar.vue'
 import NewPage from './components/NewPage.vue'
 import Toolbar from './components/Toolbar.vue'
@@ -456,24 +499,153 @@ function handleCloseTab(id: string) {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: var(--bg-secondary);
 }
 
 .main-content {
   flex: 1;
   display: flex;
+  min-height: 0;
+  gap: 0;
+  padding: 10px 10px 0;
   overflow: hidden;
+  background:
+    radial-gradient(circle at 18% -10%, color-mix(in srgb, var(--accent-color) 7%, transparent), transparent 32rem),
+    var(--bg-secondary);
 }
 
-.editor-section {
+.workspace-panel {
   flex: 1;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.workspace-panel-header {
+  min-height: 47px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 7px 12px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border-color);
+  background: color-mix(in srgb, var(--bg-primary) 92%, var(--bg-secondary));
+}
+
+.panel-title {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+}
+
+.panel-title > span:last-child {
+  display: grid;
+  min-width: 0;
+  gap: 1px;
+}
+
+.panel-title strong {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel-title small {
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel-icon {
+  width: 29px;
+  height: 29px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 9px;
+}
+
+.panel-icon-editor {
+  color: var(--accent-color);
+  background: var(--accent-soft);
+}
+
+.panel-icon-preview {
+  color: #0b8f72;
+  background: color-mix(in srgb, #28b78d 13%, var(--bg-primary));
+}
+
+.panel-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  background: var(--surface-subtle);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--success-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--success-color) 13%, transparent);
+}
+
+.preview-status {
+  min-width: 46px;
+  justify-content: center;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-panel-body {
+  flex: 1;
+  min-height: 0;
   min-width: 0;
 }
 
 .divider {
-  width: 1px;
-  background: var(--border-color);
+  position: relative;
+  width: 10px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  cursor: col-resize;
+  background: transparent;
 }
 
+.divider span {
+  width: 2px;
+  height: 38px;
+  border-radius: 999px;
+  background: var(--border-strong);
+  transition: height .16s ease, background-color .16s ease;
+}
+
+.divider:hover span {
+  height: 54px;
+  background: var(--accent-color);
+}
 
 .outline-document-loading {
   position: fixed;
@@ -482,36 +654,53 @@ function handleCloseTab(id: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 16px;
+  padding: 28px;
   background:
-    radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--accent-color) 8%, transparent), transparent 34%),
-    var(--bg-primary);
+    radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--accent-color) 13%, transparent), transparent 28rem),
+    color-mix(in srgb, var(--bg-secondary) 88%, transparent);
   color: var(--text-primary);
+  backdrop-filter: blur(16px);
+}
+
+.outline-document-loading::before {
+  position: absolute;
+  z-index: -1;
+  width: min(430px, calc(100vw - 40px));
+  height: 118px;
+  content: "";
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-lg);
 }
 
 .outline-document-loading div {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .outline-document-loading strong {
   font-size: 15px;
-  font-weight: 650;
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
 .outline-document-loading small {
-  color: color-mix(in srgb, var(--text-primary) 62%, transparent);
+  color: var(--text-secondary);
   font-size: 12px;
+  line-height: 1.45;
 }
 
 .outline-loading-spinner {
-  width: 24px;
-  height: 24px;
-  border: 3px solid color-mix(in srgb, var(--accent-color) 20%, transparent);
+  width: 29px;
+  height: 29px;
+  flex-shrink: 0;
+  border: 3px solid color-mix(in srgb, var(--accent-color) 18%, transparent);
   border-top-color: var(--accent-color);
   border-radius: 999px;
-  animation: outline-loading-spin .8s linear infinite;
+  animation: outline-loading-spin .75s linear infinite;
 }
 
 @keyframes outline-loading-spin {
@@ -519,12 +708,70 @@ function handleCloseTab(id: string) {
     transform: rotate(360deg);
   }
 }
-.preview-section {
-  flex: 1;
-  min-width: 0;
-}
 
 .full-width {
   flex: 1;
+}
+
+@media (max-width: 820px) {
+  .main-content {
+    flex-direction: column;
+    padding: 7px 7px 0;
+  }
+
+  .workspace-panel {
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+
+  .main-content.view-split .workspace-panel {
+    min-height: 0;
+  }
+
+  .divider {
+    width: 100%;
+    height: 8px;
+    cursor: row-resize;
+  }
+
+  .divider span {
+    width: 38px;
+    height: 2px;
+  }
+
+  .divider:hover span {
+    width: 54px;
+    height: 2px;
+  }
+
+  .panel-title small,
+  .panel-status:not(.preview-status) {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .main-content {
+    padding-inline: 0;
+  }
+
+  .workspace-panel {
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+  }
+
+  .workspace-panel-header {
+    min-height: 42px;
+  }
+
+  .outline-document-loading {
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .outline-document-loading::before {
+    height: 168px;
+  }
 }
 </style>

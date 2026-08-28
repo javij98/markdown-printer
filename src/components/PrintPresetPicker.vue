@@ -41,26 +41,33 @@ defineEmits<{
 }
 
 label {
-  color: var(--text-primary);
-  font-size: 12px;
-  opacity: 0.8;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .025em;
 }
 
 .preset-select {
-  min-width: 128px;
+  min-width: 142px;
 }
 
 .preset-option {
+  max-width: 300px;
   display: flex;
-  max-width: 280px;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
+  padding-block: 2px;
+}
+
+.preset-option strong {
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .preset-option span {
-  color: var(--text-primary);
-  font-size: 11px;
-  opacity: 0.65;
+  color: var(--text-secondary);
+  font-size: 10px;
+  line-height: 1.4;
   white-space: normal;
 }
 </style>

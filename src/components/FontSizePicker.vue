@@ -35,13 +35,18 @@ const sizes = [9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24]
 
 label,
 .unit {
-  color: var(--text-primary);
-  font-size: 12px;
-  opacity: 0.8;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.unit {
+  margin-left: -2px;
+  color: var(--text-tertiary);
 }
 
 .font-size-select {
-  width: 78px;
-  min-width: 78px;
+  width: 68px;
+  min-width: 68px;
 }
 </style>

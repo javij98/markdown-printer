@@ -234,7 +234,7 @@ const scaledHeight = computed(() => {
 const pageWrapperStyle = computed(() => ({
   width: `${scaledWidth.value}px`,
   height: `${scaledHeight.value}px`,
-  marginBottom: '20px',
+  marginBottom: '30px',
   flexShrink: 0,
   overflow: 'hidden',
   marginLeft: 'auto',
@@ -255,7 +255,7 @@ const pageStyle = computed(() => {
     transform: `scale(${props.scale})`,
     transformOrigin: 'top left',
     background: 'white',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0 20px 55px rgba(15, 23, 42, 0.16), 0 2px 8px rgba(15, 23, 42, 0.08)',
     overflow: 'hidden',
   }
 })
@@ -269,12 +269,13 @@ defineExpose({
 <style scoped>
 .preview-pane {
   height: 100%;
-  overflow: hidden;
-  background: var(--bg-secondary);
   display: flex;
   justify-content: center;
-  /* Force light mode - preview always renders with white background regardless of system theme */
+  overflow: hidden;
   color-scheme: light;
+  background:
+    radial-gradient(circle at 50% 0, rgb(79 109 245 / 6%), transparent 34rem),
+    linear-gradient(135deg, #e8ebf1 0%, #f0f2f6 48%, #e5e9f0 100%);
 }
 
 .preview-pane :deep(*) {
@@ -282,12 +283,15 @@ defineExpose({
 }
 
 .preview-container {
+  width: 100%;
   height: 100%;
-  overflow: auto;
-  padding: 20px;
   display: flex;
+  align-items: flex-start;
   flex-direction: column;
-  align-items: start;
+  padding: 28px clamp(18px, 4vw, 52px) 40px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scroll-padding-block: 28px;
 }
 
 .preview-content {
@@ -297,6 +301,16 @@ defineExpose({
 .preview-content.markdown-body {
   font-family: inherit;
   font-size: inherit;
+}
+
+.preview-pane :deep(.preview-page) {
+  border: 1px solid rgb(15 23 42 / 8%);
+}
+
+@media (max-width: 700px) {
+  .preview-container {
+    padding: 18px 10px 30px;
+  }
 }
 </style>
 

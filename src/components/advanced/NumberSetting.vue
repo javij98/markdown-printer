@@ -34,13 +34,31 @@ defineEmits<{ 'update:modelValue': [value: number] }>()
 
 <style scoped>
 .number-setting {
+  min-height: 34px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
   color: var(--text-primary);
-  font-size: 12px;
+  font-size: 10px;
+  font-weight: 550;
 }
-.number-setting :deep(.p-inputnumber) { width: 142px; }
-.number-setting :deep(.p-inputtext) { width: 76px; text-align: center; }
+
+.number-setting :deep(.p-inputnumber) {
+  width: 140px;
+}
+
+.number-setting :deep(.p-inputtext) {
+  width: 74px;
+  border-radius: 7px;
+  font-size: 10px;
+  text-align: center;
+}
+
+.number-setting :deep(.p-inputnumber-button) {
+  width: 30px;
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+  background: var(--bg-primary);
+}
 </style>

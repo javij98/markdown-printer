@@ -352,74 +352,118 @@ defineExpose({
   display: flex;
   min-width: 0;
   flex-direction: column;
-  background:
-    radial-gradient(circle at 50% 0, rgb(56 189 248 / 5%), transparent 34rem),
-    var(--bg-primary);
   overflow: hidden;
+  background:
+    radial-gradient(circle at 50% -8%, color-mix(in srgb, var(--accent-color) 7%, transparent), transparent 30rem),
+    var(--bg-secondary);
 }
 
 .visual-editor-root {
   flex: 1;
   min-height: 0;
   overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .outline-safety-note {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 7px 16px;
-  border-bottom: 1px solid rgb(54 51 255 / 18%);
-  background: rgb(54 51 255 / 7%);
-  color: var(--text-primary);
-  font-size: 12px;
+  gap: 8px;
+  padding: 8px 14px;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 17%, var(--border-color));
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--accent-soft) 70%, var(--bg-primary));
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.outline-safety-note svg {
+  flex-shrink: 0;
+  color: var(--accent-color);
 }
 
 .visual-editor-root :deep(.milkdown) {
   --crepe-color-inline-code: #5b21b6;
   min-height: 100%;
+  padding: 24px clamp(10px, 3vw, 30px) 30vh;
   background: transparent;
   transition: color .18s ease, background-color .18s ease;
 }
 
 :global(html.dark .visual-editor-root .milkdown) {
-  --crepe-color-background: #17191d;
-  --crepe-color-on-background: #e6edf3;
-  --crepe-color-surface: #1e1e1e;
-  --crepe-color-surface-low: #25282d;
-  --crepe-color-on-surface: #e6edf3;
-  --crepe-color-on-surface-variant: #aeb7c2;
-  --crepe-color-outline: #4a525d;
-  --crepe-color-primary: #7dd3fc;
-  --crepe-color-secondary: #31363d;
-  --crepe-color-on-secondary: #e6edf3;
-  --crepe-color-inverse: #f0f6fc;
-  --crepe-color-on-inverse: #1f2328;
+  --crepe-color-background: #151922;
+  --crepe-color-on-background: #edf1f7;
+  --crepe-color-surface: #1c222d;
+  --crepe-color-surface-low: #242b37;
+  --crepe-color-on-surface: #edf1f7;
+  --crepe-color-on-surface-variant: #aab4c3;
+  --crepe-color-outline: #3d4757;
+  --crepe-color-primary: #8297ff;
+  --crepe-color-secondary: #293142;
+  --crepe-color-on-secondary: #edf1f7;
+  --crepe-color-inverse: #f4f6fb;
+  --crepe-color-on-inverse: #182033;
   --crepe-color-inline-code: #c4b5fd;
-  --crepe-color-error: #fbbf24;
-  --crepe-color-hover: #292e35;
-  --crepe-color-selected: #343b44;
-  --crepe-color-inline-area: #2b3138;
+  --crepe-color-error: #f0a34a;
+  --crepe-color-hover: #252d3a;
+  --crepe-color-selected: #303b4f;
+  --crepe-color-inline-area: #252e3d;
+}
+
+.visual-editor-root :deep(.milkdown .ProseMirror) {
+  box-sizing: border-box;
+  width: min(100%, 900px);
+  min-height: max(760px, calc(100vh - 250px));
+  margin: 0 auto;
+  padding: 54px clamp(32px, 7vw, 82px) 180px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  box-shadow: 0 18px 45px rgb(16 24 40 / 10%), 0 2px 6px rgb(16 24 40 / 5%);
+  font-family: var(--visual-editor-font), sans-serif;
+  font-size: var(--visual-editor-size);
+  line-height: 1.68;
+}
+
+:global(html.dark .visual-editor-root .milkdown .ProseMirror) {
+  box-shadow: 0 20px 52px rgb(0 0 0 / 32%), 0 2px 7px rgb(0 0 0 / 24%);
 }
 
 .visual-editor-root :deep(.crepe-placeholder::before) {
   z-index: 1;
-  color: color-mix(in srgb, var(--crepe-color-on-background), transparent 38%);
+  color: var(--text-tertiary);
   opacity: 1;
 }
 
+.visual-editor-root :deep(.milkdown .ProseMirror p) {
+  margin: 0 0 .95em;
+}
+
+.visual-editor-root :deep(.milkdown .ProseMirror h1),
+.visual-editor-root :deep(.milkdown .ProseMirror h2),
+.visual-editor-root :deep(.milkdown .ProseMirror h3),
+.visual-editor-root :deep(.milkdown .ProseMirror h4) {
+  color: var(--text-primary);
+  font-family: inherit;
+  line-height: 1.22;
+  letter-spacing: -.025em;
+  text-wrap: balance;
+}
+
 .visual-editor-root :deep(.milkdown-code-block) {
-  margin-block: 1em 1.2em;
-  border: 1px solid color-mix(in srgb, var(--crepe-color-outline) 55%, transparent);
-  border-radius: 10px;
+  margin-block: 1.1em 1.25em;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--crepe-color-outline) 65%, transparent);
+  border-radius: 11px;
   background: var(--crepe-color-surface);
-  box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
+  box-shadow: var(--shadow-xs);
   transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease;
 }
 
 :global(html.dark .visual-editor-root .milkdown-code-block) {
-  border-color: #353b44;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 16%);
+  border-color: #343e4d;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 17%);
 }
 
 .visual-editor-root :deep(.milkdown-code-block .cm-editor),
@@ -427,47 +471,47 @@ defineExpose({
   background-color: var(--crepe-color-surface);
 }
 
-.visual-editor-root :deep(.milkdown .ProseMirror) {
-  box-sizing: border-box;
-  width: min(100%, 920px);
-  min-height: 100%;
-  margin: 0 auto;
-  padding: 48px clamp(28px, 6vw, 72px) 28vh;
-  color: var(--text-primary);
-  font-family: var(--visual-editor-font), sans-serif;
-  font-size: var(--visual-editor-size);
-  line-height: 1.65;
-}
-
-.visual-editor-root :deep(.milkdown .ProseMirror p) {
-  margin: 0 0 0.9em;
-}
-
-.visual-editor-root :deep(.milkdown .ProseMirror h1),
-.visual-editor-root :deep(.milkdown .ProseMirror h2),
-.visual-editor-root :deep(.milkdown .ProseMirror h3),
-.visual-editor-root :deep(.milkdown .ProseMirror h4) {
-  font-family: inherit;
-  line-height: 1.25;
-  text-wrap: balance;
-}
-
 .visual-editor-root :deep(.milkdown .ProseMirror pre) {
   margin-block: 1em 1.2em;
 }
 
 .visual-editor-root :deep(.milkdown .ProseMirror pre code) {
-  font-family: 'Source Code Pro', ui-monospace, monospace;
+  font-family: "Source Code Pro", ui-monospace, monospace;
+}
+
+.visual-editor-root :deep(.milkdown .milkdown-toolbar),
+.visual-editor-root :deep(.milkdown .milkdown-slash-menu),
+.visual-editor-root :deep(.milkdown .milkdown-link-preview) {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(16px);
 }
 
 .visual-editor-root :deep(a[href^='https://outline.local/preserved/']) {
   display: block;
-  padding: 12px 14px;
-  border: 1px dashed rgb(54 51 255 / 45%);
-  border-radius: 8px;
-  background: rgb(54 51 255 / 7%);
-  color: #3633ff;
-  font-weight: 600;
+  padding: 13px 15px;
+  border: 1px dashed color-mix(in srgb, var(--accent-color) 52%, var(--border-color));
+  border-radius: 10px;
+  color: var(--accent-color);
+  background: var(--accent-soft);
+  font-weight: 650;
   text-decoration: none;
+}
+
+@media (max-width: 700px) {
+  .visual-editor-root :deep(.milkdown) {
+    padding: 0 0 24vh;
+  }
+
+  .visual-editor-root :deep(.milkdown .ProseMirror) {
+    min-height: 100%;
+    padding: 34px 24px 140px;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
 }
 </style>

@@ -1,42 +1,77 @@
 :root {
+  color-scheme: light;
   --bg-primary: #ffffff;
-  --bg-secondary: #f5f5f5;
-  --text-primary: #333333;
-  --border-color: #e0e0e0;
-  --accent-color: #30b9f5;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    --bg-primary: #1a1a1a;
-    --bg-secondary: #2a2a2a;
-    --text-primary: #e0e0e0;
-    --border-color: #444444;
-    --accent-color: #38bdf8;
-  }
+  --bg-secondary: #f6f7fb;
+  --bg-tertiary: #eef1f7;
+  --bg-elevated: rgb(255 255 255 / 92%);
+  --bg-info: #f8faff;
+  --surface-subtle: #f9fafc;
+  --surface-hover: #f1f4fa;
+  --surface-active: #e9efff;
+  --text-primary: #182033;
+  --text-secondary: #667085;
+  --text-tertiary: #98a2b3;
+  --border-color: #e1e6ef;
+  --border-strong: #cdd5e2;
+  --accent-color: #4f6df5;
+  --accent-hover: #3f5ee8;
+  --accent-soft: #edf1ff;
+  --accent-contrast: #ffffff;
+  --success-color: #16a36a;
+  --warning-color: #d97706;
+  --danger-color: #e5484d;
+  --shadow-xs: 0 1px 2px rgb(16 24 40 / 5%);
+  --shadow-sm: 0 2px 8px rgb(16 24 40 / 7%);
+  --shadow-md: 0 10px 30px rgb(16 24 40 / 11%);
+  --shadow-lg: 0 24px 64px rgb(16 24 40 / 16%);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --app-header-height: 48px;
+  --app-toolbar-height: 58px;
 }
 
 html.dark {
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #2a2a2a;
-  --text-primary: #e0e0e0;
-  --border-color: #444444;
-  --accent-color: #38bdf8;
+  color-scheme: dark;
+  --bg-primary: #11141b;
+  --bg-secondary: #171b24;
+  --bg-tertiary: #202631;
+  --bg-elevated: rgb(24 29 39 / 94%);
+  --bg-info: #151a25;
+  --surface-subtle: #181d27;
+  --surface-hover: #222936;
+  --surface-active: #28334d;
+  --text-primary: #edf1f7;
+  --text-secondary: #aab4c3;
+  --text-tertiary: #778397;
+  --border-color: #2d3542;
+  --border-strong: #3d4757;
+  --accent-color: #8297ff;
+  --accent-hover: #9aabff;
+  --accent-soft: #242d4d;
+  --accent-contrast: #0e1320;
+  --success-color: #48c78e;
+  --warning-color: #f0a34a;
+  --danger-color: #ff6b70;
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 18%);
+  --shadow-sm: 0 4px 12px rgb(0 0 0 / 22%);
+  --shadow-md: 0 14px 38px rgb(0 0 0 / 28%);
+  --shadow-lg: 0 28px 72px rgb(0 0 0 / 38%);
 }
 
 html.light {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f5f5f5;
-  --text-primary: #333333;
-  --border-color: #e0e0e0;
-  --accent-color: #30b9f5;
+  color-scheme: light;
 }
 
 * {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body,
+#app {
+  width: 100%;
   height: 100%;
   height: 100dvh;
   overflow: hidden;
@@ -44,7 +79,173 @@ html, body {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Open Sans', 'Segoe UI', Roboto, sans-serif;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--accent-color) 28%, transparent);
+}
+
+* {
+  scrollbar-color: color-mix(in srgb, var(--text-tertiary) 58%, transparent) transparent;
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-tertiary) 52%, transparent);
+  background-clip: padding-box;
+}
+
+*:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent-color) 70%, white);
+  outline-offset: 2px;
+}
+
+.p-button {
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: color .16s ease, background-color .16s ease, border-color .16s ease,
+    box-shadow .16s ease, transform .16s ease;
+}
+
+.p-button:not(.p-disabled):active {
+  transform: translateY(1px);
+}
+
+.p-button.p-button-text:not(.p-disabled):hover {
+  background: var(--surface-hover);
+}
+
+.p-select,
+.p-inputtext,
+.p-inputnumber-input {
+  border-color: var(--border-color);
+  border-radius: var(--radius-sm);
   background: var(--bg-primary);
   color: var(--text-primary);
+  box-shadow: var(--shadow-xs);
+}
+
+.p-select:not(.p-disabled):hover,
+.p-inputtext:not(:disabled):hover,
+.p-inputnumber:not(.p-disabled):hover .p-inputnumber-input {
+  border-color: var(--border-strong);
+}
+
+.p-select.p-focus,
+.p-inputtext:focus,
+.p-inputnumber:has(.p-inputtext:focus) .p-inputnumber-input {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 15%, transparent);
+}
+
+.p-select-overlay,
+.p-menu,
+.p-contextmenu,
+.p-popover,
+.p-dialog,
+.p-drawer {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(18px) saturate(1.15);
+}
+
+.p-select-list,
+.p-menu-list,
+.p-contextmenu-list {
+  padding: 6px;
+}
+
+.p-select-option,
+.p-menu-item-content,
+.p-contextmenu-item-content {
+  border-radius: var(--radius-sm);
+}
+
+.p-select-option.p-select-option-selected,
+.p-select-option.p-focus,
+.p-menu-item-content:hover,
+.p-contextmenu-item-content:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.p-select-option.p-select-option-selected {
+  background: var(--accent-soft);
+  color: var(--accent-color);
+}
+
+.p-dialog-header,
+.p-drawer-header {
+  padding: 20px 22px 14px;
+}
+
+.p-dialog-content,
+.p-drawer-content {
+  padding: 14px 22px 22px;
+}
+
+.p-dialog-footer,
+.p-drawer-footer {
+  border-top: 1px solid var(--border-color);
+  padding: 14px 22px;
+}
+
+.p-popover-content {
+  padding: 18px;
+}
+
+.p-slider {
+  --p-slider-track-background: var(--bg-tertiary);
+  --p-slider-range-background: var(--accent-color);
+  --p-slider-handle-background: var(--bg-primary);
+  --p-slider-handle-border-color: var(--accent-color);
+}
+
+.p-toggleswitch.p-toggleswitch-checked .p-toggleswitch-slider {
+  background: var(--accent-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
 }

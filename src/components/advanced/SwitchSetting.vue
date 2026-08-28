@@ -17,14 +17,34 @@ defineEmits<{ 'update:modelValue': [value: boolean] }>()
 
 <style scoped>
 .switch-setting {
+  min-height: 49px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 10px 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 65%, transparent);
+  padding: 8px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
 }
-.switch-setting > span { display: grid; gap: 3px; }
-.switch-setting strong { color: var(--text-primary); font-size: 12px; font-weight: 600; }
-.switch-setting small { max-width: 270px; color: var(--text-secondary); font-size: 11px; line-height: 1.35; }
+
+.switch-setting:last-child {
+  border-bottom: 0;
+}
+
+.switch-setting > span {
+  display: grid;
+  gap: 3px;
+}
+
+.switch-setting strong {
+  color: var(--text-primary);
+  font-size: 10px;
+  font-weight: 680;
+}
+
+.switch-setting small {
+  max-width: 270px;
+  color: var(--text-secondary);
+  font-size: 9px;
+  line-height: 1.4;
+}
 </style>

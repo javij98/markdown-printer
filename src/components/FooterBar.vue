@@ -1,13 +1,13 @@
 <template>
   <div class="footer-bar">
     <div class="footer-left" v-show="viewMode !== 'preview'">
-      <span class="stat">{{ wordCount }} words</span>
+      <span class="stat">{{ wordCount }} palabras</span>
       <span class="separator">|</span>
-      <span class="stat">{{ charCount }} chars</span>
+      <span class="stat">{{ charCount }} caracteres</span>
       <span class="separator">|</span>
       <button ref="aiButtonRef" class="ai-status" :class="{ disabled: !llmEnabled }" @click="$emit('open-ai-settings')" :title="llmEnabled ? (llmConnected ? 'AI connected' : 'AI error') : 'AI disabled — click to configure'">
         <span class="ai-dot" :class="!llmEnabled ? 'off' : (llmConnected ? 'connected' : 'error')"></span>
-        <span class="ai-label">{{ llmEnabled ? llmModel : 'AI Off' }}</span>
+        <span class="ai-label">{{ llmEnabled ? llmModel : 'IA desactivada' }}</span>
       </button>
     </div>
     <div class="footer-spacer"></div>
@@ -36,7 +36,7 @@
           size="small"
           class="view-mode-btn"
           @click="$emit('update:viewMode', 'editor')"
-          title="Editor only"
+          title="Solo editor"
         >
           <FileEdit :size="14" />
         </Button>
@@ -46,7 +46,7 @@
           size="small"
           class="view-mode-btn"
           @click="$emit('update:viewMode', 'preview')"
-          title="Preview only"
+          title="Solo vista de impresión"
         >
           <Eye :size="14" />
         </Button>
@@ -56,7 +56,7 @@
           size="small"
           class="view-mode-btn"
           @click="$emit('update:viewMode', 'split')"
-          title="Side by side"
+          title="Vista dividida"
         >
           <Columns2 :size="14" />
         </Button>
@@ -125,119 +125,170 @@ function decrement() {
 
 <style scoped>
 .footer-bar {
+  min-height: 36px;
   display: flex;
   align-items: center;
-  padding: 4px 12px;
-  background: var(--bg-secondary);
-  border-top: 1px solid var(--border-color);
-  font-size: 11px;
-  color: var(--text-primary);
-  opacity: 0.8;
-  min-height: 28px;
   flex-shrink: 0;
+  padding: 4px 10px;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--bg-primary) 93%, transparent);
+  box-shadow: 0 -3px 14px rgb(16 24 40 / 3%);
+  font-size: 9px;
+  backdrop-filter: blur(14px);
 }
 
 .footer-spacer {
   flex: 1;
 }
 
-.footer-left {
+.footer-left,
+.footer-right,
+.scale-control,
+.view-mode-control {
   display: flex;
   align-items: center;
-  gap: 8px;
 }
 
-.stat {
-  text-align: center;
+.footer-left {
+  gap: 7px;
 }
 
 .footer-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  gap: 10px;
+}
+
+.stat {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .separator {
-  color: var(--border-color);
+  color: var(--border-strong);
 }
 
 .ai-status {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  font-size: 11px;
+  gap: 6px;
+  padding: 4px 7px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--text-secondary);
+  background: var(--surface-subtle);
   cursor: pointer;
-  padding: 0;
   font-family: inherit;
+  font-size: 9px;
+  transition: color .15s ease, background-color .15s ease;
 }
 
 .ai-status:hover {
-  text-decoration: underline;
+  color: var(--text-primary);
+  background: var(--surface-hover);
 }
 
 .ai-status.disabled {
-  opacity: 0.5;
+  opacity: .7;
 }
 
 .ai-dot {
   width: 6px;
   height: 6px;
-  border-radius: 50%;
   display: inline-block;
-  flex-shrink: 0; 
+  flex-shrink: 0;
+  border-radius: 50%;
 }
 
 .ai-dot.off {
-  background-color: #888;
+  background: var(--text-tertiary);
 }
 
 .ai-dot.connected {
-  background-color: #22c55e;
+  background: var(--success-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--success-color) 12%, transparent);
 }
 
 .ai-dot.error {
-  background-color: #ef4444;
+  background: var(--danger-color);
 }
 
 .ai-label {
-  opacity: 0.8;
-}
-
-.view-mode-control {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.view-mode-btn {
-  min-width: 22px;
-  height: 22px;
-  padding: 0 4px;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .scale-control {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  gap: 3px;
+  padding: 2px 5px;
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  background: var(--surface-subtle);
 }
 
 .scale-btn {
-  min-width: 20px;
-  height: 20px;
-  padding: 0 4px;
-  font-size: 13px;
-  line-height: 1;
+  min-width: 24px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--text-secondary);
 }
 
 .scale-slider {
-  width: 80px;
+  width: 76px;
+  margin-inline: 2px;
 }
 
 .scale-label {
-  min-width: 3em;
+  min-width: 34px;
+  color: var(--text-secondary);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
   text-align: right;
+}
+
+.view-mode-control {
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  background: var(--bg-tertiary);
+}
+
+.view-mode-btn {
+  min-width: 27px;
+  width: 27px;
+  height: 25px;
+  padding: 0;
+  color: var(--text-secondary);
+}
+
+.view-mode-control :deep(.p-button.p-button-info) {
+  color: var(--accent-color);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-xs);
+}
+
+@media (max-width: 620px) {
+  .footer-bar {
+    padding-inline: 6px;
+  }
+
+  .footer-left .separator,
+  .footer-left .stat:nth-of-type(n + 3),
+  .scale-slider {
+    display: none;
+  }
+
+  .scale-control {
+    padding-inline: 3px;
+  }
+
+  .ai-label {
+    max-width: 72px;
+  }
 }
 </style>

@@ -65,52 +65,54 @@ const menuItems = ref<MenuItem[]>([
 .download-menu :deep(.print-action) {
   overflow: hidden;
   border-radius: 11px;
-  box-shadow: 0 5px 14px rgb(37 99 235 / 22%);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent-color) 24%, transparent);
   transition: transform .16s ease, box-shadow .16s ease;
 }
 
 .download-menu :deep(.print-action:hover:not(.p-disabled)) {
   transform: translateY(-1px);
-  box-shadow: 0 7px 18px rgb(37 99 235 / 30%);
+  box-shadow: 0 9px 22px color-mix(in srgb, var(--accent-color) 30%, transparent);
 }
 
 .download-menu :deep(.print-action .p-splitbutton-button),
 .download-menu :deep(.print-action .p-splitbutton-dropdown) {
-  height: 36px;
+  height: 38px;
   border-color: transparent;
-  background: linear-gradient(135deg, #2563eb, #4f46e5);
   color: #fff;
-  transition: filter .16s ease, background .16s ease;
+  background: var(--accent-color);
 }
 
 .download-menu :deep(.print-action .p-splitbutton-button) {
+  min-width: 108px;
   display: flex;
-  min-width: 104px;
-  gap: 7px;
   justify-content: center;
+  gap: 8px;
   border-radius: 11px 0 0 11px;
-  font-weight: 650;
+  font-size: 11px;
+  font-weight: 750;
 }
 
 .download-menu :deep(.print-action .p-splitbutton-dropdown) {
-  width: 32px;
-  border-left-color: rgb(255 255 255 / 18%);
+  width: 34px;
+  border-left: 1px solid rgb(255 255 255 / 20%);
   border-radius: 0 11px 11px 0;
+  background: color-mix(in srgb, var(--accent-color) 88%, #182033);
 }
 
 .download-menu :deep(.print-action .p-splitbutton-button:hover),
 .download-menu :deep(.print-action .p-splitbutton-dropdown:hover) {
-  filter: brightness(1.08) saturate(1.05);
+  background: var(--accent-hover);
 }
 
 .download-menu :deep(.print-action .p-splitbutton-button:focus-visible),
 .download-menu :deep(.print-action .p-splitbutton-dropdown:focus-visible) {
-  outline: 2px solid color-mix(in srgb, var(--accent-color) 70%, white);
+  outline: 2px solid color-mix(in srgb, var(--accent-color) 55%, white);
   outline-offset: 2px;
 }
 
 .download-menu :deep(.print-action.p-disabled) {
   box-shadow: none;
+  opacity: .7;
 }
 
 .spin {
@@ -118,7 +120,23 @@ const menuItems = ref<MenuItem[]>([
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+@media (max-width: 680px) {
+  .download-menu :deep(.print-action .p-splitbutton-button) {
+    min-width: 38px;
+    width: 38px;
+    padding: 0;
+    border-radius: 10px;
+  }
+
+  .download-menu :deep(.print-action .p-splitbutton-button span) {
+    display: none;
+  }
+
+  .download-menu :deep(.print-action .p-splitbutton-dropdown) {
+    display: none;
+  }
 }
 </style>
