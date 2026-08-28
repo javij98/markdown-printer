@@ -1,5 +1,13 @@
 <template>
   <div class="app">
+    <div v-if="outlineDocumentLoading" class="outline-document-loading" role="status" aria-live="polite">
+      <span class="outline-loading-spinner" aria-hidden="true"></span>
+      <div>
+        <strong>Cargando documento de Outline</strong>
+        <small>Comprobando la sesión y preparando el contenido para editarlo…</small>
+      </div>
+    </div>
+
     <TabBar
       v-if="tabs.length > 0"
       :tabs="tabs"
@@ -149,17 +157,30 @@ import { useScrollSync } from './composables/useScrollSync'
 import { usePDF } from './composables/usePDF'
 import { useImages } from './composables/useImages'
 import { loadSettings, saveSettings, loadLlmConfig, isLlmEnabled } from './utils/storage'
-import { DEFAULT_ADVANCED_PRINT_STYLE, PAGE_SIZES, getDefaultAdvancedPrintStyle, getScaleRange, getContentScaleFactor } from './utils/constants'
+import { DEFAULT_ADVANCED_PRINT_STYLE, PAGE_SIZES, STORAGE_KEYS, getDefaultAdvancedPrintStyle, getScaleRange, getContentScaleFactor } from './utils/constants'
+import { loadOutlineDocument, parseOutlineDocumentId } from './utils/outlineDocument'
 import type { AdvancedPrintStyle, EditorSettings, PrintPreset, Tab } from './utils/types'
 
 const footerRef = ref<InstanceType<typeof FooterBar>>()
 
 // Tab management
+const outlineDocumentId = parseOutlineDocumentId(window.location.pathname)
+const isOutlineDocumentMode = !!outlineDocumentId
+const outlineDocumentLoading = ref(isOutlineDocumentMode)
+
+// A document opened from Outline must not reuse the tabs copied from another
+// Print Studio window. The source document remains in Outline; this tab is an
+// isolated working copy for formatting and printing.
+if (isOutlineDocumentMode) {
+  sessionStorage.removeItem(STORAGE_KEYS.TABS)
+  sessionStorage.removeItem(STORAGE_KEYS.ACTIVE_TAB)
+}
+
 const {
   tabs, activeTabId, createTab, closeTab, renameTab,
   updateTabContent, getActiveTab,
   replaceTabWithHistory,
-} = useTabs()
+} = useTabs({ persistHistory: !isOutlineDocumentMode })
 const { loadImages } = useImages()
 
 // Active tab content
@@ -238,7 +259,32 @@ onMounted(async () => {
   }
 
   await refreshLlmState()
+  await loadRequestedOutlineDocument()
 })
+
+async function loadRequestedOutlineDocument() {
+  if (!outlineDocumentId) return
+
+  outlineDocumentLoading.value = true
+
+  try {
+    const document = await loadOutlineDocument(outlineDocumentId)
+
+    activateTabWithContent(document.markdown, document.name)
+  } catch (error) {
+    console.error('Failed to load Outline document:', error)
+
+    const message = error instanceof Error
+      ? error.message
+      : 'Error desconocido'
+
+    window.alert(
+      `No se ha podido cargar el documento de Outline.\n\n${message}`,
+    )
+  } finally {
+    outlineDocumentLoading.value = false
+  }
+}
 
 // Save settings on change
 watch(settings, (newSettings) => {
@@ -428,6 +474,51 @@ function handleCloseTab(id: string) {
   background: var(--border-color);
 }
 
+
+.outline-document-loading {
+  position: fixed;
+  z-index: 10000;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background:
+    radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--accent-color) 8%, transparent), transparent 34%),
+    var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.outline-document-loading div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.outline-document-loading strong {
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.outline-document-loading small {
+  color: color-mix(in srgb, var(--text-primary) 62%, transparent);
+  font-size: 12px;
+}
+
+.outline-loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid color-mix(in srgb, var(--accent-color) 20%, transparent);
+  border-top-color: var(--accent-color);
+  border-radius: 999px;
+  animation: outline-loading-spin .8s linear infinite;
+}
+
+@keyframes outline-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 .preview-section {
   flex: 1;
   min-width: 0;

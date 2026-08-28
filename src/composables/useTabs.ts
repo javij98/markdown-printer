@@ -2,7 +2,12 @@ import { ref, watch } from 'vue'
 import type { Tab } from '../utils/types'
 import { loadTabs, saveTabs, loadActiveTabId, saveActiveTabId, generateTabId, saveTabToHistory, removeTabFromHistory, clearTabHistory } from '../utils/storage'
 
-export function useTabs() {
+type UseTabsOptions = {
+  persistHistory?: boolean
+}
+
+export function useTabs(options: UseTabsOptions = {}) {
+  const persistHistory = options.persistHistory ?? true
   const tabs = ref<Tab[]>([])
   const activeTabId = ref<string | null>(null)
   const savedContents = ref<Record<string, string>>({})
@@ -61,7 +66,7 @@ export function useTabs() {
     if (tab) {
       tab.name = name
       tab.updatedAt = Date.now()
-      if (tab.content.trim()) saveTabToHistory(tab)
+      if (persistHistory && tab.content.trim()) saveTabToHistory(tab)
     }
   }
 
@@ -77,7 +82,9 @@ export function useTabs() {
           tab.name = firstLine.slice(0, 30)
         }
       }
-      debouncedHistorySave(id)
+      if (persistHistory) {
+        debouncedHistorySave(id)
+      }
     }
   }
 
@@ -97,7 +104,9 @@ export function useTabs() {
     const tab = tabs.value.find(t => t.id === id)
     if (tab) {
       savedContents.value[id] = tab.content
-      saveTabToHistory(tab).catch(e => console.error('saveTab failed:', e))
+      if (persistHistory) {
+        saveTabToHistory(tab).catch(e => console.error('saveTab failed:', e))
+      }
     }
   }
 
