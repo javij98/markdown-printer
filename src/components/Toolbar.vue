@@ -60,12 +60,7 @@
       <span class="separator" v-if="viewMode === 'split'"></span>
 
       <div class="toolbar-center">
-        <PrintPresetPicker
-          :model-value="printPreset"
-          :advanced-active="advancedStyle.enabled"
-          @update:model-value="$emit('update:printPreset', $event)"
-          @open-advanced="showAdvancedStyle = true"
-        />
+        <PrintPresetPicker :model-value="printPreset" @update:model-value="$emit('update:printPreset', $event)" />
 
         <MarginPicker
           :model-value="margin"
@@ -139,13 +134,30 @@
       </div>
     </div>
 
-    <DownloadMenu
-      :content="content"
-      :rendered-html="renderedHtml"
-      :is-generating="isGenerating"
-      @download-pdf="$emit('download-pdf')"
-      class="toolbar-print"
-    />
+    <div class="toolbar-actions">
+      <Button
+        severity="secondary"
+        outlined
+        size="small"
+        class="format-action"
+        :class="{ active: advancedStyle.enabled }"
+        :aria-pressed="advancedStyle.enabled"
+        title="Abrir formato avanzado de impresión"
+        @click="showAdvancedStyle = true"
+      >
+        <SlidersHorizontal :size="16" />
+        <span>Formato</span>
+        <span v-if="advancedStyle.enabled" class="format-active-dot" aria-hidden="true"></span>
+      </Button>
+
+      <DownloadMenu
+        :content="content"
+        :rendered-html="renderedHtml"
+        :is-generating="isGenerating"
+        @download-pdf="$emit('download-pdf')"
+        class="toolbar-print"
+      />
+    </div>
   </div>
 
   <AdvancedStylePanel
@@ -163,7 +175,7 @@ import Button from 'primevue/button'
 import Slider from 'primevue/slider'
 import type { AdvancedPrintStyle, EditorMode, MarginConfig, PrintPreset, ViewMode } from '../utils/types'
 import { PAGE_SIZES, getContentScaleRange } from '../utils/constants'
-import { Undo2, Redo2, TextAlignStart, TextAlignEnd, RectangleVertical, RectangleHorizontal, StickyNotePlus, WrapText, Plus, Minus, RotateCcw, LayoutTemplate, FileCode2 } from '@lucide/vue'
+import { Undo2, Redo2, TextAlignStart, TextAlignEnd, RectangleVertical, RectangleHorizontal, StickyNotePlus, WrapText, Plus, Minus, RotateCcw, LayoutTemplate, FileCode2, SlidersHorizontal } from '@lucide/vue'
 import MarginPicker from './MarginPicker.vue'
 import PageSizeSelector from './PageSizeSelector.vue'
 import FontPicker from './FontPicker.vue'
@@ -256,6 +268,49 @@ function resetContentScale() {
   flex-shrink: 0;
 }
 
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
+  padding-left: 9px;
+  border-left: 1px solid var(--border-color);
+}
+
+.format-action {
+  position: relative;
+  height: 36px;
+  gap: 6px;
+  padding-inline: 10px;
+  border-color: color-mix(in srgb, var(--border-color) 88%, var(--text-primary));
+  background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
+  color: color-mix(in srgb, var(--text-primary) 82%, transparent);
+}
+
+.format-action span:not(.format-active-dot) {
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.format-action:hover,
+.format-action.active {
+  border-color: color-mix(in srgb, var(--accent-color) 45%, var(--border-color));
+  background: color-mix(in srgb, var(--accent-color) 10%, var(--bg-primary));
+  color: var(--accent-color);
+}
+
+.format-active-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--bg-primary);
+  border-radius: 999px;
+  background: var(--accent-color);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-color) 16%, transparent);
+}
 .toolbar-left,
 .toolbar-center {
   display: flex;

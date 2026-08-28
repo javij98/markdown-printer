@@ -40,7 +40,7 @@
         @update:fontSize="settings.fontSize = $event"
         @update:editorMode="settings.editorMode = $event"
         @update:printPreset="selectPrintPreset"
-        @update:advancedStyle="settings.advancedPrintStyle = $event"
+        @update:advancedStyle="updateAdvancedStyle"
         @reset:advancedStyle="resetAdvancedStyle"
         @undo="undoActiveEditor"
         @redo="redoActiveEditor"
@@ -150,7 +150,7 @@ import { usePDF } from './composables/usePDF'
 import { useImages } from './composables/useImages'
 import { loadSettings, saveSettings, loadLlmConfig, isLlmEnabled } from './utils/storage'
 import { DEFAULT_ADVANCED_PRINT_STYLE, PAGE_SIZES, getDefaultAdvancedPrintStyle, getScaleRange, getContentScaleFactor } from './utils/constants'
-import type { EditorSettings, PrintPreset, Tab } from './utils/types'
+import type { AdvancedPrintStyle, EditorSettings, PrintPreset, Tab } from './utils/types'
 
 const footerRef = ref<InstanceType<typeof FooterBar>>()
 
@@ -199,6 +199,7 @@ const settings = ref<EditorSettings>({
   viewMode: window.innerWidth < 768 ? 'editor' : 'split',
   editorMode: 'visual',
   printPreset: 'outline',
+  advancedStylePreset: 'outline',
   advancedPrintStyle: { ...DEFAULT_ADVANCED_PRINT_STYLE },
 })
 
@@ -211,10 +212,19 @@ onMounted(async () => {
   }
 
   const saved = loadSettings()
+  const savedPreset = saved.printPreset ?? settings.value.printPreset
+  const presetDefaults = getDefaultAdvancedPrintStyle(savedPreset)
+  const advancedMatchesPreset = saved.advancedStylePreset === savedPreset
+  const savedAdvancedStyle = advancedMatchesPreset
+    ? saved.advancedPrintStyle
+    : { enabled: saved.advancedPrintStyle?.enabled ?? false }
+
   settings.value = {
     ...settings.value,
     ...saved,
-    advancedPrintStyle: { ...DEFAULT_ADVANCED_PRINT_STYLE, ...saved.advancedPrintStyle },
+    printPreset: savedPreset,
+    advancedStylePreset: savedPreset,
+    advancedPrintStyle: { ...presetDefaults, ...savedAdvancedStyle },
   }
   if (!settings.value.contentScaleMap) {
     settings.value.contentScaleMap = {}
@@ -318,13 +328,22 @@ function insertPageBreak() {
 
 function resetAdvancedStyle() {
   settings.value.advancedPrintStyle = getDefaultAdvancedPrintStyle(settings.value.printPreset)
+  settings.value.advancedStylePreset = settings.value.printPreset
+}
+
+function updateAdvancedStyle(style: AdvancedPrintStyle) {
+  settings.value.advancedPrintStyle = style
+  settings.value.advancedStylePreset = settings.value.printPreset
 }
 
 function selectPrintPreset(preset: PrintPreset) {
+  const keepAdvancedEnabled = settings.value.advancedPrintStyle.enabled
   settings.value.printPreset = preset
-  // A preset selection always shows the preset itself. Advanced values are
-  // re-seeded from it, so enabling customization starts from the same look.
-  settings.value.advancedPrintStyle = getDefaultAdvancedPrintStyle(preset)
+  settings.value.advancedStylePreset = preset
+  settings.value.advancedPrintStyle = {
+    ...getDefaultAdvancedPrintStyle(preset),
+    enabled: keepAdvancedEnabled,
+  }
 }
 
 function undoActiveEditor() {

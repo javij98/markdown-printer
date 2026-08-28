@@ -49,10 +49,16 @@ export interface AdvancedPrintStyle {
   blockSpacing: number
   codeRadius: number
   headingScale: number
+  headingSpacing: number
   codeFontScale: number
+  codeLineHeight: number
+  listSpacing: number
+  tableCellPadding: number
   codeAccent: boolean
   codeBorder: boolean
   tableHeaderShade: boolean
+  zebraTables: boolean
+  underlineLinks: boolean
   headingDividers: boolean
   justifyText: boolean
   hyphenate: boolean
@@ -79,6 +85,7 @@ export interface EditorSettings {
   viewMode: ViewMode
   editorMode: EditorMode
   printPreset: PrintPreset
+  advancedStylePreset: PrintPreset
   advancedPrintStyle: AdvancedPrintStyle
 }
 

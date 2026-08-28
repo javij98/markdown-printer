@@ -64,36 +64,43 @@ const menuItems = ref<MenuItem[]>([
 
 .download-menu :deep(.print-action) {
   overflow: hidden;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgb(15 23 42 / 15%);
+  border-radius: 11px;
+  box-shadow: 0 5px 14px rgb(37 99 235 / 22%);
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+
+.download-menu :deep(.print-action:hover:not(.p-disabled)) {
+  transform: translateY(-1px);
+  box-shadow: 0 7px 18px rgb(37 99 235 / 30%);
 }
 
 .download-menu :deep(.print-action .p-splitbutton-button),
 .download-menu :deep(.print-action .p-splitbutton-dropdown) {
-  border-color: #172033;
-  background: linear-gradient(135deg, #172033, #26364d);
+  height: 36px;
+  border-color: transparent;
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
   color: #fff;
-  transition: filter .16s ease, transform .16s ease, box-shadow .16s ease;
+  transition: filter .16s ease, background .16s ease;
 }
 
 .download-menu :deep(.print-action .p-splitbutton-button) {
   display: flex;
-  min-width: 102px;
+  min-width: 104px;
   gap: 7px;
   justify-content: center;
-  border-radius: 10px 0 0 10px;
+  border-radius: 11px 0 0 11px;
   font-weight: 650;
 }
 
 .download-menu :deep(.print-action .p-splitbutton-dropdown) {
   width: 32px;
   border-left-color: rgb(255 255 255 / 18%);
-  border-radius: 0 10px 10px 0;
+  border-radius: 0 11px 11px 0;
 }
 
 .download-menu :deep(.print-action .p-splitbutton-button:hover),
 .download-menu :deep(.print-action .p-splitbutton-dropdown:hover) {
-  filter: brightness(1.14);
+  filter: brightness(1.08) saturate(1.05);
 }
 
 .download-menu :deep(.print-action .p-splitbutton-button:focus-visible),

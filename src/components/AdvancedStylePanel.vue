@@ -93,6 +93,15 @@
             @update:model-value="update('headingScale', $event)"
           />
           <NumberSetting
+            label="Espacio antes de títulos"
+            suffix=" ×"
+            :model-value="modelValue.headingSpacing"
+            :min="0.5"
+            :max="1.8"
+            :step="0.05"
+            @update:model-value="update('headingSpacing', $event)"
+          />
+          <NumberSetting
             label="Escala del código"
             suffix=" ×"
             :model-value="modelValue.codeFontScale"
@@ -100,6 +109,32 @@
             :max="1.3"
             :step="0.05"
             @update:model-value="update('codeFontScale', $event)"
+          />
+          <NumberSetting
+            label="Interlineado del código"
+            :model-value="modelValue.codeLineHeight"
+            :min="1.1"
+            :max="2"
+            :step="0.05"
+            @update:model-value="update('codeLineHeight', $event)"
+          />
+          <NumberSetting
+            label="Separación en listas"
+            suffix=" em"
+            :model-value="modelValue.listSpacing"
+            :min="0"
+            :max="1.5"
+            :step="0.05"
+            @update:model-value="update('listSpacing', $event)"
+          />
+          <NumberSetting
+            label="Relleno vertical de tablas"
+            suffix=" em"
+            :model-value="modelValue.tableCellPadding"
+            :min="0.15"
+            :max="1.2"
+            :step="0.05"
+            @update:model-value="update('tableCellPadding', $event)"
           />
         </section>
 
@@ -122,6 +157,18 @@
             description="Diferencia la primera fila con el color propio de la plantilla."
             :model-value="modelValue.tableHeaderShade"
             @update:model-value="update('tableHeaderShade', $event)"
+          />
+          <SwitchSetting
+            label="Filas alternas en tablas"
+            description="Añade un sombreado suave para facilitar la lectura de tablas largas."
+            :model-value="modelValue.zebraTables"
+            @update:model-value="update('zebraTables', $event)"
+          />
+          <SwitchSetting
+            label="Subrayar enlaces"
+            description="Mantiene los enlaces reconocibles también en documentos impresos."
+            :model-value="modelValue.underlineLinks"
+            @update:model-value="update('underlineLinks', $event)"
           />
           <SwitchSetting
             label="Divisores en los títulos"

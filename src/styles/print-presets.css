@@ -68,19 +68,19 @@
 }
 
 .markdown-body[class*='print-preset-'] h2 {
-  margin: 1.55em 0 0.55em;
+  margin: calc(1.55em * var(--print-heading-spacing, 1)) 0 0.55em;
   font-size: calc(1.55em * var(--print-heading-scale, 1));
 }
 
 .markdown-body[class*='print-preset-'] h3 {
-  margin: 1.35em 0 0.48em;
+  margin: calc(1.35em * var(--print-heading-spacing, 1)) 0 0.48em;
   font-size: calc(1.28em * var(--print-heading-scale, 1));
 }
 
 .markdown-body[class*='print-preset-'] h4,
 .markdown-body[class*='print-preset-'] h5,
 .markdown-body[class*='print-preset-'] h6 {
-  margin: 1.15em 0 0.4em;
+  margin: calc(1.15em * var(--print-heading-spacing, 1)) 0 0.4em;
 }
 
 .markdown-body[class*='print-preset-'] h1 + p,
@@ -96,7 +96,7 @@
   border: 1px solid var(--print-border);
   border-radius: var(--print-code-radius, 7px);
   background: var(--print-code-bg);
-  line-height: 1.5;
+  line-height: var(--print-code-line-height, 1.5);
 }
 
 .markdown-body[class*='print-preset-'] pre code.hljs {
@@ -164,7 +164,11 @@
 }
 
 .markdown-body[class*='print-preset-'] li + li {
-  margin-top: 0.3em;
+  margin-top: var(--print-list-spacing, 0.3em);
+}
+
+.markdown-body.print-links-plain a {
+  text-decoration: none;
 }
 
 .markdown-body[class*='print-preset-'] blockquote {
@@ -182,6 +186,7 @@
 .markdown-body[class*='print-preset-'] th,
 .markdown-body[class*='print-preset-'] td {
   border-color: var(--print-border);
+  padding-block: var(--print-table-cell-padding, 0.45em);
 }
 
 .markdown-body[class*='print-preset-'] th {
@@ -195,6 +200,10 @@
 
 .markdown-body.print-table-plain th {
   background: transparent;
+}
+
+.markdown-body.print-table-zebra tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--print-accent) 4%, white);
 }
 
 .markdown-body[class*='print-preset-'] img {

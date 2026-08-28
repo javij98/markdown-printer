@@ -25,8 +25,7 @@ import { redoCommand, undoCommand } from '@milkdown/kit/plugin/history'
 import { callCommand, insert, replaceAll } from '@milkdown/kit/utils'
 import { Compartment } from '@codemirror/state'
 import { EditorView } from '@codemirror/view'
-import { vsCodeDark } from '@fsegurai/codemirror-theme-vscode-dark'
-import { vsCodeLight } from '@fsegurai/codemirror-theme-vscode-light'
+import { printStudioDarkTheme, printStudioLightTheme } from '../editor/codeThemes'
 import { ShieldCheck } from '@lucide/vue'
 import { useImages } from '../composables/useImages'
 import { fontFamilyCSS } from '../utils/css'
@@ -165,7 +164,7 @@ function isDarkTheme(): boolean {
 }
 
 function currentCodeTheme() {
-  return isDarkTheme() ? vsCodeDark : vsCodeLight
+  return isDarkTheme() ? printStudioDarkTheme : printStudioLightTheme
 }
 
 function syncCodeBlockThemes() {

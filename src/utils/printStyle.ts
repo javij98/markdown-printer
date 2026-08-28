@@ -9,6 +9,8 @@ export function advancedPrintClasses(style: AdvancedPrintStyle): string[] {
     style.codeAccent ? 'print-code-accent' : '',
     style.codeBorder ? 'print-code-border' : 'print-code-borderless',
     style.tableHeaderShade ? 'print-table-shaded' : 'print-table-plain',
+    style.zebraTables ? 'print-table-zebra' : '',
+    style.underlineLinks ? '' : 'print-links-plain',
     style.headingDividers ? 'print-heading-dividers' : '',
     style.justifyText ? 'print-justify' : '',
     style.hyphenate ? 'print-hyphenate' : '',
@@ -30,7 +32,11 @@ export function advancedPrintVariables(style: AdvancedPrintStyle): CSSProperties
     '--print-block-spacing': `${style.blockSpacing}em`,
     '--print-code-radius': `${style.codeRadius}px`,
     '--print-heading-scale': String(style.headingScale),
+    '--print-heading-spacing': String(style.headingSpacing),
     '--print-code-font-scale': String(style.codeFontScale),
+    '--print-code-line-height': String(style.codeLineHeight),
+    '--print-list-spacing': `${style.listSpacing}em`,
+    '--print-table-cell-padding': `${style.tableCellPadding}em`,
   } as CSSProperties
 }
 

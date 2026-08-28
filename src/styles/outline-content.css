@@ -241,14 +241,14 @@
 .markdown-body .hljs-number,
 .markdown-body .hljs-literal { color: #0550ae; }
 .markdown-body .hljs-string,
-.markdown-body .hljs-doctag { color: #a31515; }
+.markdown-body .hljs-doctag { color: #0f766e; }
 .markdown-body .hljs-title,
 .markdown-body .hljs-section,
 .markdown-body .hljs-selector-id { color: #00578a; }
 .markdown-body .hljs-tag,
-.markdown-body .hljs-name { color: #800000; }
+.markdown-body .hljs-name { color: #5b21b6; }
 .markdown-body .hljs-attr,
-.markdown-body .hljs-attribute { color: #ff0000; }
+.markdown-body .hljs-attribute { color: #0369a1; }
 
 .markdown-body table {
   display: table !important;

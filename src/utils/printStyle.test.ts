@@ -28,6 +28,8 @@ describe('advanced print styles', () => {
       lineHeight: 1.75,
       paragraphSpacing: 1.1,
       blockSpacing: 1.45,
+      zebraTables: true,
+      underlineLinks: false,
       codeRadius: 12,
       tableHeaderShade: false,
     }
@@ -37,6 +39,8 @@ describe('advanced print styles', () => {
       'print-code-accent',
       'print-code-borderless',
       'print-table-plain',
+      'print-table-zebra',
+      'print-links-plain',
       'print-heading-dividers',
       'print-justify',
       'print-hyphenate',
@@ -50,6 +54,10 @@ describe('advanced print styles', () => {
       '--print-code-radius': '12px',
       '--print-heading-scale': '1',
       '--print-code-font-scale': '1',
+      '--print-heading-spacing': '1',
+      '--print-code-line-height': '1.5',
+      '--print-list-spacing': '0.3em',
+      '--print-table-cell-padding': '0.45em',
     })
     expect(advancedPrintStyleAttribute(style)).toContain('--print-accent:#123456')
   })

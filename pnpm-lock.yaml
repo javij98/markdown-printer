@@ -17,6 +17,9 @@ importers:
       '@codemirror/lang-markdown':
         specifier: ^6.5.0
         version: 6.5.0
+      '@codemirror/language':
+        specifier: ^6.12.4
+        version: 6.12.4
       '@codemirror/language-data':
         specifier: ^6.5.2
         version: 6.5.2
@@ -32,6 +35,9 @@ importers:
       '@codemirror/view':
         specifier: ^6.43.4
         version: 6.43.4
+      '@lezer/highlight':
+        specifier: ^1.2.3
+        version: 1.2.3
       '@fontsource/inter':
         specifier: ^5.2.8
         version: 5.2.8
@@ -53,12 +59,6 @@ importers:
       '@fontsource/source-code-pro':
         specifier: ^5.2.7
         version: 5.2.7
-      '@fsegurai/codemirror-theme-vscode-dark':
-        specifier: ^6.2.6
-        version: 6.2.6(@codemirror/language@6.12.4)(@codemirror/state@6.7.0)(@codemirror/view@6.43.4)(@lezer/highlight@1.2.3)
-      '@fsegurai/codemirror-theme-vscode-light':
-        specifier: ^6.2.6
-        version: 6.2.6(@codemirror/language@6.12.4)(@codemirror/state@6.7.0)(@codemirror/view@6.43.4)(@lezer/highlight@1.2.3)
       '@lucide/vue':
         specifier: ^1.23.0
         version: 1.23.0(vue@3.5.39(typescript@6.0.3))

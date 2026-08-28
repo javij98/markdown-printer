@@ -40,7 +40,24 @@ export function usePagination(
   function applyPrintStyle(element: HTMLElement) {
     element.className = ['markdown-body', `print-preset-${preset.value}`, ...advancedPrintClasses(advancedStyle.value)].join(' ')
     const variables = advancedPrintVariables(advancedStyle.value)
-    const propertyNames = ['--print-accent', '--print-text', '--print-heading-color', '--print-muted', '--print-border', '--print-code-bg', '--print-line-height', '--print-paragraph-spacing', '--print-block-spacing', '--print-code-radius', '--print-heading-scale', '--print-code-font-scale']
+    const propertyNames = [
+      '--print-accent',
+      '--print-text',
+      '--print-heading-color',
+      '--print-muted',
+      '--print-border',
+      '--print-code-bg',
+      '--print-line-height',
+      '--print-paragraph-spacing',
+      '--print-block-spacing',
+      '--print-code-radius',
+      '--print-heading-scale',
+      '--print-heading-spacing',
+      '--print-code-font-scale',
+      '--print-code-line-height',
+      '--print-list-spacing',
+      '--print-table-cell-padding',
+    ]
     propertyNames.forEach(property => element.style.removeProperty(property))
     Object.entries(variables).forEach(([property, value]) => {
       element.style.setProperty(property, String(value))
