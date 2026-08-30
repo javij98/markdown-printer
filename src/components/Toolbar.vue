@@ -35,6 +35,19 @@
             <FileCode2 :size="15" />
           </Button>
         </div>
+        <div class="alignment-control" aria-label="Alineación de párrafos">
+          <Button
+            v-for="option in alignmentOptions"
+            :key="option.value"
+            :severity="textAlignment === option.value ? 'info' : 'secondary'"
+            text
+            size="small"
+            :title="option.label"
+            @click="setTextAlignment(option.value)"
+          >
+            <component :is="option.icon" :size="16" />
+          </Button>
+        </div>
         <span class="separator"></span>
         <Button
           severity="info"
@@ -175,7 +188,7 @@ import Button from 'primevue/button'
 import Slider from 'primevue/slider'
 import type { AdvancedPrintStyle, EditorMode, MarginConfig, PrintPreset, ViewMode } from '../utils/types'
 import { PAGE_SIZES, getContentScaleRange } from '../utils/constants'
-import { Undo2, Redo2, TextAlignStart, TextAlignEnd, RectangleVertical, RectangleHorizontal, StickyNotePlus, WrapText, Plus, Minus, RotateCcw, LayoutTemplate, FileCode2, SlidersHorizontal } from '@lucide/vue'
+import { Undo2, Redo2, TextAlignStart, TextAlignEnd, AlignLeft, AlignCenter, AlignRight, AlignJustify, RectangleVertical, RectangleHorizontal, StickyNotePlus, WrapText, Plus, Minus, RotateCcw, LayoutTemplate, FileCode2, SlidersHorizontal } from '@lucide/vue'
 import MarginPicker from './MarginPicker.vue'
 import PageSizeSelector from './PageSizeSelector.vue'
 import FontPicker from './FontPicker.vue'
@@ -222,6 +235,20 @@ const emit = defineEmits<{
 }>()
 
 const showAdvancedStyle = ref(false)
+
+type TextAlignment = AdvancedPrintStyle['textAlignment']
+const alignmentOptions: Array<{ value: TextAlignment; label: string; icon: typeof AlignLeft }> = [
+  { value: 'start', label: 'Alinear a la izquierda', icon: AlignLeft },
+  { value: 'center', label: 'Centrar', icon: AlignCenter },
+  { value: 'end', label: 'Alinear a la derecha', icon: AlignRight },
+  { value: 'justify', label: 'Justificar', icon: AlignJustify },
+]
+
+const textAlignment = computed<TextAlignment>(() => props.advancedStyle.textAlignment ?? (props.advancedStyle.justifyText ? 'justify' : 'start'))
+
+function setTextAlignment(value: TextAlignment) {
+  emit('update:advancedStyle', { ...props.advancedStyle, textAlignment: value, justifyText: value === 'justify' })
+}
 const scaleRange = computed(() => {
   const page = PAGE_SIZES.find(p => p.name === props.pageSize)
   return page ? getContentScaleRange(page) : { min: 0.01, max: 2.0, default: 1.0 }
@@ -315,6 +342,28 @@ function resetContentScale() {
 }
 
 .editor-mode-control :deep(.p-button.p-button-info) {
+  color: var(--accent-color);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-xs);
+}
+
+.alignment-control {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--bg-tertiary);
+}
+
+.alignment-control :deep(.p-button) {
+  min-width: 28px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+}
+
+.alignment-control :deep(.p-button.p-button-info) {
   color: var(--accent-color);
   background: var(--bg-primary);
   box-shadow: var(--shadow-xs);

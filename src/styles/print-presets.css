@@ -202,8 +202,8 @@
   background: transparent;
 }
 
-.markdown-body.print-table-zebra tbody tr:nth-child(even) {
-  background: color-mix(in srgb, var(--print-accent) 4%, white);
+.markdown-body.print-table-zebra tbody tr:nth-child(even) > td {
+  background: color-mix(in srgb, var(--print-accent) 9%, white);
 }
 
 .markdown-body[class*='print-preset-'] img {
@@ -369,7 +369,19 @@
   border-bottom: 0;
 }
 
-.markdown-body.print-justify p {
+.markdown-body.print-align-start p {
+  text-align: start;
+}
+
+.markdown-body.print-align-center p {
+  text-align: center;
+}
+
+.markdown-body.print-align-end p {
+  text-align: end;
+}
+
+.markdown-body.print-align-justify p {
   text-align: justify;
 }
 

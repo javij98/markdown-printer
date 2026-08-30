@@ -10,7 +10,7 @@ describe('advanced print styles', () => {
   it('does not override a preset while advanced mode is disabled', () => {
     const style = { ...DEFAULT_ADVANCED_PRINT_STYLE }
 
-    expect(advancedPrintClasses(style)).toEqual([])
+    expect(advancedPrintClasses(style)).toEqual(['print-align-start'])
     expect(advancedPrintVariables(style)).toEqual({})
     expect(advancedPrintStyleAttribute(style)).toBe('')
   })
@@ -24,6 +24,7 @@ describe('advanced print styles', () => {
       codeBorder: false,
       headingDividers: true,
       justifyText: true,
+      textAlignment: 'justify' as const,
       hyphenate: true,
       lineHeight: 1.75,
       paragraphSpacing: 1.1,
@@ -35,6 +36,7 @@ describe('advanced print styles', () => {
     }
 
     expect(advancedPrintClasses(style)).toEqual([
+      'print-align-justify',
       'print-advanced',
       'print-code-accent',
       'print-code-borderless',
@@ -42,7 +44,6 @@ describe('advanced print styles', () => {
       'print-table-zebra',
       'print-links-plain',
       'print-heading-dividers',
-      'print-justify',
       'print-hyphenate',
     ])
 

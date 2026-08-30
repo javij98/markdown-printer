@@ -177,12 +177,6 @@
             @update:model-value="update('headingDividers', $event)"
           />
           <SwitchSetting
-            label="Justificar párrafos"
-            description="Alinea ambos márgenes para documentos académicos."
-            :model-value="modelValue.justifyText"
-            @update:model-value="update('justifyText', $event)"
-          />
-          <SwitchSetting
             label="Separación automática de palabras"
             description="Reduce huecos en texto justificado cuando el navegador lo permite."
             :model-value="modelValue.hyphenate"

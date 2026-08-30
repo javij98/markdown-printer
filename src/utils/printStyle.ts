@@ -2,9 +2,13 @@ import type { CSSProperties } from 'vue'
 import type { AdvancedPrintStyle } from './types'
 
 export function advancedPrintClasses(style: AdvancedPrintStyle): string[] {
-  if (!style.enabled) return []
+  const textAlignment = style.textAlignment ?? (style.justifyText ? 'justify' : 'start')
+  const alignmentClass = `print-align-${textAlignment}`
+
+  if (!style.enabled) return [alignmentClass]
 
   return [
+    alignmentClass,
     'print-advanced',
     style.codeAccent ? 'print-code-accent' : '',
     style.codeBorder ? 'print-code-border' : 'print-code-borderless',
@@ -12,7 +16,6 @@ export function advancedPrintClasses(style: AdvancedPrintStyle): string[] {
     style.zebraTables ? 'print-table-zebra' : '',
     style.underlineLinks ? '' : 'print-links-plain',
     style.headingDividers ? 'print-heading-dividers' : '',
-    style.justifyText ? 'print-justify' : '',
     style.hyphenate ? 'print-hyphenate' : '',
   ].filter(Boolean)
 }

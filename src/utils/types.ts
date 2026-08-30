@@ -61,6 +61,7 @@ export interface AdvancedPrintStyle {
   underlineLinks: boolean
   headingDividers: boolean
   justifyText: boolean
+  textAlignment: 'start' | 'center' | 'end' | 'justify'
   hyphenate: boolean
 }
 

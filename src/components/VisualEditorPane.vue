@@ -471,6 +471,19 @@ defineExpose({
   background-color: var(--crepe-color-surface);
 }
 
+:global(html.light .visual-editor-root .milkdown-code-block .cm-lineNumbers .cm-gutterElement) {
+  color: #475569 !important;
+}
+
+:global(html.light .visual-editor-root .milkdown-code-block .cm-activeLineGutter) {
+  color: #1d4ed8 !important;
+  background: #dbeafe !important;
+}
+
+:global(html.light .visual-editor-root .milkdown-code-block .cm-activeLine) {
+  background: #eaf4ff !important;
+}
+
 .visual-editor-root :deep(.milkdown .ProseMirror pre) {
   margin-block: 1em 1.2em;
 }

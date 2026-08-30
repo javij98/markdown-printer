@@ -46,7 +46,19 @@ label,
 }
 
 .font-size-select {
-  width: 68px;
-  min-width: 68px;
+  width: 84px;
+  min-width: 84px;
+}
+
+.font-size-select :deep(.p-select-label) {
+  min-width: 34px;
+  padding-inline: 10px 4px;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.font-size-select :deep(.p-select-dropdown) {
+  width: 28px;
+  flex: 0 0 28px;
 }
 </style>

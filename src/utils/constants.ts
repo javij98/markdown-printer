@@ -54,6 +54,7 @@ const ADVANCED_PRINT_STYLE_BY_PRESET: Record<PrintPreset, Omit<AdvancedPrintStyl
     underlineLinks: true,
     headingDividers: false,
     justifyText: false,
+    textAlignment: 'start',
     hyphenate: false,
   },
   academic: {
@@ -80,6 +81,7 @@ const ADVANCED_PRINT_STYLE_BY_PRESET: Record<PrintPreset, Omit<AdvancedPrintStyl
     underlineLinks: true,
     headingDividers: true,
     justifyText: true,
+    textAlignment: 'justify',
     hyphenate: true,
   },
   professional: {
@@ -106,6 +108,7 @@ const ADVANCED_PRINT_STYLE_BY_PRESET: Record<PrintPreset, Omit<AdvancedPrintStyl
     underlineLinks: false,
     headingDividers: true,
     justifyText: false,
+    textAlignment: 'start',
     hyphenate: false,
   },
   minimal: {
@@ -132,6 +135,7 @@ const ADVANCED_PRINT_STYLE_BY_PRESET: Record<PrintPreset, Omit<AdvancedPrintStyl
     underlineLinks: false,
     headingDividers: false,
     justifyText: false,
+    textAlignment: 'start',
     hyphenate: false,
   },
 }

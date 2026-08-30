@@ -703,6 +703,15 @@ setTimeout(() => {
   font-variant-numeric: tabular-nums;
 }
 
+:global(html.light) .editor-container :deep(.cm-lineNumbers .cm-gutterElement) {
+  color: #475569 !important;
+}
+
+:global(html.light) .editor-container :deep(.cm-activeLineGutter) {
+  color: #1d4ed8 !important;
+  background: #dbeafe !important;
+}
+
 .editor-container :deep(.cm-panels) {
   border-color: var(--border-color);
   color: var(--text-primary);
