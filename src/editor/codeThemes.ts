@@ -83,12 +83,12 @@ function createCodeTheme(palette: CodePalette, dark: boolean) {
 
 export const printStudioLightTheme = createCodeTheme({
   background: '#ffffff',
-  foreground: '#243247',
+  foreground: '#111827',
   gutter: '#f8fafc',
-  gutterText: '#64748b',
+  gutterText: '#334155',
   activeLine: '#eaf4ff',
   activeGutter: '#dbeafe',
-  activeGutterText: '#1d4ed8',
+  activeGutterText: '#172554',
   selection: '#bfdbfe',
   cursor: '#1e3a8a',
   keyword: '#5b21b6',
@@ -97,8 +97,8 @@ export const printStudioLightTheme = createCodeTheme({
   functionName: '#4f46e5',
   typeName: '#0369a1',
   comment: '#64748b',
-  variable: '#243247',
-  punctuation: '#475569',
+  variable: '#111827',
+  punctuation: '#1f2937',
   invalid: '#b45309',
 }, false)
 

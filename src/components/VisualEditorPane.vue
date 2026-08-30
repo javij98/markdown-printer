@@ -76,13 +76,15 @@ function findClosingFence(lines: string[], start: number, fence: string): number
   return start
 }
 
+const rawHtmlTagPattern = /<\/?(?:address|article|aside|blockquote|br|caption|col|colgroup|details|div|dl|dt|dd|fieldset|figcaption|figure|footer|form|h[1-6]|header|hr|iframe|legend|li|main|nav|ol|p|picture|pre|section|source|span|style|summary|table|tbody|td|tfoot|th|thead|tr|ul|video)\b[^>]*>/i
+
 function protectOutlineMarkdown(markdown: string): string {
   protectedBlocks = new Map()
   const lines = markdown.split('\n')
   const output: string[] = []
   let index = 0
   let sequence = 0
-  let inCodeFence = false
+  let activeCodeFence: { marker: string, length: number } | null = null
 
   const preserve = (raw: string, label: string) => {
     const id = `block-${sequence++}`
@@ -92,14 +94,24 @@ function protectOutlineMarkdown(markdown: string): string {
 
   while (index < lines.length) {
     const line = lines[index]
-    if (/^\s*```/.test(line)) {
-      inCodeFence = !inCodeFence
+    const codeFence = line.match(/^\s*(`{3,}|~{3,})(.*)$/)
+    if (codeFence) {
+      const marker = codeFence[1][0]
+      if (!activeCodeFence) {
+        activeCodeFence = { marker, length: codeFence[1].length }
+      } else if (
+        marker === activeCodeFence.marker
+        && codeFence[1].length >= activeCodeFence.length
+        && codeFence[2].trim() === ''
+      ) {
+        activeCodeFence = null
+      }
       output.push(line)
       index += 1
       continue
     }
 
-    if (!inCodeFence) {
+    if (!activeCodeFence) {
       const notice = line.trim().match(/^:::(info|tip|warning|success)$/i)
       if (notice) {
         const end = findClosingFence(lines, index, ':::')
@@ -134,7 +146,7 @@ function protectOutlineMarkdown(markdown: string): string {
 
       // Crepe does not round-trip raw HTML reliably. Preserve the complete
       // Markdown line instead of exposing tags as text or silently losing them.
-      if (/<\/?[a-z][^>]*>/i.test(line)) {
+      if (rawHtmlTagPattern.test(line)) {
         preserve(line, 'HTML conservado')
         index += 1
         continue
