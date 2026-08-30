@@ -704,11 +704,11 @@ setTimeout(() => {
 }
 
 :global(html.light) .editor-container :deep(.cm-lineNumbers .cm-gutterElement) {
-  color: #475569 !important;
+  color: #334155 !important;
 }
 
 :global(html.light) .editor-container :deep(.cm-activeLineGutter) {
-  color: #1d4ed8 !important;
+  color: #172554 !important;
   background: #dbeafe !important;
 }
 

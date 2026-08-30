@@ -6,12 +6,15 @@
       '--visual-editor-size': `${fontSize}px`,
     }"
   >
-    <div v-if="hasProtectedOutlineBlocks" class="outline-safety-note">
+    <div v-if="hasProtectedOutlineBlocks && !safetyNoteDismissed" class="outline-safety-note">
       <ShieldCheck :size="15" />
       <span>
         Los bloques avanzados de Outline y el HTML se conservan como tarjetas protegidas.
         Puedes moverlos aquí y editar su contenido en modo Markdown.
       </span>
+      <button type="button" class="outline-safety-dismiss" title="Ocultar aviso" aria-label="Ocultar aviso" @click="dismissSafetyNote">
+        <X :size="14" />
+      </button>
     </div>
     <div ref="editorRoot" class="visual-editor-root"></div>
   </div>
@@ -26,7 +29,7 @@ import { callCommand, insert, replaceAll } from '@milkdown/kit/utils'
 import { Compartment } from '@codemirror/state'
 import { EditorView } from '@codemirror/view'
 import { printStudioDarkTheme, printStudioLightTheme } from '../editor/codeThemes'
-import { ShieldCheck } from '@lucide/vue'
+import { ShieldCheck, X } from '@lucide/vue'
 import { useImages } from '../composables/useImages'
 import { fontFamilyCSS } from '../utils/css'
 import '@milkdown/crepe/theme/common/style.css'
@@ -47,6 +50,7 @@ const emit = defineEmits<{
 
 const editorRoot = ref<HTMLElement | null>(null)
 const hasProtectedOutlineBlocks = ref(false)
+const safetyNoteDismissed = ref(sessionStorage.getItem('print-studio-hide-outline-safety-note') === 'true')
 const { images, uploadImage, getImageUrl } = useImages()
 
 let crepe: Crepe | null = null
@@ -55,6 +59,11 @@ let protectedBlocks = new Map<string, string>()
 let themeObserver: MutationObserver | null = null
 const codeTheme = new Compartment()
 const themedCodeViews = new WeakMap<EditorView, boolean>()
+
+function dismissSafetyNote() {
+  safetyNoteDismissed.value = true
+  sessionStorage.setItem('print-studio-hide-outline-safety-note', 'true')
+}
 
 function protectedCard(id: string, label: string): string {
   return `[▣ ${label}](https://outline.local/preserved/${id})`
@@ -382,6 +391,33 @@ defineExpose({
   color: var(--accent-color);
 }
 
+.outline-safety-note > span {
+  flex: 1;
+}
+
+.outline-safety-dismiss {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  color: var(--text-secondary);
+  background: transparent;
+  cursor: pointer;
+}
+
+.outline-safety-dismiss:hover {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--accent-color) 10%, transparent);
+}
+
+.outline-safety-dismiss svg {
+  color: currentColor;
+}
+
 .visual-editor-root :deep(.milkdown) {
   --crepe-color-inline-code: #5b21b6;
   min-height: 100%;
@@ -472,11 +508,11 @@ defineExpose({
 }
 
 :global(html.light .visual-editor-root .milkdown-code-block .cm-lineNumbers .cm-gutterElement) {
-  color: #475569 !important;
+  color: #334155 !important;
 }
 
 :global(html.light .visual-editor-root .milkdown-code-block .cm-activeLineGutter) {
-  color: #1d4ed8 !important;
+  color: #172554 !important;
   background: #dbeafe !important;
 }
 
