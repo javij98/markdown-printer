@@ -655,8 +655,10 @@ setTimeout(() => {
 
 <style scoped>
 .editor-pane {
+  position: relative;
   height: 100%;
   overflow: hidden;
+  background: var(--bg-primary);
 }
 
 .editor-container {
@@ -665,11 +667,102 @@ setTimeout(() => {
 
 .editor-container :deep(.cm-editor) {
   height: 100%;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+}
+
+.editor-container :deep(.cm-editor.cm-focused) {
+  outline: none;
+}
+
+.editor-container :deep(.cm-scroller) {
+  overscroll-behavior: contain;
+}
+
+.editor-container :deep(.cm-content) {
+  max-width: 980px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 30px clamp(24px, 5vw, 68px) 24vh;
+  line-height: 1.7;
+}
+
+.editor-container :deep(.cm-line) {
+  padding-inline: 2px;
+}
+
+.editor-container :deep(.cm-gutters) {
+  min-width: 48px;
+  border-right-color: var(--border-color);
+}
+
+.editor-container :deep(.cm-lineNumbers .cm-gutterElement) {
+  min-width: 38px;
+  padding-inline: 8px 10px;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+:global(html.light) .editor-container :deep(.cm-lineNumbers .cm-gutterElement) {
+  color: #334155 !important;
+}
+
+:global(html.light) .editor-container :deep(.cm-activeLineGutter) {
+  color: #172554 !important;
+  background: #dbeafe !important;
+}
+
+.editor-container :deep(.cm-panels) {
+  border-color: var(--border-color);
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-md);
+}
+
+.editor-container :deep(.cm-tooltip) {
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-lg);
+}
+
+.editor-container :deep(.cm-tooltip-autocomplete > ul > li[aria-selected]) {
+  color: var(--text-primary);
+  background: var(--accent-soft);
 }
 
 .editor-pane.drag-active {
   outline: 2px dashed var(--accent-color);
-  outline-offset: -4px;
-  background: color-mix(in srgb, var(--accent-color) 5%, transparent);
+  outline-offset: -7px;
+  background: color-mix(in srgb, var(--accent-color) 6%, var(--bg-primary));
+}
+
+.editor-pane.drag-active::after {
+  position: absolute;
+  z-index: 5;
+  inset: 24px;
+  display: grid;
+  place-items: center;
+  content: "Suelta la imagen para insertarla";
+  border: 1px solid color-mix(in srgb, var(--accent-color) 32%, var(--border-color));
+  border-radius: var(--radius-lg);
+  color: var(--accent-color);
+  background: color-mix(in srgb, var(--bg-primary) 90%, transparent);
+  font-size: 12px;
+  font-weight: 700;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+}
+
+@media (max-width: 600px) {
+  .editor-container :deep(.cm-gutters) {
+    min-width: 38px;
+  }
+
+  .editor-container :deep(.cm-content) {
+    padding: 22px 18px 20vh;
+  }
 }
 </style>

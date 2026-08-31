@@ -20,13 +20,13 @@
       v-if="closable"
       class="tab-close"
       @click.stop="$emit('close')"
-      title="Close tab"
+      title="Cerrar pestaña"
     >
       <X :size="14" />
     </button>
     <div v-if="contextMenuVisible" class="tab-context-menu" :style="{ left: `${contextMenuX}px`, top: `${contextMenuY}px` }" @click.stop>
-      <button class="context-menu-item" @click="startRenameFromContext">Rename</button>
-      <button class="context-menu-item" @click="$emit('close')">Close</button>
+      <button class="context-menu-item" @click="startRenameFromContext">Renombrar</button>
+      <button class="context-menu-item" @click="$emit('close')">Cerrar</button>
     </div>
   </div>
 </template>
@@ -104,85 +104,140 @@ function cancelRename() {
 
 <style scoped>
 .tab-item {
+  position: relative;
+  min-width: 128px;
+  max-width: 220px;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
-  background: var(--bg-secondary);
-  border-right: 1px solid var(--border-color);
+  padding: 0 10px 0 12px;
+  border-right: 1px solid transparent;
+  border-left: 1px solid transparent;
+  color: var(--text-secondary);
   cursor: pointer;
   user-select: none;
-  width: 180px;
   transform-origin: left center;
+  transition: color .15s ease, background-color .15s ease, border-color .15s ease;
+}
+
+.tab-item::after {
+  position: absolute;
+  right: 12px;
+  bottom: 0;
+  left: 12px;
+  height: 2px;
+  content: "";
+  border-radius: 999px 999px 0 0;
+  background: transparent;
+  transform: scaleX(.65);
+  transition: background-color .15s ease, transform .15s ease;
 }
 
 .tab-item:hover {
-  background: var(--border-color);
+  color: var(--text-primary);
+  background: var(--surface-hover);
 }
 
 .tab-item.active {
+  z-index: 1;
+  border-color: var(--border-color);
+  color: var(--text-primary);
   background: var(--bg-primary);
-  border-bottom: 2px solid var(--accent-color);
+}
+
+.tab-item.active::after {
+  background: var(--accent-color);
+  transform: scaleX(1);
 }
 
 .tab-name {
+  min-width: 0;
   flex: 1;
   overflow: hidden;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 13px;
 }
 
 .tab-rename-input {
   width: 100%;
-  background: var(--bg-primary);
+  min-width: 0;
+  padding: 4px 6px;
   border: 1px solid var(--accent-color);
-  color: var(--text-primary);
-  padding: 2px 4px;
-  font-size: 13px;
+  border-radius: 6px;
   outline: none;
-  box-sizing: border-box;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  font-size: 11px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color) 13%, transparent);
 }
 
 .tab-close {
-  background: none;
-  border: none;
-  color: var(--text-primary);
+  width: 23px;
+  height: 23px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  color: var(--text-tertiary);
+  background: transparent;
   cursor: pointer;
-  font-size: 16px;
-  padding: 0 4px;
-  opacity: 0.6;
+  opacity: 0;
+  transition: color .15s ease, background-color .15s ease, opacity .15s ease;
+}
+
+.tab-item:hover .tab-close,
+.tab-item.active .tab-close {
+  opacity: 1;
 }
 
 .tab-close:hover {
-  opacity: 1;
-  color: #ff4444;
+  color: var(--danger-color);
+  background: color-mix(in srgb, var(--danger-color) 10%, transparent);
 }
 
 .tab-context-menu {
   position: fixed;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 4px 0;
   z-index: 1000;
-  min-width: 100px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  min-width: 144px;
+  padding: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(16px);
 }
 
 .context-menu-item {
-  display: block;
   width: 100%;
-  padding: 6px 12px;
-  background: none;
-  border: none;
+  display: block;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 7px;
   color: var(--text-primary);
-  text-align: left;
+  background: transparent;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
+  text-align: left;
 }
 
 .context-menu-item:hover {
-  background: var(--border-color);
+  background: var(--surface-hover);
+}
+
+@media (max-width: 620px) {
+  .tab-item {
+    min-width: 105px;
+    max-width: 150px;
+    padding-inline: 9px;
+  }
+
+  .tab-close {
+    opacity: 1;
+  }
 }
 </style>

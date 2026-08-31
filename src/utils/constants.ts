@@ -1,4 +1,150 @@
-import type { PageSize, FontOption, MarginConfig } from './types'
+import type { AdvancedPrintStyle, PageSize, FontOption, MarginConfig, PrintPreset } from './types'
+
+export interface PrintPresetOption {
+  id: PrintPreset
+  name: string
+  description: string
+}
+
+export const PRINT_PRESETS: PrintPresetOption[] = [
+  {
+    id: 'outline',
+    name: 'Outline',
+    description: 'Mantiene la jerarquía y el aspecto limpio de Outline.',
+  },
+  {
+    id: 'academic',
+    name: 'Académico',
+    description: 'Ritmo amplio, texto justificado y tablas sobrias para trabajos.',
+  },
+  {
+    id: 'professional',
+    name: 'Informe',
+    description: 'Jerarquía marcada y acabado corporativo para informes técnicos.',
+  },
+  {
+    id: 'minimal',
+    name: 'Minimalista',
+    description: 'Máximo aire y pocos adornos para ensayos y propuestas.',
+  },
+]
+
+const ADVANCED_PRINT_STYLE_BY_PRESET: Record<PrintPreset, Omit<AdvancedPrintStyle, 'enabled'>> = {
+  outline: {
+    accentColor: '#3633ff',
+    textColor: '#202124',
+    headingColor: '#202124',
+    mutedColor: '#5f6368',
+    borderColor: '#dfe3e8',
+    codeBackground: '#f6f8fa',
+    lineHeight: 1.58,
+    paragraphSpacing: 0.92,
+    blockSpacing: 1.3,
+    codeRadius: 7,
+    headingScale: 1,
+    headingSpacing: 1,
+    codeFontScale: 1,
+    codeLineHeight: 1.5,
+    listSpacing: 0.3,
+    tableCellPadding: 0.45,
+    codeAccent: false,
+    codeBorder: true,
+    tableHeaderShade: true,
+    zebraTables: false,
+    underlineLinks: true,
+    headingDividers: false,
+    justifyText: false,
+    textAlignment: 'start',
+    hyphenate: false,
+  },
+  academic: {
+    accentColor: '#374151',
+    textColor: '#111827',
+    headingColor: '#111827',
+    mutedColor: '#4b5563',
+    borderColor: '#c4c9d1',
+    codeBackground: '#f8fafc',
+    lineHeight: 1.72,
+    paragraphSpacing: 1.02,
+    blockSpacing: 1.42,
+    codeRadius: 3,
+    headingScale: 1,
+    headingSpacing: 1.08,
+    codeFontScale: 0.96,
+    codeLineHeight: 1.55,
+    listSpacing: 0.38,
+    tableCellPadding: 0.52,
+    codeAccent: false,
+    codeBorder: true,
+    tableHeaderShade: true,
+    zebraTables: false,
+    underlineLinks: true,
+    headingDividers: true,
+    justifyText: true,
+    textAlignment: 'justify',
+    hyphenate: true,
+  },
+  professional: {
+    accentColor: '#0369a1',
+    textColor: '#172033',
+    headingColor: '#075985',
+    mutedColor: '#526273',
+    borderColor: '#cad7e0',
+    codeBackground: '#f4f8fb',
+    lineHeight: 1.62,
+    paragraphSpacing: 0.88,
+    blockSpacing: 1.25,
+    codeRadius: 7,
+    headingScale: 1,
+    headingSpacing: 0.92,
+    codeFontScale: 1,
+    codeLineHeight: 1.45,
+    listSpacing: 0.24,
+    tableCellPadding: 0.42,
+    codeAccent: false,
+    codeBorder: true,
+    tableHeaderShade: true,
+    zebraTables: true,
+    underlineLinks: false,
+    headingDividers: true,
+    justifyText: false,
+    textAlignment: 'start',
+    hyphenate: false,
+  },
+  minimal: {
+    accentColor: '#6b7280',
+    textColor: '#252525',
+    headingColor: '#252525',
+    mutedColor: '#71717a',
+    borderColor: '#e4e4e7',
+    codeBackground: '#fafafa',
+    lineHeight: 1.68,
+    paragraphSpacing: 1.08,
+    blockSpacing: 1.55,
+    codeRadius: 0,
+    headingScale: 0.94,
+    headingSpacing: 1.18,
+    codeFontScale: 0.96,
+    codeLineHeight: 1.55,
+    listSpacing: 0.38,
+    tableCellPadding: 0.5,
+    codeAccent: false,
+    codeBorder: false,
+    tableHeaderShade: false,
+    zebraTables: false,
+    underlineLinks: false,
+    headingDividers: false,
+    justifyText: false,
+    textAlignment: 'start',
+    hyphenate: false,
+  },
+}
+
+export function getDefaultAdvancedPrintStyle(preset: PrintPreset = 'outline'): AdvancedPrintStyle {
+  return { enabled: false, ...ADVANCED_PRINT_STYLE_BY_PRESET[preset] }
+}
+
+export const DEFAULT_ADVANCED_PRINT_STYLE: AdvancedPrintStyle = getDefaultAdvancedPrintStyle()
 
 export const PAGE_CATEGORIES = {
   iso: 'ISO A-Series',

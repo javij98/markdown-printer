@@ -7,8 +7,7 @@ import { defaultKeymap, history, historyKeymap, indentWithTab, undo as cmUndo, r
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search'
 import { autocompletion, completionKeymap } from '@codemirror/autocomplete'
 import { lintKeymap } from '@codemirror/lint'
-import { vsCodeLight } from '@fsegurai/codemirror-theme-vscode-light'
-import { vsCodeDark } from '@fsegurai/codemirror-theme-vscode-dark'
+import { printStudioDarkTheme, printStudioLightTheme } from '../editor/codeThemes'
 import { ghostTextExtension } from '../plugins/ghostText'
 import { isLlmEnabled } from '../utils/storage'
 
@@ -249,7 +248,7 @@ export function useEditor(
           indentWithTab,
         ]),
         updateListener,
-        themeCompartment.of(getInitialDark() ? vsCodeDark : vsCodeLight),
+        themeCompartment.of(getInitialDark() ? printStudioDarkTheme : printStudioLightTheme),
         softWrapCompartment.of(initialSoftWrap ? EditorView.lineWrapping : []),
         EditorView.theme({
           '&': {
@@ -338,7 +337,7 @@ export function useEditor(
     themeObserver = new MutationObserver(() => {
       if (editorView.value) {
         editorView.value.dispatch({
-          effects: themeCompartment.reconfigure(isDarkMode() ? vsCodeDark : vsCodeLight),
+          effects: themeCompartment.reconfigure(isDarkMode() ? printStudioDarkTheme : printStudioLightTheme),
         })
       }
     })
@@ -351,7 +350,7 @@ export function useEditor(
       if (saved) return // manual override active, ignore system
       if (editorView.value) {
         editorView.value.dispatch({
-          effects: themeCompartment.reconfigure(e.matches ? vsCodeDark : vsCodeLight),
+          effects: themeCompartment.reconfigure(e.matches ? printStudioDarkTheme : printStudioLightTheme),
         })
       }
     }

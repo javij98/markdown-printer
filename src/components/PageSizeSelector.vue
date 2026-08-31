@@ -1,6 +1,6 @@
 <template>
   <div class="page-size-selector">
-    <label>Page:</label>
+    <label>Página:</label>
     <Select
       :modelValue="modelValue"
       @update:modelValue="selectSize"
@@ -14,7 +14,7 @@
     >
       <template #value="{ value }">
         <span v-if="value">{{ value }}</span>
-        <span v-else>Select page size</span>
+        <span v-else>Selecciona un tamaño</span>
       </template>
       <template #option="{ option, selected }">
         <div class="size-option">
@@ -107,56 +107,65 @@ function selectSize(name: string) {
 }
 
 label {
-  font-size: 12px;
-  color: var(--text-primary);
-  opacity: 0.8;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.page-size-select {
+  min-width: 88px;
 }
 
 .size-option {
   display: flex;
   align-items: center;
   gap: 10px;
+  padding-block: 2px;
 }
 
 .size-preview-wrapper {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  border-radius: 8px;
+  background: var(--bg-secondary);
 }
 
 .size-preview {
-  border: 1.5px solid #999;
+  border: 1px solid var(--border-strong);
   border-radius: 2px;
   background: white;
+  box-shadow: 0 2px 4px rgb(16 24 40 / 8%);
 }
 
 .size-info {
   display: flex;
-  flex-direction: column;
   min-width: 0;
+  flex-direction: column;
 }
 
 .size-name {
-  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 650;
   white-space: nowrap;
 }
 
 .size-dims {
-  font-size: 10px;
-  color: #888;
+  color: var(--text-tertiary);
+  font-size: 9px;
   white-space: nowrap;
 }
 
 .size-group-header {
-  font-size: 10px;
-  font-weight: 600;
+  padding: 5px 2px 3px;
+  color: var(--text-tertiary);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .08em;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-primary);
-  opacity: 0.5;
-  padding: 4px 0;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="font-picker">
-    <label>Font:</label>
+    <label>Fuente:</label>
     <Select
       ref="selectRef"
       :modelValue="modelValue"
@@ -17,7 +17,7 @@
         <span v-if="value" :style="{ fontFamily: value }" class="font-value-text">
           {{ getFontName(value) }}
         </span>
-        <span v-else>Select font</span>
+        <span v-else>Selecciona una fuente</span>
       </template>
       <template #option="{ option, selected }">
         <div
@@ -34,7 +34,7 @@
       </template>
       <template #footer>
         <div class="font-upload-footer" @click="startUpload">
-          ＋ Upload font…
+          ＋ Subir fuente…
         </div>
       </template>
     </Select>
@@ -98,8 +98,8 @@ const selectGroups = computed(() => {
 })
 
 const contextMenuItems = computed(() => [
-  { label: 'Rename', command: () => renameFont() },
-  { label: 'Remove', command: () => removeFont(), class: 'danger' },
+  { label: 'Renombrar', command: () => renameFont() },
+  { label: 'Eliminar', command: () => removeFont(), class: 'danger' },
 ])
 
 function getFontName(family: string): string {
@@ -157,7 +157,7 @@ async function handleUpload(e: Event) {
   if (!file) return
 
   const defaultName = file.name.replace(/\.(woff2?|ttf|otf)$/, '')
-  const customName = window.prompt('Font name:', defaultName)
+  const customName = window.prompt('Nombre de la fuente:', defaultName)
   if (customName === null || customName.trim() === '') {
     input.value = ''
     return
@@ -167,7 +167,7 @@ async function handleUpload(e: Event) {
   const fontFamily = `Custom-${fontName}`
 
   if (fonts.value.some(f => f.source === 'uploaded' && f.name.toLowerCase() === fontName.toLowerCase())) {
-    alert(`A custom font named "${fontName}" already exists.`)
+    alert(`Ya existe una fuente personalizada llamada "${fontName}".`)
     input.value = ''
     return
   }
@@ -206,7 +206,7 @@ async function renameFont() {
   const font = contextMenuFont.value
   if (!font) return
 
-  const newName = window.prompt('Font name:', font.name)
+  const newName = window.prompt('Nombre de la fuente:', font.name)
   if (newName === null || newName.trim() === '' || newName.trim() === font.name) return
 
   const trimmed = newName.trim()
@@ -214,7 +214,7 @@ async function renameFont() {
   const oldFamily = font.family
 
   if (fonts.value.some(f => f.source === 'uploaded' && f.family !== oldFamily && f.name.toLowerCase() === trimmed.toLowerCase())) {
-    alert(`A custom font named "${trimmed}" already exists.`)
+    alert(`Ya existe una fuente personalizada llamada "${trimmed}".`)
     return
   }
 
@@ -242,7 +242,7 @@ async function removeFont() {
   const font = contextMenuFont.value
   if (!font) return
 
-  if (!window.confirm(`Remove "${font.name}"?`)) return
+  if (!window.confirm(`¿Eliminar "${font.name}"?`)) return
 
   await deleteFont(font.family)
   fonts.value = fonts.value.filter(f => f.family !== font.family)
@@ -261,45 +261,50 @@ async function removeFont() {
 }
 
 label {
-  font-size: 12px;
-  color: var(--text-primary);
-  opacity: 0.8;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.font-select {
+  min-width: 128px;
 }
 
 .font-value-text {
-  max-width: 120px;
+  max-width: 112px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .font-option-item {
+  padding-block: 2px;
   white-space: nowrap;
 }
 
 .font-group-header {
-  font-size: 10px;
-  font-weight: 600;
+  padding: 5px 2px 3px;
+  color: var(--text-tertiary);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .08em;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-primary);
-  opacity: 0.5;
-  padding: 4px 0;
 }
 
 .font-upload-footer {
-  padding: 6px 8px;
-  color: var(--accent-color, #30b9f5);
-  font-weight: 500;
+  margin: 4px 6px 6px;
+  padding: 8px 10px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+  color: var(--accent-color);
   cursor: pointer;
-  border-top: 1px solid var(--text-primary);
-  border-top-color: color-mix(in srgb, var(--text-primary) 15%, transparent);
-  font-size: 13px;
+  font-size: 11px;
+  font-weight: 650;
 }
 
 .font-upload-footer:hover {
-  background: var(--text-primary);
-  background-color: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  border-color: var(--accent-color);
+  background: var(--accent-soft);
 }
 </style>
 

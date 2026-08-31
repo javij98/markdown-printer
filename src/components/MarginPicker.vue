@@ -1,6 +1,6 @@
 <template>
   <div class="margin-picker">
-    <span class="margin-picker-label">Margin:</span>
+    <span class="margin-picker-label">Márgenes:</span>
     <div class="margin-selector">
       <Select
         :modelValue="selectedPresetValue"
@@ -15,7 +15,7 @@
     <!-- Custom margin dialog -->
     <Dialog
       v-model:visible="showDialog"
-      header="Custom Margins"
+      header="Márgenes personalizados"
       modal
       :closable="true"
       :style="{ minWidth: '340px', maxWidth: '95vw' }"
@@ -93,7 +93,7 @@
                 <template #icon><Plus :size="14" /></template>
               </Button>
             </div>
-            <button class="margin-lock-btn" :class="{ active: lockHorizontal }" @click="toggleLock('horizontal')" title="Lock horizontal margins">
+            <button class="margin-lock-btn" :class="{ active: lockHorizontal }" @click="toggleLock('horizontal')" title="Bloquear márgenes horizontales">
               <LockOpen v-if="!lockHorizontal" :size="12" />
               <Lock v-else :size="12" />
             </button>
@@ -121,7 +121,7 @@
               <template #icon><Plus :size="14" /></template>
             </Button>
           </div>
-          <button class="margin-lock-btn" :class="{ active: lockVertical }" @click="toggleLock('vertical')" title="Lock vertical margins">
+          <button class="margin-lock-btn" :class="{ active: lockVertical }" @click="toggleLock('vertical')" title="Bloquear márgenes verticales">
             <LockOpen v-if="!lockVertical" :size="12" />
             <Lock v-else :size="12" />
           </button>
@@ -129,8 +129,8 @@
       </div>
 
       <template #footer>
-        <Button label="Cancel" severity="secondary" text size="small" @click="closeDialog" />
-        <Button label="Apply" size="small" @click="applyCustom" />
+        <Button label="Cancelar" severity="secondary" text size="small" @click="closeDialog" />
+        <Button label="Aplicar" size="small" @click="applyCustom" />
       </template>
     </Dialog>
   </div>
@@ -180,7 +180,12 @@ function toggleLock(axis: 'horizontal' | 'vertical') {
   }
 }
 
-const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+const marginPresetLabels: Record<string, string> = {
+  moderate: 'Moderados',
+  standard: 'Estándar',
+  narrow: 'Estrechos',
+  wide: 'Amplios',
+}
 
 const findPresetKey = (m: MarginConfig): string | null => {
   for (const [key, preset] of Object.entries(MARGIN_PRESETS)) {
@@ -194,10 +199,10 @@ const findPresetKey = (m: MarginConfig): string | null => {
 // Build Select options from MARGIN_PRESETS + Custom
 const presetOptions = computed(() => {
   const options = Object.keys(MARGIN_PRESETS).map(key => ({
-    label: capitalize(key),
+    label: marginPresetLabels[key] ?? key,
     value: key,
   }))
-  options.push({ label: 'Custom', value: 'custom' })
+  options.push({ label: 'Personalizados', value: 'custom' })
   return options
 })
 
@@ -334,83 +339,99 @@ function applyCustom() {
 .margin-picker {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .margin-picker-label {
-  font-size: 12px;
-  color: var(--text-primary);
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
   white-space: nowrap;
 }
 
-/* Margin selector */
 .margin-selector {
   position: relative;
+  min-width: 104px;
 }
 
 .margin-preview-layout {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 9px;
+  padding: 8px 0;
 }
 
 .margin-input-group {
   display: flex;
   align-items: center;
   gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--surface-subtle);
 }
 
 .margin-preview-middle {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .margin-input-with-lock {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
 .margin-lock-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border: none;
-  background: none;
-  color: var(--text-primary);
-  opacity: 0.5;
-  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
   padding: 0;
-  border-radius: 3px;
+  border: 0;
+  border-radius: 7px;
+  color: var(--text-tertiary);
+  background: transparent;
+  cursor: pointer;
 }
 
 .margin-lock-btn:hover {
-  opacity: 0.8;
-  background: var(--bg-primary);
+  color: var(--text-primary);
+  background: var(--surface-hover);
 }
 
 .margin-lock-btn.active {
-  color: var(--accent-color, #30b9f5);
+  color: var(--accent-color);
+  background: var(--accent-soft);
 }
 
 .margin-preview-box {
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: var(--shadow-md);
 }
 
 .margin-preview-label {
-  font-size: 10px;
-  color: var(--text-primary);
-  opacity: 0.5;
   z-index: 1;
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+@media (max-width: 560px) {
+  .margin-preview-middle {
+    gap: 4px;
+  }
+
+  .margin-input-group :deep(.p-inputnumber-input) {
+    width: 52px !important;
+  }
 }
 </style>

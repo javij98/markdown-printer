@@ -1,6 +1,8 @@
 import { ref, watch, nextTick, type Ref } from 'vue'
 import { PAGE_SIZES } from '../utils/constants'
 import { fontFamilyCSS } from '../utils/css'
+import type { AdvancedPrintStyle, PrintPreset } from '../utils/types'
+import { advancedPrintClasses, advancedPrintVariables } from '../utils/printStyle'
 
 export interface Page {
   index: number
@@ -17,6 +19,8 @@ export function usePagination(
   margin: Ref<{ top: string; right: string; bottom: string; left: string }>,
   font: Ref<string>,
   fontSize: Ref<number>,
+  preset: Ref<PrintPreset>,
+  advancedStyle: Ref<AdvancedPrintStyle>,
 ) {
   const pages = ref<Page[]>([{ index: 0, elements: [] }])
   const totalPages = ref(1)
@@ -31,6 +35,33 @@ export function usePagination(
       document.body.appendChild(measureContainer)
     }
     return measureContainer
+  }
+
+  function applyPrintStyle(element: HTMLElement) {
+    element.className = ['markdown-body', `print-preset-${preset.value}`, ...advancedPrintClasses(advancedStyle.value)].join(' ')
+    const variables = advancedPrintVariables(advancedStyle.value)
+    const propertyNames = [
+      '--print-accent',
+      '--print-text',
+      '--print-heading-color',
+      '--print-muted',
+      '--print-border',
+      '--print-code-bg',
+      '--print-line-height',
+      '--print-paragraph-spacing',
+      '--print-block-spacing',
+      '--print-code-radius',
+      '--print-heading-scale',
+      '--print-heading-spacing',
+      '--print-code-font-scale',
+      '--print-code-line-height',
+      '--print-list-spacing',
+      '--print-table-cell-padding',
+    ]
+    propertyNames.forEach(property => element.style.removeProperty(property))
+    Object.entries(variables).forEach(([property, value]) => {
+      element.style.setProperty(property, String(value))
+    })
   }
 
   function parseMarginValue(val: string): number {
@@ -81,11 +112,10 @@ export function usePagination(
     document.body.appendChild(measureDiv)
 
     const wrapper = document.createElement('div')
-    wrapper.className = 'markdown-body'
+    applyPrintStyle(wrapper)
     wrapper.style.width = `${contentWidth}px`
     wrapper.style.fontFamily = fontCSS
     wrapper.style.fontSize = `${fontSizePx}px`
-    wrapper.style.lineHeight = '1.5'
     measureDiv.appendChild(wrapper)
 
     const chunks: string[] = []
@@ -148,11 +178,10 @@ export function usePagination(
     document.body.appendChild(measureDiv)
 
     const wrapper = document.createElement('div')
-    wrapper.className = 'markdown-body'
+    applyPrintStyle(wrapper)
     wrapper.style.width = `${contentWidth}px`
     wrapper.style.fontFamily = fontCSS
     wrapper.style.fontSize = `${fontSizePx}px`
-    wrapper.style.lineHeight = '1.5'
     measureDiv.appendChild(wrapper)
 
     const chunks: string[] = []
@@ -221,11 +250,10 @@ export function usePagination(
     document.body.appendChild(measureDiv)
 
     const wrapper = document.createElement('div')
-    wrapper.className = 'markdown-body'
+    applyPrintStyle(wrapper)
     wrapper.style.width = `${contentWidth}px`
     wrapper.style.fontFamily = fontCSS
     wrapper.style.fontSize = `${fontSizePx}px`
-    wrapper.style.lineHeight = '1.5'
     measureDiv.appendChild(wrapper)
 
     const chunks: string[] = []
@@ -275,11 +303,10 @@ export function usePagination(
     const padLeft = parseMarginValue(margin.value.left)
     const contentWidth = pageWidthPx - padLeft - padRight
 
-    container.className = 'markdown-body'
+    applyPrintStyle(container)
     container.style.width = `${contentWidth}px`
     container.style.fontFamily = `${fontFamilyCSS(font.value)}, sans-serif`
     container.style.fontSize = `${fontSize.value}px`
-    container.style.lineHeight = '1.5'
     container.style.padding = '0'
     container.style.margin = '0'
     container.innerHTML = html.value
@@ -317,13 +344,12 @@ export function usePagination(
 
     function measureChunkHtml(htmlStr: string): { height: number; marginBottom: number } {
       const div = document.createElement('div')
-      div.className = 'markdown-body'
+      applyPrintStyle(div)
       div.style.cssText =
         'position:absolute;left:-9999px;top:0;visibility:hidden;pointer-events:none;'
       div.style.width = `${contentWidth}px`
       div.style.fontFamily = `${fontFamilyCSS(font.value)}, sans-serif`
       div.style.fontSize = `${fontSize.value}px`
-      div.style.lineHeight = '1.5'
       document.body.appendChild(div)
       div.innerHTML = htmlStr
       const h = getElementHeight(div)
@@ -333,8 +359,7 @@ export function usePagination(
       return { height: h, marginBottom: mb }
     }
 
-    for (let childIndex = 0; childIndex < children.length; childIndex++) {
-      const child = children[childIndex]
+    for (const child of children) {
       const isPageBreak = child.dataset?.pageBreak === 'true'
 
       if (isPageBreak) {
@@ -364,34 +389,6 @@ export function usePagination(
       const effectivePageHeight = firstContentOnPage
         ? maxPageHeight
         : maxPageHeight + prevMarginBottom
-
-      // Match the print stylesheet's break-after rule: if a heading and the
-      // first block after it do not fit together, move both to the next page.
-      const isHeading = child.tagName.length === 2 && /^H[1-6]/.test(child.tagName)
-      const nextChild = children[childIndex + 1]
-      if (
-        isHeading &&
-        nextChild &&
-        nextChild.dataset?.pageBreak !== 'true' &&
-        currentPageElements.length > 0
-      ) {
-        const nextStyle = window.getComputedStyle(nextChild)
-        const nextMarginTop = parseFloat(nextStyle.marginTop) || 0
-        const headingWithNextHeight =
-          effectiveHeight +
-          getElementHeight(nextChild) -
-          Math.min(childMarginBottom, nextMarginTop)
-
-        if (currentHeight + headingWithNextHeight > effectivePageHeight) {
-          result.push({ index: result.length, elements: currentPageElements })
-          child.style.setProperty('margin-top', '0', 'important')
-          currentPageElements = [child.outerHTML]
-          currentHeight = childHeight - childMarginTop
-          prevMarginBottom = childMarginBottom
-          firstContentOnPage = false
-          continue
-        }
-      }
 
       if (child.tagName === 'UL' || child.tagName === 'OL') {
         const fitsOnPage = firstContentOnPage
@@ -601,7 +598,7 @@ export function usePagination(
 
   let recalcTimeout: ReturnType<typeof setTimeout>
   watch(
-    [html, pageHeight, scale, pageSize, margin, font, fontSize],
+    [html, pageHeight, scale, pageSize, margin, font, fontSize, preset, advancedStyle],
     () => {
       clearTimeout(recalcTimeout)
       recalcTimeout = setTimeout(() => {

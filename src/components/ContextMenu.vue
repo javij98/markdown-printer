@@ -211,8 +211,8 @@ const items = computed<ContextMenuItem[]>(() => {
       _type: 'row',
       command: () => {},
       _buttons: [
-        { icon: CopyIcon, action: 'copy', label: 'Copy', active: false, handler: handleCopy },
-        { icon: ClipboardPasteIcon, action: 'paste', label: 'Paste', active: false, handler: handlePaste },
+        { icon: CopyIcon, action: 'copy', label: 'Copiar', active: false, handler: handleCopy },
+        { icon: ClipboardPasteIcon, action: 'paste', label: 'Pegar', active: false, handler: handlePaste },
       ],
     } as ContextMenuItem,
     { separator: true },
@@ -222,11 +222,11 @@ const items = computed<ContextMenuItem[]>(() => {
       _type: 'row',
       command: () => {},
       _buttons: [
-        makeRowButton('bold', 'Bold', BoldIcon, af?.bold ?? false),
-        makeRowButton('italic', 'Italic', ItalicIcon, af?.italic ?? false),
-        makeRowButton('underline', 'Underline', UnderlineIcon, af?.underline ?? false),
-        makeRowButton('strikethrough', 'Strikethrough', StrikethroughIcon, af?.strikethrough ?? false),
-        makeRowButton('code', 'Code', CodeIcon, af?.code ?? false),
+        makeRowButton('bold', 'Negrita', BoldIcon, af?.bold ?? false),
+        makeRowButton('italic', 'Cursiva', ItalicIcon, af?.italic ?? false),
+        makeRowButton('underline', 'Subrayado', UnderlineIcon, af?.underline ?? false),
+        makeRowButton('strikethrough', 'Tachado', StrikethroughIcon, af?.strikethrough ?? false),
+        makeRowButton('code', 'Código', CodeIcon, af?.code ?? false),
       ],
     } as ContextMenuItem,
 
@@ -235,7 +235,7 @@ const items = computed<ContextMenuItem[]>(() => {
       _type: 'row',
       command: () => {},
       _buttons: HeadingIcons.map((comp, i) =>
-        makeRowButton(`heading${i + 1}`, `Heading ${i + 1}`, comp, af?.heading === (i + 1) as 1 | 2 | 3 | 4 | 5 | 6)
+        makeRowButton(`heading${i + 1}`, `Título ${i + 1}`, comp, af?.heading === (i + 1) as 1 | 2 | 3 | 4 | 5 | 6)
       ),
     } as ContextMenuItem,
 
@@ -244,8 +244,8 @@ const items = computed<ContextMenuItem[]>(() => {
       _type: 'row',
       command: () => {},
       _buttons: [
-        makeRowButton('unorderedList', 'Unordered List', ListIcon, af?.listType === 'ul'),
-        makeRowButton('orderedList', 'Ordered List', ListOrderedIcon, af?.listType === 'ol'),
+        makeRowButton('unorderedList', 'Lista con viñetas', ListIcon, af?.listType === 'ul'),
+        makeRowButton('orderedList', 'Lista numerada', ListOrderedIcon, af?.listType === 'ol'),
       ],
     } as ContextMenuItem,
 
@@ -254,40 +254,40 @@ const items = computed<ContextMenuItem[]>(() => {
       _type: 'row',
       command: () => {},
       _buttons: [
-        makeRowButton('alignLeft', 'Align Left', AlignLeftIcon, af?.alignment === 'left'),
-        makeRowButton('alignCenter', 'Align Center', AlignCenterIcon, af?.alignment === 'center'),
-        makeRowButton('alignRight', 'Align Right', AlignRightIcon, af?.alignment === 'right'),
+        makeRowButton('alignLeft', 'Alinear a la izquierda', AlignLeftIcon, af?.alignment === 'left'),
+        makeRowButton('alignCenter', 'Centrar', AlignCenterIcon, af?.alignment === 'center'),
+        makeRowButton('alignRight', 'Alinear a la derecha', AlignRightIcon, af?.alignment === 'right'),
       ],
     } as ContextMenuItem,
     { separator: true },
 
     // Insert items
-    { label: 'Link', command: () => handleAction('link') },
+    { label: 'Enlace', command: () => handleAction('link') },
     {
-      label: 'Image',
+      label: 'Imagen',
       items: [
-        { label: 'Link', command: () => handleAction('image') },
-        { label: 'Gallery', command: () => handleAction('image-gallery') },
+        { label: 'Enlace', command: () => handleAction('image') },
+        { label: 'Galería', command: () => handleAction('image-gallery') },
       ],
     } as ContextMenuItem,
-    { label: 'Code Block', command: () => handleAction('codeBlock') },
+    { label: 'Bloque de código', command: () => handleAction('codeBlock') },
     {
-      label: 'Blockquote',
+      label: 'Cita',
       items: [
-        { label: 'Basic', command: () => handleAction('blockquote') },
-        { label: 'Note', command: () => handleAction('alertNote') },
-        { label: 'Tip', command: () => handleAction('alertTip') },
-        { label: 'Important', command: () => handleAction('alertImportant') },
-        { label: 'Warning', command: () => handleAction('alertWarning') },
-        { label: 'Caution', command: () => handleAction('alertCaution') },
+        { label: 'Básica', command: () => handleAction('blockquote') },
+        { label: 'Nota', command: () => handleAction('alertNote') },
+        { label: 'Consejo', command: () => handleAction('alertTip') },
+        { label: 'Importante', command: () => handleAction('alertImportant') },
+        { label: 'Advertencia', command: () => handleAction('alertWarning') },
+        { label: 'Precaución', command: () => handleAction('alertCaution') },
       ],
     } as ContextMenuItem,
-    { label: 'Horizontal Rule', command: () => handleAction('horizontalRule') },
+    { label: 'Separador', command: () => handleAction('horizontalRule') },
     { separator: true },
 
     // Table submenu (grid picker)
     {
-      label: 'Table',
+      label: 'Tabla',
       iconComponent: TableIcon,
       items: [
         { _type: 'grid', command: () => {} } as ContextMenuItem,
@@ -303,85 +303,110 @@ defineExpose({ show, hide })
 .context-menu-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0.5rem 0.75rem;
+  gap: 9px;
+  padding: 8px 10px;
+  color: inherit;
   cursor: pointer;
   text-decoration: none;
-  color: inherit;
   white-space: nowrap;
 }
 
 .menu-item-icon {
   flex-shrink: 0;
+  color: var(--text-secondary);
 }
 
 .menu-item-label {
   flex: 1;
+  font-size: 11px;
 }
 
 .inline-row {
   display: flex;
-  gap: 4px;
-  margin: 2px 0;
+  gap: 3px;
+  padding: 3px;
+  margin: 1px 0;
+  border-radius: 9px;
+  background: var(--surface-subtle);
+}
+
+.inline-row :deep(.p-button) {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 7px;
+  color: var(--text-secondary);
+}
+
+.inline-row :deep(.p-button.active) {
+  color: var(--accent-color);
+  background: var(--accent-soft);
 }
 
 .submenu-end-icon {
   margin-left: auto;
   flex-shrink: 0;
-  opacity: 0.5;
+  color: var(--text-tertiary);
 }
 
-/* Table grid picker */
 .table-grid-wrapper {
-  padding: 8px;
+  padding: 9px;
 }
 
 .table-grid {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  width: 100%;
+  gap: 3px;
 }
 
 .table-grid-row {
-  display: flex;
   width: 100%;
-  gap: 2px;
+  display: flex;
+  gap: 3px;
 }
 
 .table-cell {
-  flex: 1;
-  aspect-ratio: 1 / 1;
   height: auto;
-  border: 2px solid var(--border-color);
-  border-radius: 2px;
+  flex: 1;
+  aspect-ratio: 1;
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  background: var(--bg-primary);
   cursor: pointer;
-  background: transparent;
-  transition: border 0.08s ease;
+  transition: border-color .08s ease, background-color .08s ease;
 }
 
 .table-cell.selected {
   border-color: var(--accent-color);
+  background: var(--accent-soft);
 }
 
 .table-size-label {
-  text-align: center;
-  margin-top: 6px;
-  font-size: 12px;
-  color: color-mix(in srgb, var(--text-primary) 60%, transparent);
   min-height: 16px;
+  margin-top: 7px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 650;
+  text-align: center;
 }
 </style>
 
 <style>
 .p-contextmenu {
-  --p-contextmenu-background: var(--bg-secondary);
+  --p-contextmenu-background: var(--bg-elevated);
+  min-width: 190px;
+  border-color: var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
 }
+
 .p-contextmenu-item {
-  --p-contextmenu-item-focus-background: var(--bg-primary);
-  --p-contextmenu-item-hover-background: var(--bg-primary);
-  --p-contextmenu-item-active-background: var(--bg-primary);
+  --p-contextmenu-item-focus-background: var(--surface-hover);
+  --p-contextmenu-item-hover-background: var(--surface-hover);
+  --p-contextmenu-item-active-background: var(--accent-soft);
 }
+
 .p-contextmenu-item:has(.inline-row),
 .p-contextmenu-item:has(.table-grid-wrapper) {
   --p-contextmenu-item-focus-background: transparent;

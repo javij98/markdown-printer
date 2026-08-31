@@ -2,13 +2,13 @@
   <div class="ai-settings-wrapper">
     <Popover ref="popoverRef" @hide="onHide" :dismissable="true" :closeOnEscape="true">
       <div class="ai-settings">
-        <div class="ai-settings-header">AI Autocomplete Settings</div>
+        <div class="ai-settings-header">Asistente de escritura</div>
         <div class="field">
-          <label for="ai-endpoint">API Endpoint</label>
+          <label for="ai-endpoint">Endpoint de la API</label>
           <InputText id="ai-endpoint" v-model="form.endpoint" placeholder="https://api.openai.com" class="w-full" />
         </div>
         <div class="field">
-          <label for="ai-apikey">API Key</label>
+          <label for="ai-apikey">Clave API</label>
           <InputText
             id="ai-apikey"
             v-model="form.apiKey"
@@ -16,10 +16,10 @@
             :placeholder="hasSavedKey ? '•••••••• (saved)' : 'sk-...'"
             class="w-full"
           />
-          <small class="field-hint">Your key is stored locally in your browser and is never shared.</small>
+          <small class="field-hint">La clave se guarda solo en este navegador y nunca se comparte.</small>
         </div>
         <div class="field">
-          <label for="ai-model">Model</label>
+          <label for="ai-model">Modelo</label>
           <div class="model-row">
             <Select
               id="ai-model"
@@ -27,7 +27,7 @@
               :options="models"
               option-value="name"
               option-label="name"
-              placeholder="Select or type a model"
+              placeholder="Selecciona o busca un modelo"
               class="model-select"
               :loading="fetchingModels"
               :disabled="!form.endpoint || !getEffectiveApiKey()"
@@ -41,32 +41,32 @@
               :loading="fetchingModels"
               :disabled="!form.endpoint || !getEffectiveApiKey()"
               @click="loadModels"
-              title="Fetch available models"
+              title="Actualizar modelos disponibles"
             />
           </div>
         </div>
         <div class="field row">
-          <label>Enable AI Autocomplete</label>
+          <label>Activar autocompletado con IA</label>
           <ToggleSwitch v-model="form.enabled" />
         </div>
         <div class="test-row">
           <Button
-            label="Test Connection"
+            label="Probar conexión"
             severity="secondary"
             size="small"
             :loading="testing"
             :disabled="!form.endpoint || !getEffectiveApiKey() || !form.model"
             @click="testConnection"
           />
-          <span v-if="testResult === 'success'" class="test-success">Connected</span>
+          <span v-if="testResult === 'success'" class="test-success">Conectado</span>
           <span v-else-if="testResult === 'error'" class="test-error">{{ testError }}</span>
         </div>
         <div v-if="testResult === 'error' && testError.includes('CORS')" class="cors-hint">
-          <strong>CORS Error:</strong> The API server must include <code>Access-Control-Allow-Origin</code> headers to allow browser requests. Contact your API provider to enable CORS.
+          <strong>Error CORS:</strong> El servidor de la API debe incluir <code>Access-Control-Allow-Origin</code> para permitir peticiones desde el navegador. Activa CORS en el proveedor de la API.
         </div>
         <div class="ai-settings-footer">
-          <Button label="Cancel" severity="secondary" size="small" text @click="visible = false" />
-          <Button label="Save" size="small" :disabled="!form.endpoint || !getEffectiveApiKey() || !form.model" @click="save" />
+          <Button label="Cancelar" severity="secondary" size="small" text @click="visible = false" />
+          <Button label="Guardar" size="small" :disabled="!form.endpoint || !getEffectiveApiKey() || !form.model" @click="save" />
         </div>
       </div>
     </Popover>
@@ -216,24 +216,28 @@ async function save() {
 
 <style scoped>
 .ai-settings {
+  width: 470px;
+  max-width: 88dvw;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  width: 480px;
-  max-width: 90dvw;
+  gap: 15px;
 }
 
 .ai-settings-header {
-  font-size: 16px;
-  font-weight: 600;
+  margin-bottom: 2px;
   color: var(--text-primary);
-  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: -.02em;
 }
 
 .ai-settings-footer {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+  margin: 3px -18px -18px;
+  padding: 13px 18px 0;
+  border-top: 1px solid var(--border-color);
 }
 
 .field {
@@ -243,21 +247,27 @@ async function save() {
 }
 
 .field label {
-  font-size: 13px;
-  font-weight: 500;
   color: var(--text-primary);
+  font-size: 10px;
+  font-weight: 680;
 }
 
 .field.row {
-  flex-direction: row;
+  min-height: 46px;
   align-items: center;
   justify-content: space-between;
+  flex-direction: row;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
 }
 
-.model-row {
+.model-row,
+.test-row {
   display: flex;
-  gap: 8px;
   align-items: center;
+  gap: 8px;
 }
 
 .model-select {
@@ -265,46 +275,54 @@ async function save() {
 }
 
 .test-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-top: 4px;
+  min-height: 36px;
+}
+
+.test-success,
+.test-error {
+  font-size: 10px;
+  font-weight: 650;
 }
 
 .test-success {
-  color: #22c55e;
-  font-size: 13px;
+  color: var(--success-color);
 }
 
 .test-error {
-  color: #ef4444;
-  font-size: 13px;
+  color: var(--danger-color);
 }
 
 .cors-hint {
-  background: #fef3cd;
-  border: 1px solid #ffc107;
-  border-radius: 6px;
   padding: 10px 12px;
-  font-size: 12px;
-  color: #856404;
+  border: 1px solid color-mix(in srgb, var(--warning-color) 30%, var(--border-color));
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--warning-color) 9%, var(--bg-primary));
+  font-size: 10px;
   line-height: 1.5;
 }
 
 .cors-hint code {
-  background: rgba(0, 0, 0, 0.06);
-  padding: 1px 4px;
-  border-radius: 3px;
-  font-size: 11px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--warning-color) 12%, transparent);
+  font-size: 9px;
 }
 
 .field-hint {
-  font-size: 12px;
-  color: var(--text-secondary, #6b7280);
-  margin-top: 2px;
+  margin-top: 1px;
+  color: var(--text-secondary);
+  font-size: 9px;
+  line-height: 1.4;
 }
 
 .w-full {
   width: 100%;
+}
+
+@media (max-width: 520px) {
+  .ai-settings {
+    width: 82vw;
+  }
 }
 </style>
