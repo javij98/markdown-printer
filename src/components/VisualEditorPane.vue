@@ -33,7 +33,7 @@ import { ShieldCheck, X } from '@lucide/vue'
 import { useImages } from '../composables/useImages'
 import { fontFamilyCSS } from '../utils/css'
 import { resolveOutlineImageUrl } from '../utils/outlineImageUrl'
-import { configureOutlineImageCaptions, outlineColumnsPlugins } from '../editor/outlineColumns'
+import { configureOutlineImageCaptions, insertImageColumns as insertColumns, outlineColumnsPlugins } from '../editor/outlineColumns'
 import '@milkdown/crepe/theme/common/style.css'
 import '@milkdown/crepe/theme/frame.css'
 
@@ -260,6 +260,13 @@ function createEditor() {
         latexLabel: 'Fórmula',
       },
       [Crepe.Feature.BlockEdit]: {
+        buildMenu: builder => {
+          builder.getGroup('advanced').addItem('outline-columns', {
+            label: 'Imagen + texto',
+            icon: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="8" height="16" rx="2"/><path d="M15 5h6M15 10h6M15 15h6M15 20h4"/></svg>',
+            onRun: insertColumns,
+          })
+        },
         textGroup: {
           label: 'Texto',
           text: { label: 'Párrafo' },
@@ -305,7 +312,7 @@ function createEditor() {
     },
   })
 
-  crepe.editor.config(configureOutlineImageCaptions).use(outlineColumnsPlugins(resolveImageUrl))
+  crepe.editor.config(configureOutlineImageCaptions).use(outlineColumnsPlugins(resolveImageUrl, storeImage))
 
   crepe.on(listener => {
     listener.markdownUpdated((_ctx, markdown) => {
@@ -353,6 +360,20 @@ function insertText(markdown: string) {
   crepe?.editor.action(insert(markdown))
 }
 
+function insertImageColumns() {
+  crepe?.editor.action(insertColumns)
+}
+
+// Milkdown debounces markdownUpdated; transitions must read the current document.
+function flushContent() {
+  const markdown = crepe ? restoreOutlineMarkdown(crepe.getMarkdown()) : lastEmittedMarkdown
+  if (markdown !== lastEmittedMarkdown) {
+    lastEmittedMarkdown = markdown
+    emit('update:modelValue', markdown)
+  }
+  return markdown
+}
+
 function focus() {
   crepe?.editor.action(ctx => {
     ctx.get(editorViewCtx).focus()
@@ -373,6 +394,8 @@ defineExpose({
   undo,
   redo,
   insertText,
+  insertImageColumns,
+  flushContent,
   focus,
   content,
 })
@@ -506,51 +529,210 @@ defineExpose({
   margin-block: 1em;
 }
 
-.visual-editor-root :deep(.outline-columns-image) {
-  min-width: 0;
-  margin: 0;
-}
-
-.visual-editor-root :deep(.outline-columns[data-layout='right-50'] .outline-columns-image) {
+.visual-editor-root :deep(.outline-columns[data-layout='right-50'] > .studio-image-controls) {
   grid-column: 2;
   grid-row: 1;
 }
 
-.visual-editor-root :deep(.outline-columns[data-layout='right-50'] .outline-columns-text) {
+.visual-editor-root :deep(.outline-columns[data-layout='right-50'] > .outline-columns-text) {
   grid-column: 1;
   grid-row: 1;
-}
-
-.visual-editor-root :deep(.outline-columns-image img) {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  border-radius: 4px;
-}
-
-.visual-editor-root :deep(.outline-columns-controls) {
-  display: grid;
-  gap: 6px;
-  margin-top: 8px;
-}
-
-.visual-editor-root :deep(.outline-columns-controls input),
-.visual-editor-root :deep(.outline-columns-controls select) {
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-  padding: 6px 8px;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  color: var(--text-secondary);
-  background: var(--bg-secondary);
-  font: 12px/1.4 var(--visual-editor-font), sans-serif;
 }
 
 .visual-editor-root :deep(.outline-columns-text) {
   min-width: 0;
   min-height: 2em;
 }
+
+.visual-editor-root :deep(.studio-image-block) {
+  margin-block: 1em;
+}
+
+.visual-editor-root :deep(.studio-image-controls) {
+  min-width: 0;
+  margin: 0;
+  text-align: center;
+}
+
+.visual-editor-root :deep(.studio-image-controls [hidden]) {
+  display: none !important;
+}
+
+.visual-editor-root :deep(.studio-image-canvas) {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;
+}
+
+.visual-editor-root :deep(.studio-image-canvas img) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+.visual-editor-root :deep(.studio-image-controls input) {
+  box-sizing: border-box;
+  min-width: 0;
+  color: var(--text-primary);
+  caret-color: var(--text-primary);
+  font-family: inherit;
+  outline: none;
+}
+
+.visual-editor-root :deep(.image-caption-input) {
+  display: block;
+  width: 100%;
+  padding: 7px 9px;
+  margin-top: 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.5;
+  transition: background .15s, border-color .15s;
+}
+
+.visual-editor-root :deep(.image-caption-input::placeholder) {
+  color: var(--text-tertiary);
+}
+
+.visual-editor-root :deep(.image-caption-input:hover) {
+  background: var(--surface-hover);
+}
+
+.visual-editor-root :deep(.studio-image-controls input:focus-visible) {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.visual-editor-root :deep(.studio-image-toolbar) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 4px auto 0;
+  padding: 3px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+}
+
+.visual-editor-root :deep(.studio-image-controls button) {
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 5px;
+  color: var(--text-secondary);
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.visual-editor-root :deep(.studio-image-controls button:hover) {
+  color: var(--text-primary);
+  background: var(--surface-hover);
+}
+
+.visual-editor-root :deep(.studio-image-controls button[aria-pressed='true']) {
+  color: var(--accent-color);
+  background: var(--accent-soft);
+}
+
+.visual-editor-root :deep(.studio-image-controls button:focus-visible) {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.visual-editor-root :deep(.studio-image-width) {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding-inline: 6px;
+  color: var(--text-tertiary);
+  font-size: 11px;
+}
+
+.visual-editor-root :deep(.studio-image-width input) {
+  width: 56px;
+  padding: 3px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  text-align: right;
+  font-size: 12px;
+}
+
+.visual-editor-root :deep(.studio-image-uploader) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 22px 12px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface-subtle);
+}
+
+.visual-editor-root :deep(.studio-image-uploader > button:first-child) {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
+.visual-editor-root :deep(.studio-image-uploader input[type='url']) {
+  width: 100%;
+  padding: 7px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background: var(--bg-primary);
+  font-size: 12px;
+}
+
+.visual-editor-root :deep(.studio-image-error) {
+  margin-block: 8px;
+  color: var(--danger-color);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.visual-editor-root :deep(.studio-image-canvas > .studio-image-resize) {
+  position: absolute;
+  bottom: 4px;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: 2px solid white;
+  border-radius: 4px;
+  background: var(--accent-color);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 25%);
+  opacity: 0;
+  cursor: nwse-resize;
+}
+
+.visual-editor-root :deep(.studio-image-resize-left) {
+  left: 4px;
+  cursor: nesw-resize !important;
+}
+
+.visual-editor-root :deep(.studio-image-resize-right) {
+  right: 4px;
+}
+
+.visual-editor-root :deep(.studio-image-canvas:hover > .studio-image-resize),
+.visual-editor-root :deep(.studio-image-canvas:focus-within > .studio-image-resize),
+.visual-editor-root :deep(.resizing .studio-image-resize) {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .visual-editor-root :deep(.studio-image-canvas > .studio-image-resize) { opacity: 1; }
+}
+
 
 .visual-editor-root :deep(.milkdown .ProseMirror h1),
 .visual-editor-root :deep(.milkdown .ProseMirror h2),

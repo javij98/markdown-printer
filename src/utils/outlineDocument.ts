@@ -26,6 +26,7 @@ export async function loadOutlineDocument(
     `/print/api/documents/${encodeURIComponent(documentId)}`,
     {
       credentials: 'same-origin',
+      cache: 'no-store',
       headers: {
         Accept: 'application/json',
       },

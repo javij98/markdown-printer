@@ -148,6 +148,13 @@
     </div>
 
     <div class="toolbar-actions">
+      <Button v-if="canResetOutline" severity="secondary" outlined size="small"
+        :disabled="resettingOutline || isGenerating" :loading="resettingOutline"
+        aria-label="Reiniciar documento de Outline" title="Recargar contenido y diseño de Outline"
+        @click="$emit('reset-outline')">
+        <RotateCcw :size="15" />
+        <span>Reiniciar</span>
+      </Button>
       <Button
         severity="secondary"
         outlined
@@ -212,10 +219,13 @@ const props = defineProps<{
   viewMode: ViewMode
   editorMode: EditorMode
   printPreset: PrintPreset
+  canResetOutline?: boolean
+  resettingOutline?: boolean
   advancedStyle: AdvancedPrintStyle
 }>()
 
 const emit = defineEmits<{
+  'reset-outline': []
   'update:pageSize': [value: string]
   'update:font': [value: string]
   'update:rtl': [value: boolean]

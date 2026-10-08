@@ -217,7 +217,7 @@ const advancedStyleRef = toRef(props, 'advancedStyle')
 const advancedClasses = computed(() => advancedPrintClasses(props.advancedStyle))
 const advancedVariables = computed(() => advancedPrintVariables(props.advancedStyle))
 
-const { pages } = usePagination(htmlRef, pageHeightRef, scaleRef, pageSizeRef, marginRef, fontRef, effectiveFontSize, presetRef, advancedStyleRef)
+const { pages, paginateNow } = usePagination(htmlRef, pageHeightRef, scaleRef, pageSizeRef, marginRef, fontRef, effectiveFontSize, presetRef, advancedStyleRef)
 
 const scaledWidth = computed(() => {
   const size = currentPageSize.value
@@ -263,6 +263,10 @@ const pageStyle = computed(() => {
 defineExpose({
   container: previewContainer,
   assembledHtml: computed(() => pages.value.map(p => p.elements.join('')).join('')),
+  async preparePrint() {
+    await paginateNow()
+    return pages.value.map(p => p.elements.join('')).join('')
+  },
 })
 </script>
 

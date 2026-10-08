@@ -16,6 +16,21 @@ afterEach(() => {
 });
 
 describe("Outline Markdown renderer", () => {
+  it('renders the latest image dimensions immediately for printing', async () => {
+    vi.useFakeTimers()
+    const source = ref('![Pie](./imagen.png "=300x200")')
+    const renderer = useMarkdown(source)
+    source.value = '![Pie](./imagen.png "=180x120")'
+    const html = await renderer.renderNow()
+    expect(html).toContain('width="180"')
+    expect(html).toContain('height="120"')
+    expect(renderer.renderedHtml.value).toBe(html)
+  })
+  it('prints only the text of an image composition awaiting upload', async () => {
+    const html = await render('![](<> "left-50")\n\nTexto pendiente.')
+    expect(html).not.toContain('<img')
+    expect(html).toContain('Texto pendiente.')
+  })
   it("renders notices without adding an artificial title", async () => {
     const html = await render(`:::tip
 Texto con **negrita** y una lista:

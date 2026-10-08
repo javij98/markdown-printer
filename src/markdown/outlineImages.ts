@@ -75,6 +75,7 @@ export const outlineImagePlugin = {
   },
   renderer: {
     image({ href, title, text }: { href: string; title?: string | null; text: string }) {
+      if (!href) return '';
       const attributes = parseOutlineImageTitle(title);
       const layoutClass = attributes.layout
         ? ` outline-image-${attributes.layout}`

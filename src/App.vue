@@ -13,7 +13,7 @@
       :tabs="tabs"
       :active-tab-id="activeTabId"
       :new-tab-ids="newTabIds"
-      @select-tab="activeTabId = $event"
+      @select-tab="selectTab"
       @close-tab="handleCloseTab"
       @rename-tab="renameTab"
       @add-tab="handleAddTab"
@@ -38,6 +38,9 @@
         :rendered-html="renderedHtml"
         :is-generating="isGenerating"
         :view-mode="settings.viewMode"
+        :can-reset-outline="activeTabId === outlineSourceTabId && !!outlineSourceTabId"
+        :resetting-outline="resettingOutline"
+        @reset-outline="openResetDialog"
         @update:pageSize="settings.pageSize = $event"
         @update:font="settings.font = $event"
         @update:rtl="settings.rtl = $event"
@@ -46,14 +49,14 @@
         @update:orientation="settings.orientation = $event"
         @update:contentScale="settings.contentScale = $event"
         @update:fontSize="settings.fontSize = $event"
-        @update:editorMode="settings.editorMode = $event"
+        @update:editorMode="setEditorMode"
         @update:printPreset="selectPrintPreset"
         @update:advancedStyle="updateAdvancedStyle"
         @reset:advancedStyle="resetAdvancedStyle"
         @undo="undoActiveEditor"
         @redo="redoActiveEditor"
         @insert-page-break="insertPageBreak"
-        @download-pdf="() => downloadPDF(previewRef?.assembledHtml || renderedHtml, settings.pageSize, settings.margin, settings.orientation, settings.font, settings.fontSize, settings.contentScale, settings.rtl, settings.printPreset, settings.advancedPrintStyle)"
+        @download-pdf="printDocument"
       />
 
       <NewPage
@@ -101,7 +104,7 @@
 
             <VisualEditorPane
               v-else
-              :key="activeTabId || 'visual-editor'"
+              :key="`${activeTabId || 'visual-editor'}-${editorGeneration}`"
               ref="visualEditorRef"
               v-model="editorContent"
               :tab-id="activeTabId"
@@ -179,11 +182,26 @@
 
     <PrivacyPolicy v-model="showPrivacy" />
     <AiSettings v-model="showAiSettings" :trigger-el="footerRef?.aiButtonRef" @saved="refreshLlmState" />
+    <Dialog v-model:visible="showResetDialog" header="Reiniciar documento" modal
+      :closable="false" :close-on-escape="!resettingOutline"
+      :style="{ width: 'min(460px, 92vw)' }" :pt="{ transition: { onAfterEnter: focusResetCancel } }"
+      @show="focusResetCancel">
+      <p class="outline-reset-message">¿Quieres reiniciar este documento? Se volverá a cargar desde Outline y se restablecerá su diseño. Los cambios realizados en Print Studio se perderán.</p>
+      <p v-if="resetError" role="alert" class="outline-reset-error">{{ resetError }}</p>
+      <template #footer>
+        <Button ref="resetCancelButton" label="Cancelar" severity="secondary" outlined
+          autofocus :disabled="resettingOutline" @click="showResetDialog = false" />
+        <Button label="Reiniciar documento" severity="danger" :loading="resettingOutline"
+          :disabled="resettingOutline" @click="resetOutlineDocument" />
+      </template>
+    </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import Dialog from 'primevue/dialog'
+import Button from 'primevue/button'
 import { FileCode2, PencilLine, ScanText } from '@lucide/vue'
 import TabBar from './components/TabBar.vue'
 import NewPage from './components/NewPage.vue'
@@ -210,6 +228,22 @@ const footerRef = ref<InstanceType<typeof FooterBar>>()
 const outlineDocumentId = parseOutlineDocumentId(window.location.pathname)
 const isOutlineDocumentMode = !!outlineDocumentId
 const outlineDocumentLoading = ref(isOutlineDocumentMode)
+const outlineSourceTabId = ref<string | null>(null)
+const editorGeneration = ref(0)
+const showResetDialog = ref(false)
+const resettingOutline = ref(false)
+const resetError = ref('')
+const resetCancelButton = ref<{ $el: HTMLButtonElement } | null>(null)
+
+function openResetDialog() {
+  resetError.value = ''
+  showResetDialog.value = true
+}
+
+async function focusResetCancel() {
+  await nextTick()
+  resetCancelButton.value?.$el.focus()
+}
 
 // A document opened from Outline must not reuse the tabs copied from another
 // Print Studio window. The source document remains in Outline; this tab is an
@@ -248,7 +282,7 @@ const previewContainerWidth = computed(() =>
   settings.value.viewMode === 'preview' ? window.innerWidth : window.innerWidth / 2
 )
 
-const settings = ref<EditorSettings>({
+function initialEditorSettings(): EditorSettings { return {
   pageSize: 'A4',
   scale: defaultScaleRange.default,
   font: 'Open Sans',
@@ -266,7 +300,8 @@ const settings = ref<EditorSettings>({
   printPreset: 'outline',
   advancedStylePreset: 'outline',
   advancedPrintStyle: { ...DEFAULT_ADVANCED_PRINT_STYLE },
-})
+} }
+const settings = ref<EditorSettings>(initialEditorSettings())
 
 // Load saved settings
 onMounted(async () => {
@@ -315,6 +350,7 @@ async function loadRequestedOutlineDocument() {
     const document = await loadOutlineDocument(outlineDocumentId)
 
     activateTabWithContent(document.markdown, document.name)
+    outlineSourceTabId.value = activeTabId.value
   } catch (error) {
     console.error('Failed to load Outline document:', error)
 
@@ -327,6 +363,33 @@ async function loadRequestedOutlineDocument() {
     )
   } finally {
     outlineDocumentLoading.value = false
+  }
+}
+
+async function resetOutlineDocument() {
+  if (!outlineDocumentId || resettingOutline.value || activeTabId.value !== outlineSourceTabId.value) return
+  const targetTabId = outlineSourceTabId.value
+  resettingOutline.value = true
+  resetError.value = ''
+  try {
+    const document = await loadOutlineDocument(outlineDocumentId)
+    // Commit only after the source is available; failed requests keep the copy.
+    if (activeTabId.value !== targetTabId) throw new Error('La pestaña activa ha cambiado. Vuelve al documento de Outline para reiniciarlo.')
+    const defaults = initialEditorSettings()
+    defaults.viewMode = settings.value.viewMode
+    defaults.softWrap = settings.value.softWrap
+    defaults.lineNumbers = settings.value.lineNumbers
+    defaults.contentScaleMap = Object.fromEntries(PAGE_SIZES.map(page => [page.name, getContentScaleFactor(page)]))
+    settings.value = defaults
+    activateTabWithContent(document.markdown, document.name)
+    selectedText.value = ''
+    editorGeneration.value += 1
+    recalcScaleToFit()
+    showResetDialog.value = false
+  } catch (error) {
+    resetError.value = error instanceof Error ? error.message : 'No se ha podido recargar el documento de Outline.'
+  } finally {
+    resettingOutline.value = false
   }
 }
 
@@ -374,7 +437,7 @@ watch(
 )
 
 // Markdown rendering
-const { renderedHtml } = useMarkdown(editorContent)
+const { renderedHtml, renderNow } = useMarkdown(editorContent)
 
 // Editor and preview refs
 const editorRef = ref<InstanceType<typeof EditorPane> | null>(null)
@@ -396,7 +459,34 @@ watch(editorContent, (content) => {
   if (activeTabId.value) {
     updateTabContent(activeTabId.value, content)
   }
-})
+}, { flush: 'sync' })
+
+function flushActiveEditor() {
+  if (settings.value.editorMode === 'visual') {
+    editorContent.value = visualEditorRef.value?.flushContent() ?? editorContent.value
+  }
+}
+
+function setEditorMode(mode: 'visual' | 'markdown') {
+  if (mode !== settings.value.editorMode) flushActiveEditor()
+  settings.value.editorMode = mode
+}
+
+function selectTab(id: string) {
+  flushActiveEditor()
+  activeTabId.value = id
+}
+
+async function printDocument() {
+  flushActiveEditor()
+  const html = await renderNow()
+  await nextTick()
+  const paginatedHtml = await previewRef.value?.preparePrint?.() ?? html
+  await downloadPDF(paginatedHtml, settings.value.pageSize, settings.value.margin,
+    settings.value.orientation, settings.value.font, settings.value.fontSize,
+    settings.value.contentScale, settings.value.rtl, settings.value.printPreset,
+    settings.value.advancedPrintStyle)
+}
 
 // Sync editor content when tab changes
 watch(activeTabId, () => {
@@ -445,6 +535,7 @@ function redoActiveEditor() {
 }
 
 function handleAddTab() {
+  flushActiveEditor()
   const tab = createTab()
   newTabIds.value.add(tab.id)
 }
@@ -472,7 +563,7 @@ function activateTabWithContent(content: string, name: string) {
 function openHistoryTab(historyTab: Tab) {
   const existing = tabs.value.find(t => t.id === historyTab.id)
   if (existing) {
-    activeTabId.value = existing.id
+    selectTab(existing.id)
   } else if (activeTabId.value) {
     newTabIds.value.delete(activeTabId.value)
     replaceTabWithHistory(activeTabId.value, historyTab)
@@ -484,6 +575,7 @@ function openHistoryTab(historyTab: Tab) {
 function onEditorReady() {}
 
 function handleCloseTab(id: string) {
+  flushActiveEditor()
   newTabIds.value.delete(id)
   const wasLastTab = tabs.value.length === 1
   closeTab(id)
@@ -494,6 +586,19 @@ function handleCloseTab(id: string) {
 </script>
 
 <style scoped>
+.outline-reset-message {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.outline-reset-error {
+  margin-top: 16px;
+  color: var(--danger-color);
+  font-size: 13px;
+}
+
 .app {
   height: 100vh;
   height: 100dvh;

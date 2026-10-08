@@ -35,6 +35,7 @@ describe('Outline document integration', () => {
       '/print/api/documents/doc%2F1',
       {
         credentials: 'same-origin',
+        cache: 'no-store',
         headers: { Accept: 'application/json' },
       },
     )

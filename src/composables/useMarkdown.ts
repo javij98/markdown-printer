@@ -1,4 +1,4 @@
-import { ref, watch, type Ref } from 'vue'
+import { ref, watch, nextTick, type Ref } from 'vue'
 import { Marked } from 'marked'
 import { markedHighlight } from 'marked-highlight'
 import markedKatex from 'marked-katex-extension'
@@ -238,8 +238,17 @@ export function useMarkdown(content: Ref<string>) {
     renderTimeout = setTimeout(render, 150)
   }, { immediate: true })
 
+  async function renderNow() {
+    await nextTick()
+    clearTimeout(renderTimeout)
+    await render()
+    if (error.value) throw new Error(error.value)
+    return renderedHtml.value
+  }
+
   return {
     renderedHtml,
     error,
+    renderNow,
   }
 }

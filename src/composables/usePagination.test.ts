@@ -9,6 +9,20 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
+it('prepares the latest content for printing without waiting for the preview debounce', async () => {
+  vi.useFakeTimers()
+  const html = ref('<p>Antes</p>')
+  const scope = effectScope()
+  const result = scope.run(() => usePagination(html, ref(300), ref(1), ref('A4'),
+    ref({ top: '0px', right: '0px', bottom: '0px', left: '0px' }),
+    ref('Open Sans'), ref(10.5), ref('outline'), ref({ ...DEFAULT_ADVANCED_PRINT_STYLE }),
+  ))!
+  html.value = '<p>Último texto</p>'
+  await result.paginateNow()
+  expect(result.pages.value[0].elements.join('')).toContain('Último texto')
+  scope.stop()
+})
+
 it.each(['left', 'right'])('moves a %s floated image to the next page when its paragraph box is too short', async (side) => {
   vi.useFakeTimers()
   // Browser floats extend below their paragraph's line box. Happy DOM has no

@@ -1,0 +1,32 @@
+{
+  "pages": 3,
+  "images": 5,
+  "hasLocalText": true,
+  "placements": [
+    {
+      "page": 1,
+      "widthPt": 243.75,
+      "heightPt": 137.25
+    },
+    {
+      "page": 1,
+      "widthPt": 487.5,
+      "heightPt": 121.5
+    },
+    {
+      "page": 2,
+      "widthPt": 243.75,
+      "heightPt": 324.75
+    },
+    {
+      "page": 2,
+      "widthPt": 225.0,
+      "heightPt": 56.25
+    },
+    {
+      "page": 3,
+      "widthPt": 135.0,
+      "heightPt": 180.0
+    }
+  ]
+}

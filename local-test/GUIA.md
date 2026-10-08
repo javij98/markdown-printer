@@ -39,6 +39,15 @@ El documento preparado se llama **Print Studio — Prueba de imágenes privadas*
 
 La comprobación de columnas y tipografía está en `artifacts/columnas-tipografia-resultados.json`, con una captura en `artifacts/columnas-vertical.png` y el PDF en `artifacts/columnas-11pt.pdf`. Se verificó en una sesión de navegador con solo la cookie de Print Studio: dos composiciones editables, cuatro imágenes privadas en el PDF de dos páginas y texto de aproximadamente 11 pt (10,995 pt por el redondeo de Chromium). Las 50 pruebas automatizadas y la compilación Docker pasan.
 
+### Crear imágenes y reiniciar el documento
+
+1. En el editor visual, abre `+` o escribe `/` y elige **Imagen + texto**. El cursor queda en la columna de texto; la otra columna ofrece **Subir imagen** o una URL. Puedes escribir mientras la imagen está pendiente.
+2. Sube `fixtures/vertical.png`, escribe un pie y cambia de lado con los botones de disposición. El cursor del pie debe ser visible en los temas claro y oscuro.
+3. Arrastra uno de los tiradores inferiores de la imagen o introduce su ancho en píxeles. También se pueden redimensionar las imágenes normales. Comprueba que **Deshacer** revierte un arrastre completo y que cambiar a Markdown conserva las dimensiones `=ANCHOxALTO`.
+4. Pulsa **Reiniciar**: **Cancelar** conserva los cambios; **Reiniciar documento** vuelve a leer Outline, restaura el diseño inicial y vacía el historial de deshacer. Si Outline falla, se muestra un error sin sustituir la copia. El botón solo está disponible en la pestaña vinculada a Outline.
+
+La verificación está en `artifacts/editor-reinicio-resultados.json`. Se comprobaron los menús `+` y `/`, subida local, dimensiones, temas, redimensionado con deshacer, y reinicio cancelado, fallido y correcto. Cambiar inmediatamente a Markdown o imprimir conserva el último texto y tamaño, incluso antes de actualizarse la vista previa. El PDF `artifacts/editor-imagenes-redimensionadas.pdf` contiene cuatro imágenes privadas y una local en tres páginas; todas están dentro del área imprimible. La imagen local de 180 × 240 px aparece en el PDF con 135 × 180 pt. Las 75 pruebas automatizadas y la compilación Docker pasan. Las capturas `controles-imagen-light.png`, `controles-imagen-dark.png` y `editor-imagenes-final.png` muestran los controles.
+
 La prueba automatizada se ha ejecutado con la cookie de Print Studio y sin la cookie de Outline. La versión original devuelve 403 para los adjuntos; la corregida obtiene la imagen mediante `/print/api/attachments/<uuid>`. Las capturas, el PDF y el informe están en `artifacts/`.
 
 Los enlaces del documento siguen siendo válidos mientras se conserven los volúmenes locales. Si se borran los volúmenes, será necesario crear nuevamente el usuario, la aplicación OAuth y los adjuntos.

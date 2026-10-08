@@ -32,6 +32,8 @@ La impresión directa de Markdown suele producir saltos poco naturales, bloques 
 
 - **Dos modos de edición:** Markdown con CodeMirror 6 y editor visual con Milkdown/Crepe.
 - **Imagen y texto editables:** las composiciones laterales de Outline permiten editar párrafos, pie y posición de la imagen conservando sus metadatos.
+- **Crear y redimensionar imágenes:** «Imagen + texto» en los menús `+` y `/`, subida desde el PC o URL, cursor visible en los pies y tiradores de tamaño con deshacer. Las dimensiones se conservan en el PDF.
+- **Reiniciar desde Outline:** confirmación antes de recuperar la versión actual del documento y restaurar su diseño. Si la recarga falla, se mantiene la copia de trabajo.
 - **Tamaños en puntos:** el selector aplica puntos tipográficos reales al editor visual, la vista previa y el PDF. El valor inicial de 10,5 pt mantiene el tamaño físico anterior de 14 px CSS.
 - **Previsualización paginada:** tamaños ISO, norteamericanos y fotográficos.
 - **Plantillas de estilo:** Outline, Académico, Informe y Minimalista.

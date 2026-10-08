@@ -4,6 +4,7 @@ import { saveImage, getAllImages, deleteImage, getImage } from '../utils/storage
 
 const images = ref<StoredImage[]>([])
 const loading = ref(false)
+const pendingNames = new Set<string>()
 
 export function useImages() {
   async function loadImages() {
@@ -17,16 +18,22 @@ export function useImages() {
 
   async function uploadImage(file: File): Promise<StoredImage | null> {
     const id = `img-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+    const name = pendingNames.has(file.name) || images.value.some(image => image.name === file.name) ? `${id}-${file.name}` : file.name
     const image: StoredImage = {
       id,
-      name: file.name,
+      name,
       mimeType: file.type,
       blob: file,
       createdAt: Date.now(),
     }
-    await saveImage(image)
-    images.value = [image, ...images.value]
-    return image
+    pendingNames.add(name)
+    try {
+      await saveImage(image)
+      images.value = [image, ...images.value]
+      return image
+    } finally {
+      pendingNames.delete(name)
+    }
   }
 
   async function removeImage(id: string) {

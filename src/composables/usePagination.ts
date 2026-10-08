@@ -648,5 +648,11 @@ export function usePagination(
     { immediate: true },
   )
 
-  return { pages, totalPages }
+  async function paginateNow() {
+    await nextTick()
+    clearTimeout(recalcTimeout)
+    await splitIntoPages()
+  }
+
+  return { pages, totalPages, paginateNow }
 }

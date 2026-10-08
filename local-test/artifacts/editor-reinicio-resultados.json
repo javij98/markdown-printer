@@ -1,0 +1,120 @@
+{
+  "unitTests": 75,
+  "auth": "Print Studio cookie only",
+  "insert": {
+    "focus": {
+      "active": "ProseMirror virtual-cursor-enabled editor ProseMirror-focused",
+      "inText": true
+    },
+    "text": "Texto escrito junto a una imagen local.",
+    "image": {
+      "loaded": true,
+      "width": "180",
+      "height": "240"
+    },
+    "errors": []
+  },
+  "slash": {
+    "columns": 3,
+    "pendingSyntax": true,
+    "text": "Prueba del menú slash.",
+    "focus": {
+      "inText": true
+    },
+    "previewImages": 4
+  },
+  "theme": [
+    {
+      "mode": "light",
+      "caret": "rgb(24, 32, 51)",
+      "color": "rgb(24, 32, 51)",
+      "focused": true
+    },
+    {
+      "mode": "dark",
+      "caret": "rgb(237, 241, 247)",
+      "color": "rgb(237, 241, 247)",
+      "focused": true
+    }
+  ],
+  "resize": {
+    "resized": "224",
+    "undo": "360",
+    "normalWidth": "300"
+  },
+  "roundtrip": {
+    "localDimensions": true,
+    "normalDimensions": true,
+    "localText": true,
+    "localCaption": true,
+    "originalCaption": true
+  },
+  "print": {
+    "pages": 3,
+    "images": [
+      {
+        "alt": "PNG panorámico privado",
+        "loaded": true,
+        "width": "960",
+        "height": "240",
+        "insidePage": true
+      },
+      {
+        "alt": "JPEG privado a la derecha",
+        "loaded": true,
+        "width": "640",
+        "height": "360",
+        "insidePage": true
+      },
+      {
+        "alt": "PNG privado a la izquierda",
+        "loaded": true,
+        "width": "360",
+        "height": "480",
+        "insidePage": true
+      },
+      {
+        "alt": "Mismo PNG con otra URL",
+        "loaded": true,
+        "width": "300",
+        "height": "75",
+        "insidePage": true
+      },
+      {
+        "alt": "Imagen local editable",
+        "loaded": true,
+        "width": "180",
+        "height": "240",
+        "insidePage": true
+      }
+    ],
+    "printedImmediatelyAfterResize": true
+  },
+  "reset": {
+    "cancelFocused": true,
+    "afterCancel": 3,
+    "failure": {
+      "columns": 3,
+      "message": "Error de prueba: Outline no disponible",
+      "font": "12"
+    },
+    "afterReset": {
+      "columns": 2,
+      "normalWidth": null,
+      "font": "10.5",
+      "preset": "Outline",
+      "localTextGone": true,
+      "themeDark": true
+    },
+    "errors": []
+  },
+  "browserErrors": [],
+  "widthLimits": {
+    "entered": 10000,
+    "field": "657",
+    "committed": "657",
+    "available": 657
+  },
+  "dockerImage": "outline-print-studio:images-fix-candidate",
+  "dockerImageId": "sha256:ee1e9b6ed8ea6c772dc9e5eda542ece2cfa09409ebfe8dce9fd86c628233477c"
+}
