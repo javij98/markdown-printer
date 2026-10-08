@@ -250,7 +250,7 @@ const pageStyle = computed(() => {
     width,
     height,
     fontFamily: `${fontFamilyCSS(props.font)}, sans-serif`,
-    fontSize: `${effectiveFontSize.value}px`,
+    fontSize: `${effectiveFontSize.value}pt`,
     padding: `${props.margin.top} ${props.margin.right} ${props.margin.bottom} ${props.margin.left}`,
     transform: `scale(${props.scale})`,
     transformOrigin: 'top left',

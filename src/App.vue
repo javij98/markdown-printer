@@ -252,7 +252,8 @@ const settings = ref<EditorSettings>({
   pageSize: 'A4',
   scale: defaultScaleRange.default,
   font: 'Open Sans',
-  fontSize: 14,
+  // Preserve the previous default's physical size: 14 CSS px = 10.5 pt.
+  fontSize: 10.5,
   rtl: false,
   lineNumbers: true,
   margin: { top: '1in', right: '0.75in', bottom: '1in', left: '0.75in' },

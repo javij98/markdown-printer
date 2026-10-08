@@ -1,0 +1,57 @@
+{
+  "baseline": {
+    "editor": "11px",
+    "preview": "11px",
+    "pdfBody": "11px",
+    "equivalentPoints": 8.25
+  },
+  "columns": {
+    "paragraph": true,
+    "bold": true,
+    "dimensions": true,
+    "caption": true,
+    "normalCaption": true,
+    "fullWidth": true,
+    "renderedBold": true
+  },
+  "print": {
+    "font": "14.6667px",
+    "pages": 2,
+    "images": [
+      {
+        "alt": "PNG panorámico privado",
+        "loaded": true,
+        "insidePage": true
+      },
+      {
+        "alt": "JPEG privado a la derecha",
+        "loaded": true,
+        "insidePage": true
+      },
+      {
+        "alt": "Pie vertical editado",
+        "loaded": true,
+        "insidePage": true
+      },
+      {
+        "alt": "Mismo PNG con otra URL",
+        "loaded": true,
+        "insidePage": true
+      }
+    ]
+  },
+  "browserErrors": [],
+  "unitTests": 50,
+  "pdf": {
+    "pages": 2,
+    "images": 4,
+    "bodyFontSizesPt": [
+      10.995,
+      10.995
+    ],
+    "bodyText": [
+      "Texto junto a la imagen vertical para",
+      "Segundo párrafo editable en la columna."
+    ]
+  }
+}

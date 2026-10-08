@@ -1,5 +1,7 @@
 .git
 node_modules
+**/node_modules
+local-test
 package-lock.json
 dist
 .vscode
@@ -10,4 +12,5 @@ dist
 
 # Print Studio secrets
 .env.print
+.env*
 print-studio.env

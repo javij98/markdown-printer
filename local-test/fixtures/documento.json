@@ -1,0 +1,25 @@
+{
+  "id": "7fa5d660-1875-4fff-bdf5-130d8d24dfb8",
+  "outline": "https://localhost/doc/print-studio-prueba-de-imagenes-privadas-kHVrfqKRV2",
+  "printStudio": "https://localhost/print/document/7fa5d660-1875-4fff-bdf5-130d8d24dfb8",
+  "attachments": [
+    {
+      "name": "panoramica.png",
+      "id": "c9478132-d4e1-4ec9-bf2f-9f246f8c8ea9",
+      "url": "/api/attachments.redirect?id=c9478132-d4e1-4ec9-bf2f-9f246f8c8ea9",
+      "size": 10397
+    },
+    {
+      "name": "horizontal.jpg",
+      "id": "e2a7f97e-5061-4b4d-ada9-dbe74b07a1f8",
+      "url": "/api/attachments.redirect?id=e2a7f97e-5061-4b4d-ada9-dbe74b07a1f8",
+      "size": 13467
+    },
+    {
+      "name": "vertical.png",
+      "id": "4e64e09c-f82d-40c2-bcca-afcaf7d2f783",
+      "url": "/api/attachments.redirect?id=4e64e09c-f82d-40c2-bcca-afcaf7d2f783",
+      "size": 7850
+    }
+  ]
+}

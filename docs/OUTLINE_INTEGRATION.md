@@ -30,7 +30,7 @@ En la administración de Outline crea una aplicación OAuth para Print Studio co
 | --- | --- |
 | Nombre | Print Studio |
 | Redirect URI | `https://outline.example.com/print/auth/callback` |
-| Scope solicitado | `read` |
+| Scope solicitado | `read /api/attachments.redirect` |
 
 Guarda el client ID y el client secret en el archivo de entorno del servidor. El redirect URI debe coincidir exactamente, incluyendo protocolo, dominio y ruta.
 
@@ -70,6 +70,8 @@ No uses `localhost` como URL interna si Outline está en otro contenedor: dentro
 10. El frontend solicita `/print/api/documents/:id`.
 
 El servidor refresca el token cuando queda menos de un minuto y revalida periódicamente el workspace.
+
+Las sesiones anteriores que solo tenían `read` vuelven a OAuth para autorizar la lectura de adjuntos. Los permisos concedidos se guardan con la sesión y se conservan al refrescar el token.
 
 ## Abrir un documento desde Outline
 
@@ -114,6 +116,20 @@ Al frontend solo se devuelve el subconjunto necesario:
 - updatedAt.
 
 El título se normaliza y se antepone como encabezado H1 al cuerpo Markdown. No se expone el token de Outline en la respuesta.
+
+## Imágenes privadas
+
+El editor visual y el renderizador resuelven las imágenes del mismo origen con URL `/api/attachments.redirect?id=<uuid>` mediante `/print/api/attachments/<uuid>`. También se reconocen las URLs absolutas del dominio de Outline. El Markdown conserva la URL original, sus dimensiones y su composición.
+
+Esta ruta utiliza la cookie de Print Studio, consulta internamente `attachments.redirect` con el token OAuth del usuario y devuelve la URL firmada que proporciona Outline. El token permanece en el servidor. Outline sigue comprobando el acceso al adjunto y los errores 403/404 se conservan. La redirección de Print Studio no se cachea.
+
+El permiso `read` de Outline no incluye `attachments.redirect`; por eso se solicita además ese permiso de ruta concreto. No se necesita permiso general de escritura ni hacer públicos los adjuntos. Las imágenes externas y de la galería local conservan su comportamiento.
+
+Las composiciones laterales se agrupan con su título y los párrafos o listas contiguos para conservar su altura completa al paginar. Las composiciones largas se dividen entre bloques, sin repetir la imagen. Esto evita que una imagen flotante cargada termine cortada en la vista previa o fuera del área imprimible del PDF.
+
+En el editor visual, una imagen lateral independiente abre un bloque con imagen y texto en dos columnas. Los párrafos admiten el formato habitual; el pie y la posición izquierda/derecha se editan junto a la imagen. La conversión a Markdown conserva la URL original, las dimensiones y el título técnico de Outline, también al deshacer. El ancho completo y las composiciones dentro de bloques protegidos conservan su protección.
+
+Los tamaños del selector se aplican en puntos tipográficos en editor visual, vista previa y PDF. La paginación convierte puntos a píxeles al medir (`1 pt = 96/72 px`). El valor inicial de 10,5 pt conserva el tamaño físico anterior de 14 px; se mantienen los márgenes, interlineados y escalas de títulos de las plantillas.
 
 ## Compatibilidad Markdown
 
@@ -171,10 +187,11 @@ La segunda petición debería redirigir al login OAuth si el navegador no tiene 
 4. recargar y confirmar que la sesión se conserva;
 5. abrir un documento sin permiso y confirmar que Outline lo rechaza;
 6. cerrar sesión y comprobar que se solicita autenticación de nuevo.
+7. abrir un documento con imágenes privadas y comprobarlas en el editor visual, la vista previa y el PDF; en Network, `/print/api/attachments/<uuid>` debe redirigir a una imagen, sin errores 403.
 
 ## Invariantes de seguridad
 
-- Scope OAuth mínimo: `read`.
+- Scopes OAuth solicitados: `read /api/attachments.redirect`.
 - Un único workspace permitido mediante `OUTLINE_TEAM_ID`.
 - HTTPS obligatorio en el acceso público.
 - Redis sin exposición pública.

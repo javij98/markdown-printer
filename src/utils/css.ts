@@ -6,3 +6,8 @@ export const GENERIC_FONT_KEYWORDS = new Set([
 export function fontFamilyCSS(font: string): string {
   return GENERIC_FONT_KEYWORDS.has(font.toLowerCase()) ? font : `'${font}'`
 }
+
+// CSS absolute lengths: 1in = 72pt = 96px.
+export function pointsToPixels(points: number): number {
+  return points * 96 / 72
+}

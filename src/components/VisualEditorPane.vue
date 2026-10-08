@@ -3,7 +3,7 @@
     class="visual-editor-pane"
     :style="{
       '--visual-editor-font': fontFamilyCSS(font),
-      '--visual-editor-size': `${fontSize}px`,
+      '--visual-editor-size': `${fontSize}pt`,
     }"
   >
     <div v-if="hasProtectedOutlineBlocks && !safetyNoteDismissed" class="outline-safety-note">
@@ -32,6 +32,8 @@ import { printStudioDarkTheme, printStudioLightTheme } from '../editor/codeTheme
 import { ShieldCheck, X } from '@lucide/vue'
 import { useImages } from '../composables/useImages'
 import { fontFamilyCSS } from '../utils/css'
+import { resolveOutlineImageUrl } from '../utils/outlineImageUrl'
+import { configureOutlineImageCaptions, outlineColumnsPlugins } from '../editor/outlineColumns'
 import '@milkdown/crepe/theme/common/style.css'
 import '@milkdown/crepe/theme/frame.css'
 
@@ -133,6 +135,12 @@ function protectOutlineMarkdown(markdown: string): string {
       }
 
       if (/!\[[^\]]*\]\([^\n]*"(?:left-50|right-50|full-width)(?:\s+=[0-9]+x[0-9]+)?"\)\s*$/i.test(line)) {
+        // Standalone left/right images have a lossless, editable two-column view.
+        if (/^ {0,3}!\[[^\]]*\]\([^\n]*"(?:left|right)-50(?:\s+=[0-9]+x[0-9]+)?"\)\s*$/i.test(line)) {
+          output.push(line)
+          index += 1
+          continue
+        }
         preserve(line, 'Imagen con disposición de Outline')
         index += 1
         continue
@@ -174,7 +182,7 @@ async function storeImage(file: File): Promise<string> {
 }
 
 function resolveImageUrl(url: string): string {
-  if (!url.startsWith('./')) return url
+  if (!url.startsWith('./')) return resolveOutlineImageUrl(url)
   const filename = decodeURIComponent(url.slice(2))
   const image = images.value.find(item => item.name === filename)
   return image ? getImageUrl(image.id) || url : url
@@ -296,6 +304,8 @@ function createEditor() {
       },
     },
   })
+
+  crepe.editor.config(configureOutlineImageCaptions).use(outlineColumnsPlugins(resolveImageUrl))
 
   crepe.on(listener => {
     listener.markdownUpdated((_ctx, markdown) => {
@@ -486,6 +496,60 @@ defineExpose({
 
 .visual-editor-root :deep(.milkdown .ProseMirror p) {
   margin: 0 0 .95em;
+}
+
+.visual-editor-root :deep(.outline-columns) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+  margin-block: 1em;
+}
+
+.visual-editor-root :deep(.outline-columns-image) {
+  min-width: 0;
+  margin: 0;
+}
+
+.visual-editor-root :deep(.outline-columns[data-layout='right-50'] .outline-columns-image) {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.visual-editor-root :deep(.outline-columns[data-layout='right-50'] .outline-columns-text) {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.visual-editor-root :deep(.outline-columns-image img) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.visual-editor-root :deep(.outline-columns-controls) {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.visual-editor-root :deep(.outline-columns-controls input),
+.visual-editor-root :deep(.outline-columns-controls select) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  font: 12px/1.4 var(--visual-editor-font), sans-serif;
+}
+
+.visual-editor-root :deep(.outline-columns-text) {
+  min-width: 0;
+  min-height: 2em;
 }
 
 .visual-editor-root :deep(.milkdown .ProseMirror h1),

@@ -38,6 +38,12 @@ const SESSION_COOKIE = "outline_print_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
 const STATE_TTL_SECONDS = 10 * 60;
 const WORKSPACE_REVALIDATE_SECONDS = 5 * 60;
+const OUTLINE_SCOPES = "read /api/attachments.redirect";
+
+function hasRequiredScopes(scope) {
+  const granted = new Set(typeof scope === "string" ? scope.split(/\s+/) : []);
+  return OUTLINE_SCOPES.split(" ").every((value) => granted.has(value));
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -175,6 +181,7 @@ async function refreshAccessToken(session) {
     ...session,
     accessToken: token.access_token,
     refreshToken: token.refresh_token || session.refreshToken,
+    scope: token.scope || session.scope,
     expiresAt:
       Date.now() + Number(token.expires_in || 3600) * 1000,
   };
@@ -217,8 +224,17 @@ async function validateSession(sessionId) {
   }
 
   try {
+    if (!hasRequiredScopes(session.scope)) {
+      await deleteSession(sessionId);
+      return null;
+    }
+
     if (!session.expiresAt || session.expiresAt < Date.now() + 60_000) {
       session = await refreshAccessToken(session);
+      if (!hasRequiredScopes(session.scope)) {
+        await deleteSession(sessionId);
+        return null;
+      }
     }
 
     const needsWorkspaceValidation =
@@ -323,7 +339,7 @@ app.get("/print/auth/login", async (req, res) => {
   authorizationUrl.searchParams.set("client_id", OUTLINE_CLIENT_ID);
   authorizationUrl.searchParams.set("redirect_uri", OUTLINE_REDIRECT_URI);
   authorizationUrl.searchParams.set("response_type", "code");
-  authorizationUrl.searchParams.set("scope", "read");
+  authorizationUrl.searchParams.set("scope", OUTLINE_SCOPES);
   authorizationUrl.searchParams.set("state", state);
 
   res.redirect(302, authorizationUrl.toString());
@@ -365,6 +381,10 @@ app.get("/print/auth/callback", async (req, res) => {
       client_secret: OUTLINE_CLIENT_SECRET,
     });
 
+    if (!hasRequiredScopes(token.scope)) {
+      return res.status(403).send("Print Studio requires permission to read documents and attachments");
+    }
+
     const identity = await getOutlineIdentity(token.access_token);
 
     if (identity.team.id !== OUTLINE_TEAM_ID) {
@@ -378,6 +398,7 @@ app.get("/print/auth/callback", async (req, res) => {
     const session = {
       accessToken: token.access_token,
       refreshToken: token.refresh_token,
+      scope: token.scope,
       expiresAt:
         Date.now() + Number(token.expires_in || 3600) * 1000,
 
@@ -522,6 +543,46 @@ app.get("/print/api/documents/:id", requireSession, async (req, res) => {
     return res.status(502).json({
       error: "Unable to communicate with Outline",
     });
+  }
+});
+
+app.get("/print/api/attachments/:id", requireSession, async (req, res) => {
+  res.set("Cache-Control", "private, no-store");
+
+  const id = req.params.id;
+  if (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(id)) {
+    return res.status(400).json({ error: "Invalid attachment id" });
+  }
+
+  try {
+    const response = await fetch(
+      `${OUTLINE_INTERNAL_URL}/api/attachments.redirect?id=${encodeURIComponent(id)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${req.printSession.accessToken}`,
+        },
+        redirect: "manual",
+        signal: AbortSignal.timeout(15_000),
+      }
+    );
+
+    const location = response.headers.get("location");
+    if (![302, 303, 307, 308].includes(response.status) || !location) {
+      await response.body?.cancel();
+      return res.status(response.status >= 400 ? response.status : 502).json({
+        error: "Unable to load Outline attachment",
+      });
+    }
+
+    await response.body?.cancel();
+    const url = new URL(location, OUTLINE_PUBLIC_URL);
+    if (!["https:", "http:"].includes(url.protocol) || url.username || url.password) {
+      return res.status(502).json({ error: "Invalid attachment URL from Outline" });
+    }
+
+    return res.redirect(302, url.href);
+  } catch {
+    return res.status(502).json({ error: "Unable to communicate with Outline" });
   }
 });
 

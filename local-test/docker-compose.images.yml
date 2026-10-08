@@ -1,0 +1,3 @@
+services:
+  outline-print-studio:
+    image: outline-print-studio:images-fix-candidate

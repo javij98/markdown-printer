@@ -1,0 +1,72 @@
+{
+  "documentId": "7fa5d660-1875-4fff-bdf5-130d8d24dfb8",
+  "baseline": {
+    "attachmentStatuses": [
+      403,
+      403,
+      403,
+      403,
+      403,
+      403
+    ],
+    "loadedImages": 0
+  },
+  "preview": {
+    "pages": 2,
+    "images": [
+      {
+        "alt": "PNG panorámico privado",
+        "loaded": true,
+        "insidePage": true
+      },
+      {
+        "alt": "JPEG privado a la derecha",
+        "loaded": true,
+        "insidePage": true
+      },
+      {
+        "alt": "PNG privado a la izquierda",
+        "loaded": true,
+        "insidePage": true
+      },
+      {
+        "alt": "Mismo PNG con otra URL",
+        "loaded": true,
+        "insidePage": true
+      }
+    ]
+  },
+  "print": {
+    "pages": 2,
+    "images": [
+      {
+        "alt": "PNG panorámico privado",
+        "loaded": true,
+        "insidePage": true
+      },
+      {
+        "alt": "JPEG privado a la derecha",
+        "loaded": true,
+        "insidePage": true
+      },
+      {
+        "alt": "PNG privado a la izquierda",
+        "loaded": true,
+        "insidePage": true
+      },
+      {
+        "alt": "Mismo PNG con otra URL",
+        "loaded": true,
+        "insidePage": true
+      }
+    ]
+  },
+  "browserErrors": [],
+  "auth": "Print Studio cookie only; no Outline session cookie",
+  "unitTestsPassed": 42,
+  "exportedPDF": {
+    "pages": 2,
+    "imagePlacements": 4,
+    "imageSectionHeadingWithImage": true
+  }
+}

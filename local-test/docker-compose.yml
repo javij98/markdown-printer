@@ -1,0 +1,76 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: outline
+      POSTGRES_PASSWORD: outlinepassword
+      POSTGRES_DB: outline
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U outline -d outline"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8025:8025"
+
+  outline:
+    image: outline-custom:1.9.2-printstudio.2
+    restart: unless-stopped
+    env_file:
+      - .env.outline
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    volumes:
+      - outlinedata:/var/lib/outline/data
+
+  outline-print-studio:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: outline-print-studio:0.7.0
+    restart: unless-stopped
+    env_file:
+      - .env.print
+    depends_on:
+      - outline
+      - redis
+
+  proxy:
+    image: caddy:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - outline
+
+volumes:
+  pgdata:
+  redisdata:
+  outlinedata:
+

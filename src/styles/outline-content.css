@@ -404,6 +404,10 @@
   margin-top: 0.5em;
 }
 
+.markdown-body .outline-image-group {
+  display: flow-root;
+}
+
 .markdown-body .outline-image {
   display: block;
   clear: both;

@@ -137,7 +137,7 @@ export function usePDF() {
     margin: MarginConfig = { top: '1in', right: '0.75in', bottom: '1in', left: '0.75in' },
     orientation: 'portrait' | 'landscape' = 'portrait',
     font: string = 'Open Sans',
-    fontSize: number = 14,
+    fontSize: number = 10.5,
     contentScale: number = 1.0,
     rtl: boolean = false,
     printPreset: PrintPreset = 'outline',
@@ -185,7 +185,7 @@ export function usePDF() {
 
         body {
           font-family: ${fontValue}, sans-serif;
-          font-size: ${effectiveFontSize}px;
+          font-size: ${effectiveFontSize}pt;
           color: #000;
           background: white;
           padding: 0;

@@ -1,3 +1,5 @@
+import { resolveOutlineImageUrl } from '../utils/outlineImageUrl';
+
 interface OutlineImageAttributes {
   layout?: "left-50" | "right-50" | "full-width";
   title?: string;
@@ -42,6 +44,35 @@ export function parseOutlineImageTitle(title?: string | null): OutlineImageAttri
 }
 
 export const outlineImagePlugin = {
+  hooks: {
+    postprocess(html: string): string {
+      if (!/outline-image-(?:left|right)-50/.test(html)) return html;
+      const container = document.createElement('div');
+      container.innerHTML = html;
+
+      container.querySelectorAll('p > .outline-image-left-50, p > .outline-image-right-50').forEach(image => {
+        const paragraph = image.parentElement!;
+        if (paragraph.closest('.outline-image-group')) return;
+        const previous = paragraph.previousElementSibling;
+        let next = paragraph.nextElementSibling;
+        const group = document.createElement('div');
+        group.className = 'outline-image-group';
+        paragraph.before(group);
+        if (previous && /^H[1-6]$/.test(previous.tagName)) {
+          group.append(previous);
+        }
+        group.append(paragraph);
+        while (next && ['P', 'UL', 'OL', 'BLOCKQUOTE', 'PRE'].includes(next.tagName)
+          && !next.querySelector('.outline-image')) {
+          const following = next.nextElementSibling;
+          group.append(next);
+          next = following;
+        }
+      });
+
+      return container.innerHTML;
+    },
+  },
   renderer: {
     image({ href, title, text }: { href: string; title?: string | null; text: string }) {
       const attributes = parseOutlineImageTitle(title);
@@ -57,7 +88,7 @@ export const outlineImagePlugin = {
         ? `<span class="outline-image-caption">${escapeAttribute(text)}</span>`
         : "";
 
-      return `<span class="outline-image${layoutClass}"><img src="${escapeAttribute(href)}" alt="${escapeAttribute(text)}"${titleAttribute}${width}${height}>${caption}</span>`;
+      return `<span class="outline-image${layoutClass}"><img src="${escapeAttribute(resolveOutlineImageUrl(href))}" alt="${escapeAttribute(text)}"${titleAttribute}${width}${height}>${caption}</span>`;
     },
   },
 };

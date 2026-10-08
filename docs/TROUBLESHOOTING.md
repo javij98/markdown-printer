@@ -139,6 +139,16 @@ Interpretación habitual:
 
 Confirma que `OUTLINE_INTERNAL_URL` apunta a Outline desde la red Docker.
 
+## Las imágenes de Outline devuelven 403
+
+`read` no autoriza la ruta `/api/attachments.redirect` de Outline. Además, una etiqueta de imagen no envía el token OAuth que Print Studio utiliza para cargar el documento.
+
+Print Studio solicita `read /api/attachments.redirect` y carga esos adjuntos mediante `/print/api/attachments/<uuid>`. Al actualizar desde una versión que solo solicitaba `read`, vuelve a abrir el documento y completa la autorización OAuth que se solicita para renovar la sesión.
+
+Comprueba en Network que la URL utilizada empieza por `/print/api/attachments/` y redirige a la URL firmada de la imagen. Si sigue apuntando directamente a `/api/attachments.redirect`, recarga la aplicación para obtener el frontend actualizado. Si la nueva ruta devuelve 403, revisa que el usuario pertenezca al workspace configurado y que el adjunto exista en ese workspace.
+
+Los avisos del navegador sobre funciones desconocidas en `Permissions-Policy` no explican los errores 403 de los adjuntos.
+
 ## Recursos 404 o página en blanco
 
 La aplicación se construye para `/print/`. El proxy debe conservar el prefijo. Comprueba:

@@ -31,6 +31,8 @@ La impresión directa de Markdown suele producir saltos poco naturales, bloques 
 ## Funcionalidades principales
 
 - **Dos modos de edición:** Markdown con CodeMirror 6 y editor visual con Milkdown/Crepe.
+- **Imagen y texto editables:** las composiciones laterales de Outline permiten editar párrafos, pie y posición de la imagen conservando sus metadatos.
+- **Tamaños en puntos:** el selector aplica puntos tipográficos reales al editor visual, la vista previa y el PDF. El valor inicial de 10,5 pt mantiene el tamaño físico anterior de 14 px CSS.
 - **Previsualización paginada:** tamaños ISO, norteamericanos y fotográficos.
 - **Plantillas de estilo:** Outline, Académico, Informe y Minimalista.
 - **Ajustes avanzados:** tipografía, colores, ritmo vertical, encabezados, código, tablas, enlaces, alineación, justificación e hifenado.
@@ -54,7 +56,7 @@ sequenceDiagram
     O->>P: GET /print/document/:id
     P->>R: Validar sesión
     alt Sin sesión válida
-        P->>O: OAuth 2.0 (scope read)
+        P->>O: OAuth 2.0 (read + /api/attachments.redirect)
         O->>P: authorization code
         P->>R: Guardar tokens en servidor
     end
@@ -128,7 +130,7 @@ La imagen expone el puerto `3000` y necesita todas las variables descritas en [`
 
 ## Integración y seguridad
 
-- El cliente OAuth solicita únicamente el scope `read`.
+- El cliente OAuth solicita `read` y `/api/attachments.redirect` para leer documentos e imágenes privadas.
 - `OUTLINE_TEAM_ID` restringe el acceso a un único workspace.
 - Los tokens de acceso y refresco se guardan en Redis, nunca en `localStorage`.
 - La cookie de sesión es `HttpOnly`, `Secure`, `SameSite=Lax` y se limita a `/print`.

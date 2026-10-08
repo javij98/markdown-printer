@@ -1,0 +1,12 @@
+https://localhost {
+    tls internal
+
+    handle /print/* {
+        reverse_proxy outline-print-studio:3000
+    }
+
+    handle {
+        reverse_proxy outline:3000
+    }
+}
+

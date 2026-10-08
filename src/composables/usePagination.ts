@@ -1,6 +1,6 @@
 import { ref, watch, nextTick, type Ref } from 'vue'
 import { PAGE_SIZES } from '../utils/constants'
-import { fontFamilyCSS } from '../utils/css'
+import { fontFamilyCSS, pointsToPixels } from '../utils/css'
 import type { AdvancedPrintStyle, PrintPreset } from '../utils/types'
 import { advancedPrintClasses, advancedPrintVariables } from '../utils/printStyle'
 
@@ -76,7 +76,19 @@ export function usePagination(
     const style = window.getComputedStyle(el)
     const marginTop = parseFloat(style.marginTop) || 0
     const marginBottom = parseFloat(style.marginBottom) || 0
-    return rect.height + marginTop + marginBottom
+    let bottom = rect.bottom
+
+    // Floated Outline images do not contribute to their paragraph's height.
+    // Reserve their full height, including the caption, before placing a break.
+    el.querySelectorAll<HTMLElement>('.outline-image-left-50, .outline-image-right-50').forEach(image => {
+      const imageStyle = window.getComputedStyle(image)
+      const float = imageStyle.getPropertyValue('float')
+      if (float === 'left' || float === 'right') {
+        bottom = Math.max(bottom, image.getBoundingClientRect().bottom + (parseFloat(imageStyle.marginBottom) || 0))
+      }
+    })
+
+    return bottom - rect.top + marginTop + marginBottom
   }
 
   function waitForImages(container: HTMLElement): Promise<void> {
@@ -306,7 +318,7 @@ export function usePagination(
     applyPrintStyle(container)
     container.style.width = `${contentWidth}px`
     container.style.fontFamily = `${fontFamilyCSS(font.value)}, sans-serif`
-    container.style.fontSize = `${fontSize.value}px`
+    container.style.fontSize = `${fontSize.value}pt`
     container.style.padding = '0'
     container.style.margin = '0'
     container.innerHTML = html.value
@@ -349,7 +361,7 @@ export function usePagination(
         'position:absolute;left:-9999px;top:0;visibility:hidden;pointer-events:none;'
       div.style.width = `${contentWidth}px`
       div.style.fontFamily = `${fontFamilyCSS(font.value)}, sans-serif`
-      div.style.fontSize = `${fontSize.value}px`
+      div.style.fontSize = `${fontSize.value}pt`
       document.body.appendChild(div)
       div.innerHTML = htmlStr
       const h = getElementHeight(div)
@@ -390,6 +402,34 @@ export function usePagination(
         ? maxPageHeight
         : maxPageHeight + prevMarginBottom
 
+      // A composition may grow while the adjacent text is edited. Keep short
+      // compositions together, but split long ones at block boundaries.
+      if (child.classList.contains('outline-image-group') && childHeight > maxPageHeight) {
+        flushPage()
+        let chunk = child.cloneNode(false) as HTMLElement
+        const chunks: string[] = []
+        for (const block of Array.from(child.children)) {
+          chunk.append(block.cloneNode(true))
+          if (chunk.children.length > 1 && measureChunkHtml(chunk.outerHTML).height > maxPageHeight) {
+            const overflow = chunk.lastElementChild!
+            overflow.remove()
+            chunks.push(chunk.outerHTML)
+            chunk = child.cloneNode(false) as HTMLElement
+            chunk.append(overflow)
+          }
+        }
+        if (chunk.children.length) chunks.push(chunk.outerHTML)
+        for (let index = 0; index < chunks.length; index++) {
+          currentPageElements.push(chunks[index])
+          if (index < chunks.length - 1) flushPage()
+        }
+        const last = measureChunkHtml(chunks[chunks.length - 1])
+        currentHeight = last.height
+        prevMarginBottom = last.marginBottom
+        firstContentOnPage = false
+        continue
+      }
+
       if (child.tagName === 'UL' || child.tagName === 'OL') {
         const fitsOnPage = firstContentOnPage
           ? childHeight <= maxPageHeight
@@ -412,7 +452,7 @@ export function usePagination(
             firstContentOnPage = false
           } else {
             const chunks = splitList(child as HTMLElement, maxPageHeight, maxPageHeight, contentWidth,
-              `${fontFamilyCSS(font.value)}, sans-serif`, fontSize.value)
+              `${fontFamilyCSS(font.value)}, sans-serif`, pointsToPixels(fontSize.value))
 
             for (let i = 0; i < chunks.length; i++) {
               currentPageElements.push(chunks[i])
@@ -466,12 +506,12 @@ export function usePagination(
             let remainingSpace = firstContentOnPage
               ? maxPageHeight
               : maxPageHeight - currentHeight
-            if (!firstContentOnPage && remainingSpace < fontSize.value * 1.5 + 32) {
+            if (!firstContentOnPage && remainingSpace < pointsToPixels(fontSize.value) * 1.5 + 32) {
               flushPage()
               remainingSpace = maxPageHeight
             }
             const chunks = splitPreBlock(child as HTMLElement, remainingSpace, maxPageHeight, contentWidth,
-              `${fontFamilyCSS(font.value)}, sans-serif`, fontSize.value)
+              `${fontFamilyCSS(font.value)}, sans-serif`, pointsToPixels(fontSize.value))
 
             if (!firstContentOnPage && chunks.length > 0) {
               chunks[0] = chunks[0].replace('<pre', '<pre style="margin-top:0 !important;"')
@@ -529,12 +569,12 @@ export function usePagination(
             let remainingSpace = firstContentOnPage
               ? maxPageHeight
               : maxPageHeight - currentHeight
-            if (!firstContentOnPage && remainingSpace < fontSize.value * 1.5 + 16) {
+            if (!firstContentOnPage && remainingSpace < pointsToPixels(fontSize.value) * 1.5 + 16) {
               flushPage()
               remainingSpace = maxPageHeight
             }
             const chunks = splitTable(child as HTMLElement, remainingSpace, maxPageHeight, contentWidth,
-              `${fontFamilyCSS(font.value)}, sans-serif`, fontSize.value)
+              `${fontFamilyCSS(font.value)}, sans-serif`, pointsToPixels(fontSize.value))
 
             if (!firstContentOnPage && chunks.length > 0) {
               chunks[0] = chunks[0].replace('<table', '<table style="margin-top:0 !important;"')

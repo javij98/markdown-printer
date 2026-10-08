@@ -22,7 +22,7 @@ defineEmits<{
   'update:modelValue': [value: number]
 }>()
 
-const sizes = [9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24]
+const sizes = [9, 10, 10.5, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24]
 </script>
 
 <style scoped>
